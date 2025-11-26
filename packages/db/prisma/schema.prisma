@@ -1,0 +1,142 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  LEADER
+  MEMBER
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  password  String
+  role      UserRole @default(MEMBER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sessions              Session[]
+  comments              Comment[]
+  sessionParticipants   SessionParticipant[]
+  uploadedResources     SessionResource[]
+  notifications         Notification[]
+
+  @@index([email])
+}
+
+model Session {
+  id            String   @id @default(cuid())
+  title         String
+  description   String?
+  scheduledDate DateTime
+  leaderId      String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  leader               User                 @relation(fields: [leaderId], references: [id])
+  scripturePassages    ScripturePassage[]
+  comments             Comment[]
+  resources            SessionResource[]
+  participants         SessionParticipant[]
+  notifications        Notification[]
+
+  @@index([leaderId])
+  @@index([scheduledDate])
+}
+
+model ScripturePassage {
+  id         String   @id @default(cuid())
+  sessionId  String
+  book       String
+  chapter    Int
+  verseStart Int
+  verseEnd   Int?
+  content    String
+  order      Int      @default(0)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  session  Session   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  comments Comment[]
+
+  @@index([sessionId])
+  @@index([book, chapter])
+}
+
+model Comment {
+  id         String   @id @default(cuid())
+  passageId  String
+  sessionId  String
+  userId     String
+  content    String
+  parentId   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  passage      ScripturePassage @relation(fields: [passageId], references: [id], onDelete: Cascade)
+  session      Session          @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user         User             @relation(fields: [userId], references: [id])
+  parent       Comment?         @relation("CommentThread", fields: [parentId], references: [id], onDelete: Cascade)
+  replies      Comment[]        @relation("CommentThread")
+
+  @@index([passageId])
+  @@index([sessionId])
+  @@index([userId])
+  @@index([parentId])
+}
+
+model SessionResource {
+  id          String   @id @default(cuid())
+  sessionId   String
+  fileName    String
+  fileUrl     String
+  fileType    String
+  uploadedBy  String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  uploader User   @relation(fields: [uploadedBy], references: [id])
+
+  @@index([sessionId])
+  @@index([uploadedBy])
+}
+
+model SessionParticipant {
+  id        String   @id @default(cuid())
+  sessionId String
+  userId    String
+  role      UserRole @default(MEMBER)
+  joinedAt  DateTime @default(now())
+
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, userId])
+  @@index([sessionId])
+  @@index([userId])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  sessionId String
+  type      String
+  content   String
+  sentAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([sessionId])
+  @@index([sentAt])
+}

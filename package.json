@@ -1,0 +1,33 @@
+{
+  "name": "bibleproject",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Collaborative group Bible study platform",
+  "workspaces": [
+    "apps/web",
+    "packages/db",
+    "packages/types",
+    "packages/auth"
+  ],
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "type-check": "turbo run type-check",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,md}\"",
+    "db:push": "turbo run db:push",
+    "db:migrate": "turbo run db:migrate",
+    "db:seed": "turbo run db:seed",
+    "db:studio": "turbo run db:studio",
+    "test": "turbo run test",
+    "test:watch": "turbo run test:watch"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "prettier": "^3.0.0",
+    "turbo": "^1.10.0",
+    "typescript": "^5"
+  }
+}
