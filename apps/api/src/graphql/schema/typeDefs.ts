@@ -104,6 +104,7 @@ export const typeDefs = `#graphql
     title: String!
     description: String
     scheduledDate: DateTime!
+    scripturePassages: [CreateScripturePassageInput!]!
   }
 
   input UpdateSessionInput {
@@ -156,7 +157,7 @@ export const typeDefs = `#graphql
     # Session mutations
     createSession(input: CreateSessionInput!): Session!
     updateSession(id: ID!, input: UpdateSessionInput!): Session!
-    deleteSession(id: ID!): Boolean!
+    deleteSession(id: ID!): Session!
 
     # Comment mutations
     createComment(input: CreateCommentInput!): Comment!

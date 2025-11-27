@@ -1,0 +1,67 @@
+query GetMySessions {
+  mySessions {
+    id
+    title
+    description
+    scheduledDate
+    leader {
+      id
+      name
+      email
+    }
+    scripturePassages {
+      id
+      book
+      chapter
+      verseStart
+      verseEnd
+      content
+      order
+    }
+    participants {
+      id
+      user {
+        id
+        name
+      }
+    }
+  }
+}
+
+mutation CreateSession($input: CreateSessionInput!) {
+  createSession(input: $input) {
+    id
+    title
+    description
+    scheduledDate
+    leader {
+      id
+      name
+    }
+    scripturePassages {
+      id
+      book
+      chapter
+      verseStart
+      verseEnd
+      content
+      order
+    }
+  }
+}
+
+mutation UpdateSession($id: ID!, $input: UpdateSessionInput!) {
+  updateSession(id: $id, input: $input) {
+    id
+    title
+    description
+    scheduledDate
+  }
+}
+
+mutation DeleteSession($id: ID!) {
+  deleteSession(id: $id) {
+    id
+    title
+  }
+}

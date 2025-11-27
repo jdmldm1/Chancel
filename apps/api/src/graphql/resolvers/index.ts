@@ -121,19 +121,40 @@ export const resolvers = {
   Mutation: {
     createSession: async (
       _parent: unknown,
-      args: { input: { title: string; description?: string; scheduledDate: Date } },
+      args: {
+        input: {
+          title: string
+          description?: string
+          scheduledDate: Date
+          scripturePassages: {
+            book: string
+            chapter: number
+            verseStart: number
+            verseEnd?: number
+            content: string
+          }[]
+        }
+      },
       context: Context
     ) => {
       if (!context.userId) {
         throw new Error('Not authenticated')
       }
 
+      const { title, description, scheduledDate, scripturePassages } = args.input
+
       return context.prisma.session.create({
         data: {
-          title: args.input.title,
-          description: args.input.description,
-          scheduledDate: args.input.scheduledDate,
+          title,
+          description,
+          scheduledDate,
           leaderId: context.userId,
+          scripturePassages: {
+            create: scripturePassages.map((passage, index) => ({
+              ...passage,
+              order: index,
+            })),
+          },
         },
       })
     },
@@ -182,11 +203,9 @@ export const resolvers = {
         throw new Error('Not authorized')
       }
 
-      await context.prisma.session.delete({
+      return context.prisma.session.delete({
         where: { id: args.id },
       })
-
-      return true
     },
 
     createComment: async (
