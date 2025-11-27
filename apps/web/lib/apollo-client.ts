@@ -1,8 +1,25 @@
-import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client'
+import { ApolloClient, InMemoryCache, HttpLink, from } from '@apollo/client'
+import { setContext } from '@apollo/client/link/context'
 
 const httpLink = new HttpLink({
   uri: process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:4000/graphql',
-  credentials: 'include', // Include cookies for authentication
+  credentials: 'include',
+})
+
+const authLink = setContext(async (_, { headers }) => {
+  // Get the authentication token from next-auth session
+  if (typeof window !== 'undefined') {
+    const session = await fetch('/api/auth/session').then((res) => res.json())
+
+    return {
+      headers: {
+        ...headers,
+        authorization: session?.user ? `Bearer ${session.user.id}` : '',
+      },
+    }
+  }
+
+  return { headers }
 })
 
 const cache = new InMemoryCache({
@@ -25,7 +42,7 @@ const cache = new InMemoryCache({
 })
 
 const apolloClient = new ApolloClient({
-  link: httpLink,
+  link: from([authLink, httpLink]),
   cache,
   defaultOptions: {
     watchQuery: {

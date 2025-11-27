@@ -1,5 +1,7 @@
 import type { Metadata } from "next"
 import { ApolloProviderWrapper } from "@/lib/apollo-provider"
+import { AuthSessionProvider } from "@/lib/session-provider"
+import Navigation from "@/components/navigation"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -15,7 +17,12 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <ApolloProviderWrapper>{children}</ApolloProviderWrapper>
+        <AuthSessionProvider>
+          <ApolloProviderWrapper>
+            <Navigation />
+            {children}
+          </ApolloProviderWrapper>
+        </AuthSessionProvider>
       </body>
     </html>
   )

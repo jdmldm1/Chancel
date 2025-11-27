@@ -152,6 +152,9 @@ export const typeDefs = `#graphql
   }
 
   type Mutation {
+    # Auth mutations
+    signup(email: String!, password: String!, name: String!, role: UserRole!): User!
+
     # Session mutations
     createSession(input: CreateSessionInput!): Session!
     updateSession(id: ID!, input: UpdateSessionInput!): Session!

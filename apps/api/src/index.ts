@@ -42,15 +42,18 @@ async function startServer() {
     }),
     express.json(),
     expressMiddleware(server, {
-      context: async (): Promise<MyContext> => {
-        // TODO: Extract user ID from authentication token
-        // For now, we'll leave it undefined
-        // const token = req.headers.authorization?.replace('Bearer ', '')
-        // const userId = await verifyToken(token)
+      context: async ({ req }): Promise<MyContext> => {
+        // Extract user ID from authorization header
+        const authHeader = req.headers.authorization
+        let userId: string | undefined
+
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+          userId = authHeader.replace('Bearer ', '')
+        }
 
         return {
           prisma,
-          userId: undefined, // Will be set by auth middleware later
+          userId,
         }
       },
     })

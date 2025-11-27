@@ -1,5 +1,7 @@
 import { GraphQLScalarType, Kind } from 'graphql'
 import type { PrismaClient } from '@prisma/client'
+import { UserRole } from '@prisma/client'
+import bcrypt from 'bcryptjs'
 
 export interface Context {
   prisma: PrismaClient
@@ -119,6 +121,38 @@ export const resolvers = {
   },
 
   Mutation: {
+    signup: async (
+      _parent: unknown,
+      args: { email: string; password: string; name: string; role: UserRole },
+      context: Context
+    ) => {
+      const { email, password, name, role } = args
+
+      // Check if user already exists
+      const existingUser = await context.prisma.user.findUnique({
+        where: { email },
+      })
+
+      if (existingUser) {
+        throw new Error('User with this email already exists')
+      }
+
+      // Hash password
+      const hashedPassword = await bcrypt.hash(password, 10)
+
+      // Create user
+      const user = await context.prisma.user.create({
+        data: {
+          email,
+          password: hashedPassword,
+          name,
+          role,
+        },
+      })
+
+      return user
+    },
+
     createSession: async (
       _parent: unknown,
       args: {
