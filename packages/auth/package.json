@@ -12,7 +12,9 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@types/jsonwebtoken": "^9.0.10",
     "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
     "zod": "^3.22.0"
   },
   "devDependencies": {

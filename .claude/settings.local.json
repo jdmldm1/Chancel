@@ -7,7 +7,10 @@
       "Bash(npm run dev:*)",
       "Bash(git add:*)",
       "Bash(git commit -m \"$(cat <<''EOF''\nUpdate tech stack to GraphQL with comprehensive testing and code quality tools\n\n- Switch from tRPC to GraphQL with Apollo Server/Client for flexible querying\n- Add Vitest for unit/integration testing (faster than Jest)\n- Add Playwright for E2E testing (modern, reliable cross-browser)\n- Add SonarQube integration for code quality analysis\n- Add security scanning tools (Snyk, npm audit, OWASP)\n- Update project structure to reflect GraphQL architecture\n- Add comprehensive testing and code quality commands\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(npm run db:push:*)",
+      "Bash(cat:*)",
+      "Bash(git reset:*)"
     ],
     "deny": [],
     "ask": []
