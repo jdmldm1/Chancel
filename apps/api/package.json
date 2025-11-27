@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@apollo/server": "^4.10.0",
-    "@as-integrations/next": "^3.0.0",
     "@bibleproject/db": "*",
     "@bibleproject/types": "*",
     "@prisma/client": "^5.7.0",
