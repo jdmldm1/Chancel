@@ -1,8 +1,47 @@
+'use client'
+
 import React from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
-import { useCreateSessionMutation, useUpdateSessionMutation } from '@bibleproject/types/src/graphql'
+import { gql } from '@apollo/client'
+import { useMutation } from '@apollo/client/react'
+import { CreateSessionMutation, CreateSessionMutationVariables, UpdateSessionMutation, UpdateSessionMutationVariables } from '@bibleproject/types/src/graphql'
+
+const CREATE_SESSION = gql`
+  mutation CreateSession($input: CreateSessionInput!) {
+    createSession(input: $input) {
+      id
+      title
+      description
+      scheduledDate
+      leader {
+        id
+        name
+      }
+      scripturePassages {
+        id
+        book
+        chapter
+        verseStart
+        verseEnd
+        content
+        order
+      }
+    }
+  }
+`
+
+const UPDATE_SESSION = gql`
+  mutation UpdateSession($id: ID!, $input: UpdateSessionInput!) {
+    updateSession(id: $id, input: $input) {
+      id
+      title
+      description
+      scheduledDate
+    }
+  }
+`
 
 interface SessionFormProps {
   session?: {
@@ -39,8 +78,8 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>
 
 export default function SessionForm({ session, onSuccess }: SessionFormProps) {
-  const [createSession] = useCreateSessionMutation()
-  const [updateSession] = useUpdateSessionMutation()
+  const [createSession] = useMutation<CreateSessionMutation, CreateSessionMutationVariables>(CREATE_SESSION)
+  const [updateSession] = useMutation<UpdateSessionMutation, UpdateSessionMutationVariables>(UPDATE_SESSION)
 
   const { register, handleSubmit, formState: { errors }, reset, control } = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -80,7 +119,14 @@ export default function SessionForm({ session, onSuccess }: SessionFormProps) {
 
       if (session) {
         await updateSession({
-          variables: { id: session.id, input: { ...input, scripturePassages: undefined } }, // scripturePassages cannot be updated directly via updateSession
+          variables: {
+            id: session.id,
+            input: {
+              title: input.title,
+              description: input.description,
+              scheduledDate: input.scheduledDate,
+            }
+          },
         })
       } else {
         await createSession({

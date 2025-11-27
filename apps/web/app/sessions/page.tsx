@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useState } from 'react'
 import SessionList from '../../components/session/SessionList'
 import SessionForm from '../../components/session/SessionForm'

@@ -42,7 +42,7 @@ async function startServer() {
     }),
     express.json(),
     expressMiddleware(server, {
-      context: async ({ req }): Promise<MyContext> => {
+      context: async (): Promise<MyContext> => {
         // TODO: Extract user ID from authentication token
         // For now, we'll leave it undefined
         // const token = req.headers.authorization?.replace('Bearer ', '')

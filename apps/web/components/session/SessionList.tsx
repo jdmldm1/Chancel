@@ -1,10 +1,57 @@
-import { useGetMySessionsQuery, useDeleteSessionMutation, GetMySessionsDocument } from '@bibleproject/types/src/graphql'
+'use client'
+
+import { gql } from '@apollo/client'
+import { useQuery, useMutation } from '@apollo/client/react'
+import { GetMySessionsQuery, DeleteSessionMutation, DeleteSessionMutationVariables } from '@bibleproject/types/src/graphql'
 import Link from 'next/link'
 
+const GET_MY_SESSIONS = gql`
+  query GetMySessions {
+    mySessions {
+      id
+      title
+      description
+      scheduledDate
+      leader {
+        id
+        name
+        email
+      }
+      scripturePassages {
+        id
+        book
+        chapter
+        verseStart
+        verseEnd
+        content
+        order
+      }
+      participants {
+        id
+        user {
+          id
+          name
+        }
+      }
+    }
+  }
+`
+
+const DELETE_SESSION = gql`
+  mutation DeleteSession($id: ID!) {
+    deleteSession(id: $id) {
+      id
+      title
+    }
+  }
+`
+
+type Session = GetMySessionsQuery['mySessions'][0]
+
 export default function SessionList() {
-  const { data, loading, error } = useGetMySessionsQuery()
-  const [deleteSession] = useDeleteSessionMutation({
-    refetchQueries: [{ query: GetMySessionsDocument }],
+  const { data, loading, error } = useQuery<GetMySessionsQuery>(GET_MY_SESSIONS)
+  const [deleteSession] = useMutation<DeleteSessionMutation, DeleteSessionMutationVariables>(DELETE_SESSION, {
+    refetchQueries: [{ query: GET_MY_SESSIONS }],
   })
 
   const handleDeleteSession = async (id: string) => {
@@ -30,7 +77,7 @@ export default function SessionList() {
         <p>No sessions found. Create a new one!</p>
       ) : (
         <ul className="space-y-4">
-          {sessions.map((session) => (
+          {sessions.map((session: Session) => (
             <li
               key={session.id}
               className="p-4 border rounded-md shadow-sm"

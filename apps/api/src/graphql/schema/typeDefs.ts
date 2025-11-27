@@ -125,13 +125,11 @@ export const typeDefs = `#graphql
   }
 
   input CreateScripturePassageInput {
-    sessionId: String!
     book: String!
     chapter: Int!
     verseStart: Int!
     verseEnd: Int
     content: String!
-    order: Int
   }
 
   type Query {
