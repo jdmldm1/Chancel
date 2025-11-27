@@ -256,6 +256,7 @@ export const resolvers = {
           passageId: string
           sessionId: string
           content: string
+          verseNumber?: number
           parentId?: string
         }
       },
@@ -271,6 +272,7 @@ export const resolvers = {
           sessionId: args.input.sessionId,
           userId: context.userId,
           content: args.input.content,
+          verseNumber: args.input.verseNumber,
           parentId: args.input.parentId,
         },
         include: {

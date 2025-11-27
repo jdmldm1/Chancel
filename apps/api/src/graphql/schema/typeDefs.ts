@@ -53,6 +53,7 @@ export const typeDefs = `#graphql
     sessionId: String!
     userId: String!
     content: String!
+    verseNumber: Int
     parentId: String
     passage: ScripturePassage!
     session: Session!
@@ -117,6 +118,7 @@ export const typeDefs = `#graphql
     passageId: String!
     sessionId: String!
     content: String!
+    verseNumber: Int
     parentId: String
   }
 

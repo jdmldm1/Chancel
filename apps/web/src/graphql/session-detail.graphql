@@ -21,6 +21,7 @@ query GetSession($id: ID!) {
         id
         content
         createdAt
+        verseNumber
         user {
           id
           name
@@ -30,6 +31,7 @@ query GetSession($id: ID!) {
           id
           content
           createdAt
+          verseNumber
           parentId
           user {
             id
@@ -39,6 +41,7 @@ query GetSession($id: ID!) {
             id
             content
             createdAt
+            verseNumber
             user {
               id
               name
@@ -99,6 +102,7 @@ mutation CreateComment($input: CreateCommentInput!) {
     id
     content
     createdAt
+    verseNumber
     user {
       id
       name
@@ -145,6 +149,7 @@ subscription CommentAdded($sessionId: ID!) {
     id
     content
     createdAt
+    verseNumber
     parentId
     passageId
     user {
@@ -155,6 +160,7 @@ subscription CommentAdded($sessionId: ID!) {
       id
       content
       createdAt
+      verseNumber
       user {
         id
         name

@@ -75,6 +75,7 @@ model Comment {
   sessionId  String
   userId     String
   content    String
+  verseNumber Int?    // Specific verse number within the passage for inline comments
   parentId   String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -89,6 +90,7 @@ model Comment {
   @@index([sessionId])
   @@index([userId])
   @@index([parentId])
+  @@index([passageId, verseNumber])
 }
 
 model SessionResource {

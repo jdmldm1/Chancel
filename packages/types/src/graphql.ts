@@ -30,6 +30,7 @@ export type Comment = {
   updatedAt: Scalars['DateTime']['output'];
   user: User;
   userId: Scalars['String']['output'];
+  verseNumber?: Maybe<Scalars['Int']['output']>;
 };
 
 export type CreateCommentInput = {
@@ -37,6 +38,7 @@ export type CreateCommentInput = {
   parentId?: InputMaybe<Scalars['String']['input']>;
   passageId: Scalars['String']['input'];
   sessionId: Scalars['String']['input'];
+  verseNumber?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type CreateScripturePassageInput = {
@@ -332,7 +334,7 @@ export type GetSessionQueryVariables = Exact<{
 }>;
 
 
-export type GetSessionQuery = { __typename?: 'Query', session?: { __typename?: 'Session', id: string, title: string, description?: string | null, scheduledDate: any, leader: { __typename?: 'User', id: string, name?: string | null, email: string }, scripturePassages: Array<{ __typename?: 'ScripturePassage', id: string, book: string, chapter: number, verseStart: number, verseEnd?: number | null, content: string, order: number, comments: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: any, parentId?: string | null, user: { __typename?: 'User', id: string, name?: string | null }, replies: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: any, parentId?: string | null, user: { __typename?: 'User', id: string, name?: string | null }, replies: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: any, user: { __typename?: 'User', id: string, name?: string | null } }> }> }> }>, participants: Array<{ __typename?: 'SessionParticipant', id: string, joinedAt: any, role: UserRole, user: { __typename?: 'User', id: string, name?: string | null, role: UserRole } }>, resources: Array<{ __typename?: 'SessionResource', id: string, fileName: string, fileUrl: string, fileType: string, description?: string | null, createdAt: any, uploader: { __typename?: 'User', id: string, name?: string | null } }> } | null };
+export type GetSessionQuery = { __typename?: 'Query', session?: { __typename?: 'Session', id: string, title: string, description?: string | null, scheduledDate: any, leader: { __typename?: 'User', id: string, name?: string | null, email: string }, scripturePassages: Array<{ __typename?: 'ScripturePassage', id: string, book: string, chapter: number, verseStart: number, verseEnd?: number | null, content: string, order: number, comments: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: any, verseNumber?: number | null, parentId?: string | null, user: { __typename?: 'User', id: string, name?: string | null }, replies: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: any, verseNumber?: number | null, parentId?: string | null, user: { __typename?: 'User', id: string, name?: string | null }, replies: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: any, verseNumber?: number | null, user: { __typename?: 'User', id: string, name?: string | null } }> }> }> }>, participants: Array<{ __typename?: 'SessionParticipant', id: string, joinedAt: any, role: UserRole, user: { __typename?: 'User', id: string, name?: string | null, role: UserRole } }>, resources: Array<{ __typename?: 'SessionResource', id: string, fileName: string, fileUrl: string, fileType: string, description?: string | null, createdAt: any, uploader: { __typename?: 'User', id: string, name?: string | null } }> } | null };
 
 export type GetCommentsByPassageQueryVariables = Exact<{
   passageId: Scalars['ID']['input'];
@@ -346,7 +348,7 @@ export type CreateCommentMutationVariables = Exact<{
 }>;
 
 
-export type CreateCommentMutation = { __typename?: 'Mutation', createComment: { __typename?: 'Comment', id: string, content: string, createdAt: any, passageId: string, sessionId: string, parentId?: string | null, user: { __typename?: 'User', id: string, name?: string | null } } };
+export type CreateCommentMutation = { __typename?: 'Mutation', createComment: { __typename?: 'Comment', id: string, content: string, createdAt: any, verseNumber?: number | null, passageId: string, sessionId: string, parentId?: string | null, user: { __typename?: 'User', id: string, name?: string | null } } };
 
 export type JoinSessionMutationVariables = Exact<{
   sessionId: Scalars['ID']['input'];
@@ -374,7 +376,7 @@ export type CommentAddedSubscriptionVariables = Exact<{
 }>;
 
 
-export type CommentAddedSubscription = { __typename?: 'Subscription', commentAdded: { __typename?: 'Comment', id: string, content: string, createdAt: any, parentId?: string | null, passageId: string, user: { __typename?: 'User', id: string, name?: string | null }, replies: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: any, user: { __typename?: 'User', id: string, name?: string | null } }> } };
+export type CommentAddedSubscription = { __typename?: 'Subscription', commentAdded: { __typename?: 'Comment', id: string, content: string, createdAt: any, verseNumber?: number | null, parentId?: string | null, passageId: string, user: { __typename?: 'User', id: string, name?: string | null }, replies: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: any, verseNumber?: number | null, user: { __typename?: 'User', id: string, name?: string | null } }> } };
 
 export type GetMySessionsQueryVariables = Exact<{ [key: string]: never; }>;
 
