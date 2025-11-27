@@ -5,6 +5,7 @@
   "description": "Collaborative group Bible study platform",
   "workspaces": [
     "apps/web",
+    "apps/api",
     "packages/db",
     "packages/types",
     "packages/auth"
@@ -13,6 +14,7 @@
     "dev": "turbo run dev --parallel",
     "build": "turbo run build",
     "lint": "turbo run lint",
+    "lint:fix": "turbo run lint -- --fix && prettier --write \"**/*.{js,jsx,ts,tsx,md}\"",
     "type-check": "turbo run type-check",
     "format": "prettier --write \"**/*.{js,jsx,ts,tsx,md}\"",
     "db:push": "turbo run db:push",
@@ -20,13 +22,28 @@
     "db:seed": "turbo run db:seed",
     "db:studio": "turbo run db:studio",
     "test": "turbo run test",
-    "test:watch": "turbo run test:watch"
+    "test:watch": "turbo run test:watch",
+    "test:coverage": "turbo run test:coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "security:check": "npm audit && snyk test",
+    "sonar:scan": "sonar-scanner"
   },
   "devDependencies": {
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@playwright/test": "^1.40.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "eslint": "^8.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-import-resolver-typescript": "^3.6.0",
+    "eslint-plugin-import": "^2.29.0",
+    "eslint-plugin-security": "^2.1.0",
     "prettier": "^3.0.0",
+    "snyk": "^1.1266.0",
     "turbo": "^1.10.0",
     "typescript": "^5"
   }
