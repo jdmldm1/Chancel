@@ -369,6 +369,13 @@ export type DeleteSessionResourceMutationVariables = Exact<{
 
 export type DeleteSessionResourceMutation = { __typename?: 'Mutation', deleteSessionResource: boolean };
 
+export type CommentAddedSubscriptionVariables = Exact<{
+  sessionId: Scalars['ID']['input'];
+}>;
+
+
+export type CommentAddedSubscription = { __typename?: 'Subscription', commentAdded: { __typename?: 'Comment', id: string, content: string, createdAt: any, parentId?: string | null, passageId: string, user: { __typename?: 'User', id: string, name?: string | null }, replies: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: any, user: { __typename?: 'User', id: string, name?: string | null } }> } };
+
 export type GetMySessionsQueryVariables = Exact<{ [key: string]: never; }>;
 
 

@@ -1,10 +1,11 @@
 'use client'
 
 import { useParams, useRouter } from 'next/navigation'
+import { useEffect } from 'react'
 import { gql } from '@apollo/client'
-import { useQuery, useMutation } from '@apollo/client/react'
+import { useQuery, useMutation, useSubscription } from '@apollo/client/react'
 import { useSession } from 'next-auth/react'
-import { GetSessionQuery, JoinSessionMutation, JoinSessionMutationVariables } from '@bibleproject/types/src/graphql'
+import { GetSessionQuery, JoinSessionMutation, JoinSessionMutationVariables, CommentAddedSubscription } from '@bibleproject/types/src/graphql'
 import ScripturePassageCard from '@/components/session/ScripturePassageCard'
 import SessionResources from '@/components/session/SessionResources'
 
@@ -98,6 +99,31 @@ const JOIN_SESSION = gql`
   }
 `
 
+const COMMENT_ADDED = gql`
+  subscription CommentAdded($sessionId: ID!) {
+    commentAdded(sessionId: $sessionId) {
+      id
+      content
+      createdAt
+      parentId
+      passageId
+      user {
+        id
+        name
+      }
+      replies {
+        id
+        content
+        createdAt
+        user {
+          id
+          name
+        }
+      }
+    }
+  }
+`
+
 export default function SessionDetailPage() {
   const params = useParams()
   const router = useRouter()
@@ -116,6 +142,17 @@ export default function SessionDetailPage() {
       },
     }
   )
+
+  // Subscribe to new comments
+  useSubscription<CommentAddedSubscription>(COMMENT_ADDED, {
+    variables: { sessionId },
+    onData: ({ data: subscriptionData }) => {
+      if (subscriptionData.data?.commentAdded) {
+        // Refetch the session to get updated comments
+        refetch()
+      }
+    },
+  })
 
   if (loading) {
     return (

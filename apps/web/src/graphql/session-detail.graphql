@@ -139,3 +139,26 @@ mutation CreateSessionResource($input: CreateSessionResourceInput!) {
 mutation DeleteSessionResource($id: ID!) {
   deleteSessionResource(id: $id)
 }
+
+subscription CommentAdded($sessionId: ID!) {
+  commentAdded(sessionId: $sessionId) {
+    id
+    content
+    createdAt
+    parentId
+    passageId
+    user {
+      id
+      name
+    }
+    replies {
+      id
+      content
+      createdAt
+      user {
+        id
+        name
+      }
+    }
+  }
+}

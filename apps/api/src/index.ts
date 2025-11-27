@@ -1,6 +1,9 @@
 import { ApolloServer } from '@apollo/server'
 import { expressMiddleware } from '@apollo/server/express4'
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
+import { makeExecutableSchema } from '@graphql-tools/schema'
+import { WebSocketServer } from 'ws'
+import { useServer } from 'graphql-ws/lib/use/ws'
 import express from 'express'
 import http from 'http'
 import cors from 'cors'
@@ -14,6 +17,31 @@ dotenv.config()
 
 const prisma = new PrismaClient()
 
+// Simple in-memory PubSub for subscriptions
+class PubSub {
+  private subscribers: Map<string, Set<(data: any) => void>> = new Map()
+
+  subscribe(topic: string, callback: (data: any) => void) {
+    if (!this.subscribers.has(topic)) {
+      this.subscribers.set(topic, new Set())
+    }
+    this.subscribers.get(topic)!.add(callback)
+
+    return () => {
+      this.subscribers.get(topic)?.delete(callback)
+    }
+  }
+
+  publish(topic: string, data: any) {
+    const callbacks = this.subscribers.get(topic)
+    if (callbacks) {
+      callbacks.forEach((callback) => callback(data))
+    }
+  }
+}
+
+export const pubsub = new PubSub()
+
 interface MyContext extends Context {
   prisma: PrismaClient
   userId?: string
@@ -23,11 +51,44 @@ async function startServer() {
   const app = express()
   const httpServer = http.createServer(app)
 
+  // Create executable schema
+  const schema = makeExecutableSchema({ typeDefs, resolvers })
+
+  // Create WebSocket server
+  const wsServer = new WebSocketServer({
+    server: httpServer,
+    path: '/graphql',
+  })
+
+  // Setup WebSocket server for GraphQL subscriptions
+  const serverCleanup = useServer(
+    {
+      schema,
+      context: async () => {
+        // Extract auth from connection params if needed
+        return {
+          prisma,
+        }
+      },
+    },
+    wsServer
+  )
+
   // Create Apollo Server
   const server = new ApolloServer<MyContext>({
-    typeDefs,
-    resolvers,
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    schema,
+    plugins: [
+      ApolloServerPluginDrainHttpServer({ httpServer }),
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              await serverCleanup.dispose()
+            },
+          }
+        },
+      },
+    ],
     introspection: process.env.NODE_ENV !== 'production',
   })
 

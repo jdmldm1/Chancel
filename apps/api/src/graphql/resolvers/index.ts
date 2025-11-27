@@ -265,7 +265,7 @@ export const resolvers = {
         throw new Error('Not authenticated')
       }
 
-      return context.prisma.comment.create({
+      const comment = await context.prisma.comment.create({
         data: {
           passageId: args.input.passageId,
           sessionId: args.input.sessionId,
@@ -273,7 +273,17 @@ export const resolvers = {
           content: args.input.content,
           parentId: args.input.parentId,
         },
+        include: {
+          user: true,
+          replies: true,
+        },
       })
+
+      // Publish the comment to subscribers
+      const { pubsub } = await import('../../index.js')
+      pubsub.publish(`COMMENT_ADDED_${args.input.sessionId}`, comment)
+
+      return comment
     },
 
     updateComment: async (
@@ -622,6 +632,52 @@ export const resolvers = {
       return context.prisma.session.findUnique({
         where: { id: parent.sessionId },
       })
+    },
+  },
+
+  Subscription: {
+    commentAdded: {
+      subscribe: async function* (_parent: unknown, args: { sessionId: string }, _context: Context) {
+        const { pubsub } = await import('../../index.js')
+        const topic = `COMMENT_ADDED_${args.sessionId}`
+
+        const asyncIterator = {
+          [Symbol.asyncIterator]() {
+            const queue: any[] = []
+            let resolver: ((value: IteratorResult<any>) => void) | null = null
+
+            const unsubscribe = pubsub.subscribe(topic, (data: any) => {
+              if (resolver) {
+                resolver({ value: { commentAdded: data }, done: false })
+                resolver = null
+              } else {
+                queue.push(data)
+              }
+            })
+
+            return {
+              next() {
+                if (queue.length > 0) {
+                  return Promise.resolve({ value: { commentAdded: queue.shift() }, done: false })
+                }
+                return new Promise<IteratorResult<any>>((resolve) => {
+                  resolver = resolve
+                })
+              },
+              return() {
+                unsubscribe()
+                return Promise.resolve({ value: undefined, done: true })
+              },
+              throw(_error: any) {
+                unsubscribe()
+                return Promise.resolve({ value: undefined, done: true })
+              },
+            }
+          },
+        }
+
+        yield* asyncIterator
+      },
     },
   },
 }

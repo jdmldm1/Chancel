@@ -15,6 +15,7 @@
     "@apollo/server": "^4.10.0",
     "@bibleproject/db": "*",
     "@bibleproject/types": "*",
+    "@graphql-tools/schema": "^10.0.29",
     "@prisma/client": "^5.7.0",
     "@types/cookie-parser": "^1.4.10",
     "@types/jsonwebtoken": "^9.0.10",
@@ -26,9 +27,9 @@
     "express": "^4.18.2",
     "graphql": "^16.8.1",
     "graphql-scalars": "^1.22.4",
-    "graphql-ws": "^5.14.3",
+    "graphql-ws": "^5.16.2",
     "jsonwebtoken": "^9.0.2",
-    "ws": "^8.16.0"
+    "ws": "^8.18.3"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
