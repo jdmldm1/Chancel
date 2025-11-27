@@ -132,6 +132,14 @@ export const typeDefs = `#graphql
     content: String!
   }
 
+  input CreateSessionResourceInput {
+    sessionId: String!
+    fileName: String!
+    fileUrl: String!
+    fileType: String!
+    description: String
+  }
+
   type Query {
     # User queries
     me: User
@@ -149,6 +157,9 @@ export const typeDefs = `#graphql
 
     # Scripture queries
     scripturePassages(sessionId: ID!): [ScripturePassage!]!
+
+    # Resource queries
+    sessionResources(sessionId: ID!): [SessionResource!]!
   }
 
   type Mutation {
@@ -172,6 +183,10 @@ export const typeDefs = `#graphql
     # Participant mutations
     joinSession(sessionId: ID!): SessionParticipant!
     leaveSession(sessionId: ID!): Boolean!
+
+    # Resource mutations
+    createSessionResource(input: CreateSessionResourceInput!): SessionResource!
+    deleteSessionResource(id: ID!): Boolean!
   }
 
   type Subscription {

@@ -6,6 +6,7 @@ import { useQuery, useMutation } from '@apollo/client/react'
 import { useSession } from 'next-auth/react'
 import { GetSessionQuery, JoinSessionMutation, JoinSessionMutationVariables } from '@bibleproject/types/src/graphql'
 import ScripturePassageCard from '@/components/session/ScripturePassageCard'
+import SessionResources from '@/components/session/SessionResources'
 
 const GET_SESSION = gql`
   query GetSession($id: ID!) {
@@ -66,6 +67,18 @@ const GET_SESSION = gql`
         }
         joinedAt
         role
+      }
+      resources {
+        id
+        fileName
+        fileUrl
+        fileType
+        description
+        createdAt
+        uploader {
+          id
+          name
+        }
       }
     }
   }
@@ -198,6 +211,17 @@ export default function SessionDetailPage() {
               ))}
           </div>
         )}
+      </div>
+
+      {/* Resources */}
+      <div className="mt-8">
+        <SessionResources
+          resources={sessionData.resources}
+          sessionId={sessionId}
+          canUpload={isParticipant || isLeader}
+          currentUserId={session?.user?.id}
+          sessionLeaderId={sessionData.leader.id}
+        />
       </div>
 
       {/* Participants */}

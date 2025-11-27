@@ -1,0 +1,141 @@
+query GetSession($id: ID!) {
+  session(id: $id) {
+    id
+    title
+    description
+    scheduledDate
+    leader {
+      id
+      name
+      email
+    }
+    scripturePassages {
+      id
+      book
+      chapter
+      verseStart
+      verseEnd
+      content
+      order
+      comments {
+        id
+        content
+        createdAt
+        user {
+          id
+          name
+        }
+        parentId
+        replies {
+          id
+          content
+          createdAt
+          parentId
+          user {
+            id
+            name
+          }
+          replies {
+            id
+            content
+            createdAt
+            user {
+              id
+              name
+            }
+          }
+        }
+      }
+    }
+    participants {
+      id
+      user {
+        id
+        name
+        role
+      }
+      joinedAt
+      role
+    }
+    resources {
+      id
+      fileName
+      fileUrl
+      fileType
+      description
+      createdAt
+      uploader {
+        id
+        name
+      }
+    }
+  }
+}
+
+query GetCommentsByPassage($passageId: ID!) {
+  commentsByPassage(passageId: $passageId) {
+    id
+    content
+    createdAt
+    user {
+      id
+      name
+    }
+    parentId
+    replies {
+      id
+      content
+      createdAt
+      user {
+        id
+        name
+      }
+    }
+  }
+}
+
+mutation CreateComment($input: CreateCommentInput!) {
+  createComment(input: $input) {
+    id
+    content
+    createdAt
+    user {
+      id
+      name
+    }
+    passageId
+    sessionId
+    parentId
+  }
+}
+
+mutation JoinSession($sessionId: ID!) {
+  joinSession(sessionId: $sessionId) {
+    id
+    user {
+      id
+      name
+    }
+    joinedAt
+    role
+  }
+}
+
+mutation CreateSessionResource($input: CreateSessionResourceInput!) {
+  createSessionResource(input: $input) {
+    id
+    fileName
+    fileUrl
+    fileType
+    description
+    createdAt
+    uploader {
+      id
+      name
+    }
+  }
+}
+
+mutation DeleteSessionResource($id: ID!) {
+  deleteSessionResource(id: $id)
+}

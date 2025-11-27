@@ -1,0 +1,244 @@
+'use client'
+
+import { useState } from 'react'
+import { gql } from '@apollo/client'
+import { useMutation } from '@apollo/client/react'
+import { useSession } from 'next-auth/react'
+import {
+  CreateSessionResourceMutation,
+  CreateSessionResourceMutationVariables,
+  DeleteSessionResourceMutation,
+  DeleteSessionResourceMutationVariables,
+  GetSessionQuery
+} from '@bibleproject/types/src/graphql'
+
+const CREATE_SESSION_RESOURCE = gql`
+  mutation CreateSessionResource($input: CreateSessionResourceInput!) {
+    createSessionResource(input: $input) {
+      id
+      fileName
+      fileUrl
+      fileType
+      description
+      createdAt
+      uploader {
+        id
+        name
+      }
+    }
+  }
+`
+
+const DELETE_SESSION_RESOURCE = gql`
+  mutation DeleteSessionResource($id: ID!) {
+    deleteSessionResource(id: $id)
+  }
+`
+
+type SessionResource = NonNullable<GetSessionQuery['session']>['resources'][0]
+
+interface SessionResourcesProps {
+  resources: SessionResource[]
+  sessionId: string
+  canUpload: boolean
+  currentUserId?: string
+  sessionLeaderId: string
+}
+
+export default function SessionResources({
+  resources,
+  sessionId,
+  canUpload,
+  currentUserId,
+  sessionLeaderId,
+}: SessionResourcesProps) {
+  const { data: session } = useSession()
+  const [showUploadForm, setShowUploadForm] = useState(false)
+  const [uploading, setUploading] = useState(false)
+  const [description, setDescription] = useState('')
+  const [uploadError, setUploadError] = useState('')
+
+  const [createResource] = useMutation<CreateSessionResourceMutation, CreateSessionResourceMutationVariables>(
+    CREATE_SESSION_RESOURCE,
+    {
+      refetchQueries: ['GetSession'],
+      onCompleted: () => {
+        setShowUploadForm(false)
+        setDescription('')
+        setUploadError('')
+      },
+      onError: (error) => {
+        setUploadError(error.message)
+      },
+    }
+  )
+
+  const [deleteResource] = useMutation<DeleteSessionResourceMutation, DeleteSessionResourceMutationVariables>(
+    DELETE_SESSION_RESOURCE,
+    {
+      refetchQueries: ['GetSession'],
+    }
+  )
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(true)
+    setUploadError('')
+
+    try {
+      // Upload file to API
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Upload failed')
+      }
+
+      const { fileUrl, fileName, fileType } = await response.json()
+
+      // Create resource in GraphQL
+      await createResource({
+        variables: {
+          input: {
+            sessionId,
+            fileName,
+            fileUrl,
+            fileType,
+            description: description.trim() || undefined,
+          },
+        },
+      })
+    } catch (error) {
+      setUploadError(error instanceof Error ? error.message : 'Upload failed')
+    } finally {
+      setUploading(false)
+    }
+  }
+
+  const handleDelete = async (resourceId: string) => {
+    if (!confirm('Are you sure you want to delete this resource?')) return
+
+    await deleteResource({
+      variables: { id: resourceId },
+    })
+  }
+
+  const getFileIcon = (fileType: string) => {
+    if (fileType.startsWith('image/')) return '🖼️'
+    if (fileType === 'application/pdf') return '📄'
+    if (fileType.includes('word')) return '📝'
+    return '📎'
+  }
+
+  const canDelete = (resource: SessionResource) => {
+    return currentUserId === resource.uploader.id || currentUserId === sessionLeaderId
+  }
+
+  return (
+    <div className="bg-white shadow rounded-lg p-6">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-2xl font-semibold text-gray-900">Resources</h2>
+        {canUpload && (
+          <button
+            onClick={() => setShowUploadForm(!showUploadForm)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium"
+          >
+            {showUploadForm ? 'Cancel' : 'Upload Resource'}
+          </button>
+        )}
+      </div>
+
+      {/* Upload Form */}
+      {showUploadForm && (
+        <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Description (optional)
+              </label>
+              <input
+                type="text"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Describe this resource..."
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Choose File
+              </label>
+              <input
+                type="file"
+                onChange={handleFileUpload}
+                disabled={uploading}
+                accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif"
+                className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 disabled:opacity-50"
+              />
+              <p className="mt-1 text-xs text-gray-500">
+                Supported formats: PDF, Word, Text, Images (JPG, PNG, GIF). Max size: 10MB
+              </p>
+            </div>
+            {uploadError && (
+              <p className="text-sm text-red-600">{uploadError}</p>
+            )}
+            {uploading && (
+              <p className="text-sm text-blue-600">Uploading...</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Resources List */}
+      {resources.length === 0 ? (
+        <p className="text-gray-500 text-sm">No resources uploaded yet.</p>
+      ) : (
+        <div className="space-y-3">
+          {resources.map((resource) => (
+            <div
+              key={resource.id}
+              className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100"
+            >
+              <div className="flex items-center space-x-3 flex-1">
+                <span className="text-2xl">{getFileIcon(resource.fileType)}</span>
+                <div className="flex-1">
+                  <a
+                    href={resource.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 font-medium"
+                  >
+                    {resource.fileName}
+                  </a>
+                  {resource.description && (
+                    <p className="text-sm text-gray-600 mt-1">{resource.description}</p>
+                  )}
+                  <p className="text-xs text-gray-500 mt-1">
+                    Uploaded by {resource.uploader.name} •{' '}
+                    {new Date(resource.createdAt).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+              {canDelete(resource) && (
+                <button
+                  onClick={() => handleDelete(resource.id)}
+                  className="ml-4 text-red-600 hover:text-red-800 text-sm font-medium"
+                >
+                  Delete
+                </button>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}

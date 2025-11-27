@@ -118,6 +118,13 @@ export const resolvers = {
         orderBy: { order: 'asc' },
       })
     },
+
+    sessionResources: async (_parent: unknown, args: { sessionId: string }, context: Context) => {
+      return context.prisma.sessionResource.findMany({
+        where: { sessionId: args.sessionId },
+        orderBy: { createdAt: 'desc' },
+      })
+    },
   },
 
   Mutation: {
@@ -412,6 +419,82 @@ export const resolvers = {
           sessionId: args.sessionId,
           userId: context.userId,
         },
+      })
+
+      return true
+    },
+
+    createSessionResource: async (
+      _parent: unknown,
+      args: {
+        input: {
+          sessionId: string
+          fileName: string
+          fileUrl: string
+          fileType: string
+          description?: string
+        }
+      },
+      context: Context
+    ) => {
+      if (!context.userId) {
+        throw new Error('Not authenticated')
+      }
+
+      // Verify user is leader or participant
+      const session = await context.prisma.session.findUnique({
+        where: { id: args.input.sessionId },
+        include: { participants: true },
+      })
+
+      if (!session) {
+        throw new Error('Session not found')
+      }
+
+      const isLeader = session.leaderId === context.userId
+      const isParticipant = session.participants.some(p => p.userId === context.userId)
+
+      if (!isLeader && !isParticipant) {
+        throw new Error('Not authorized to upload resources to this session')
+      }
+
+      return context.prisma.sessionResource.create({
+        data: {
+          sessionId: args.input.sessionId,
+          fileName: args.input.fileName,
+          fileUrl: args.input.fileUrl,
+          fileType: args.input.fileType,
+          description: args.input.description,
+          uploadedBy: context.userId,
+        },
+      })
+    },
+
+    deleteSessionResource: async (
+      _parent: unknown,
+      args: { id: string },
+      context: Context
+    ) => {
+      if (!context.userId) {
+        throw new Error('Not authenticated')
+      }
+
+      const resource = await context.prisma.sessionResource.findUnique({
+        where: { id: args.id },
+        include: { session: true },
+      })
+
+      if (!resource) {
+        throw new Error('Resource not found')
+      }
+
+      // Only the uploader or session leader can delete
+      if (resource.uploadedBy !== context.userId && resource.session.leaderId !== context.userId) {
+        throw new Error('Not authorized')
+      }
+
+      await context.prisma.sessionResource.delete({
+        where: { id: args.id },
       })
 
       return true
