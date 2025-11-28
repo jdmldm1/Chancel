@@ -77,6 +77,8 @@ const GET_SESSION = gql`
         fileName
         fileUrl
         fileType
+        resourceType
+        videoId
         description
         createdAt
         uploader {

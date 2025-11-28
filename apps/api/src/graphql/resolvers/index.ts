@@ -1,6 +1,6 @@
 import { GraphQLScalarType, Kind } from 'graphql'
 import type { PrismaClient } from '@prisma/client'
-import { UserRole } from '@prisma/client'
+import { UserRole, ResourceType } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 
 export interface Context {
@@ -444,6 +444,8 @@ export const resolvers = {
           fileName: string
           fileUrl: string
           fileType: string
+          resourceType?: ResourceType
+          videoId?: string
           description?: string
         }
       },
@@ -476,6 +478,8 @@ export const resolvers = {
           fileName: args.input.fileName,
           fileUrl: args.input.fileUrl,
           fileType: args.input.fileType,
+          resourceType: args.input.resourceType || ResourceType.FILE,
+          videoId: args.input.videoId,
           description: args.input.description,
           uploadedBy: context.userId,
         },

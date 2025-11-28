@@ -19,7 +19,8 @@
       "Bash(npx prisma db seed:*)",
       "Bash(npx tsx:*)",
       "Bash(node:*)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(npx prisma db push)"
     ],
     "deny": [],
     "ask": []

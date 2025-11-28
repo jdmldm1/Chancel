@@ -6,6 +6,13 @@ export const typeDefs = `#graphql
     MEMBER
   }
 
+  enum ResourceType {
+    FILE
+    VIDEO_UPLOAD
+    VIDEO_YOUTUBE
+    VIDEO_VIMEO
+  }
+
   type User {
     id: ID!
     email: String!
@@ -70,6 +77,8 @@ export const typeDefs = `#graphql
     fileName: String!
     fileUrl: String!
     fileType: String!
+    resourceType: ResourceType!
+    videoId: String
     uploadedBy: String!
     description: String
     session: Session!
@@ -139,6 +148,8 @@ export const typeDefs = `#graphql
     fileName: String!
     fileUrl: String!
     fileType: String!
+    resourceType: ResourceType
+    videoId: String
     description: String
   }
 
