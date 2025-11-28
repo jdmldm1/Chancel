@@ -12,7 +12,9 @@
   },
   "dependencies": {
     "@apollo/client": "^4.0.9",
+    "@bibleproject/db": "*",
     "@hookform/resolvers": "^3.3.0",
+    "@prisma/client": "^5.7.0",
     "@tanstack/react-query": "^5.20.0",
     "bcryptjs": "^3.0.3",
     "clsx": "^2.0.0",

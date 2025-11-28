@@ -32,6 +32,7 @@ const GET_SESSION = gql`
         comments {
           id
           content
+          verseNumber
           createdAt
           user {
             id
@@ -41,6 +42,7 @@ const GET_SESSION = gql`
           replies {
             id
             content
+            verseNumber
             createdAt
             parentId
             user {
@@ -50,6 +52,7 @@ const GET_SESSION = gql`
             replies {
               id
               content
+              verseNumber
               createdAt
               user {
                 id
@@ -236,7 +239,7 @@ export default function SessionDetailPage() {
           <p className="text-gray-500">No scripture passages added yet.</p>
         ) : (
           <div className="space-y-6">
-            {sessionData.scripturePassages
+            {[...sessionData.scripturePassages]
               .sort((a, b) => a.order - b.order)
               .map((passage) => (
                 <ScripturePassageCard

@@ -8,33 +8,39 @@ async function main() {
   // Create test users
   const leader = await prisma.user.upsert({
     where: { email: 'leader@example.com' },
-    update: {},
+    update: {
+      password: '$2a$10$.hjms6hjX215q1ED5jQOH.O8Bj8lpN5/JdPyqlLukinnsXReHwgIC', // password: "password"
+    },
     create: {
       email: 'leader@example.com',
       name: 'Study Leader',
-      password: '$2a$10$K7L1OJ45/4Y2nIvhRVpCe.FSmhDdWoXehVzJptJ/op0lSsvqNu/1u', // password: "password"
+      password: '$2a$10$.hjms6hjX215q1ED5jQOH.O8Bj8lpN5/JdPyqlLukinnsXReHwgIC', // password: "password"
       role: UserRole.LEADER,
     },
   })
 
   const member1 = await prisma.user.upsert({
     where: { email: 'member1@example.com' },
-    update: {},
+    update: {
+      password: '$2a$10$.hjms6hjX215q1ED5jQOH.O8Bj8lpN5/JdPyqlLukinnsXReHwgIC', // password: "password"
+    },
     create: {
       email: 'member1@example.com',
       name: 'John Doe',
-      password: '$2a$10$K7L1OJ45/4Y2nIvhRVpCe.FSmhDdWoXehVzJptJ/op0lSsvqNu/1u', // password: "password"
+      password: '$2a$10$.hjms6hjX215q1ED5jQOH.O8Bj8lpN5/JdPyqlLukinnsXReHwgIC', // password: "password"
       role: UserRole.MEMBER,
     },
   })
 
   const member2 = await prisma.user.upsert({
     where: { email: 'member2@example.com' },
-    update: {},
+    update: {
+      password: '$2a$10$.hjms6hjX215q1ED5jQOH.O8Bj8lpN5/JdPyqlLukinnsXReHwgIC', // password: "password"
+    },
     create: {
       email: 'member2@example.com',
       name: 'Jane Smith',
-      password: '$2a$10$K7L1OJ45/4Y2nIvhRVpCe.FSmhDdWoXehVzJptJ/op0lSsvqNu/1u', // password: "password"
+      password: '$2a$10$.hjms6hjX215q1ED5jQOH.O8Bj8lpN5/JdPyqlLukinnsXReHwgIC', // password: "password"
       role: UserRole.MEMBER,
     },
   })

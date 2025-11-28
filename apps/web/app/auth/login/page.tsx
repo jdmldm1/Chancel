@@ -33,19 +33,27 @@ export default function LoginPage() {
     setError(null)
 
     try {
+      console.log('Attempting sign in with:', data.email)
       const result = await signIn('credentials', {
         email: data.email,
         password: data.password,
         redirect: false,
       })
 
+      console.log('Sign in result:', result)
+
       if (result?.error) {
+        console.error('Sign in error:', result.error)
         setError('Invalid email or password')
-      } else {
+      } else if (result?.ok) {
+        console.log('Sign in successful, redirecting...')
         router.push('/sessions')
         router.refresh()
+      } else {
+        setError('An unexpected error occurred')
       }
     } catch (err) {
+      console.error('Sign in exception:', err)
       setError('An error occurred. Please try again.')
     } finally {
       setIsLoading(false)
@@ -62,7 +70,7 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <form onSubmit={handleSubmit(onSubmit)} method="post" className="space-y-6">
           {error && (
             <div className="bg-red-50 text-red-600 p-3 rounded-md text-sm">
               {error}

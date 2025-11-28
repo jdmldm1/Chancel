@@ -14,7 +14,12 @@
       "Bash(npm run codegen:*)",
       "Bash(npm run build:*)",
       "Bash(npx prisma generate:*)",
-      "Bash(npx turbo run build:*)"
+      "Bash(npx turbo run build:*)",
+      "Bash(openssl rand:*)",
+      "Bash(npx prisma db seed:*)",
+      "Bash(npx tsx:*)",
+      "Bash(node:*)",
+      "Bash(echo:*)"
     ],
     "deny": [],
     "ask": []
