@@ -10,7 +10,11 @@
       "Bash(git commit:*)",
       "Bash(npm run db:push:*)",
       "Bash(cat:*)",
-      "Bash(git reset:*)"
+      "Bash(git reset:*)",
+      "Bash(npm run codegen:*)",
+      "Bash(npm run build:*)",
+      "Bash(npx prisma generate:*)",
+      "Bash(npx turbo run build:*)"
     ],
     "deny": [],
     "ask": []
