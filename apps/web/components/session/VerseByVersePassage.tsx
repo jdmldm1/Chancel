@@ -9,6 +9,7 @@ import {
   CreateCommentMutationVariables,
   GetSessionQuery
 } from '@bibleproject/types/src/graphql'
+import CommentItem from './CommentItem'
 
 const CREATE_COMMENT = gql`
   mutation CreateComment($input: CreateCommentInput!) {
@@ -91,6 +92,8 @@ function parseVerses(passage: ScripturePassage): VerseData[] {
   return verses
 }
 
+type SortOption = 'newest' | 'oldest'
+
 export default function VerseByVersePassage({
   passage,
   sessionId,
@@ -99,8 +102,17 @@ export default function VerseByVersePassage({
   const { data: session } = useSession()
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null)
   const [newComment, setNewComment] = useState('')
+  const [sortBy, setSortBy] = useState<SortOption>('oldest')
 
   const verses = parseVerses(passage)
+
+  const sortComments = (comments: Comment[]) => {
+    return [...comments].sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime()
+      const dateB = new Date(b.createdAt).getTime()
+      return sortBy === 'newest' ? dateB - dateA : dateA - dateB
+    })
+  }
 
   const [createComment, { loading }] = useMutation<CreateCommentMutation, CreateCommentMutationVariables>(
     CREATE_COMMENT,
@@ -207,18 +219,34 @@ export default function VerseByVersePassage({
 
                 {/* Existing Comments */}
                 {verse.comments.length > 0 && (
-                  <div className="mt-4 space-y-3">
-                    {verse.comments.map((comment) => (
-                      <div key={comment.id} className="bg-gray-50 rounded-lg p-3 border-l-4 border-blue-500">
-                        <div className="flex items-start justify-between mb-1">
-                          <span className="text-sm font-semibold text-gray-900">{comment.user.name}</span>
-                          <span className="text-xs text-gray-500">
-                            {new Date(comment.createdAt).toLocaleDateString()}
-                          </span>
-                        </div>
-                        <p className="text-sm text-gray-800 whitespace-pre-wrap">{comment.content}</p>
-                      </div>
-                    ))}
+                  <div className="mt-4">
+                    {/* Sort Controls */}
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-sm font-medium text-gray-700">
+                        {verse.comments.length} {verse.comments.length === 1 ? 'comment' : 'comments'}
+                      </span>
+                      <select
+                        value={sortBy}
+                        onChange={(e) => setSortBy(e.target.value as SortOption)}
+                        className="text-xs border border-gray-300 rounded-md px-2 py-1 focus:outline-none focus:ring-1 focus:ring-blue-500"
+                      >
+                        <option value="oldest">Oldest first</option>
+                        <option value="newest">Newest first</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-3">
+                      {sortComments(verse.comments).map((comment) => (
+                        <CommentItem
+                          key={comment.id}
+                          comment={comment}
+                          passageId={passage.id}
+                          sessionId={sessionId}
+                          canComment={canComment}
+                          isReply={false}
+                        />
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>

@@ -4,7 +4,15 @@ import { useState } from 'react'
 import { gql } from '@apollo/client'
 import { useMutation } from '@apollo/client/react'
 import { useSession } from 'next-auth/react'
-import { CreateCommentMutation, CreateCommentMutationVariables, GetSessionQuery } from '@bibleproject/types/src/graphql'
+import {
+  CreateCommentMutation,
+  CreateCommentMutationVariables,
+  UpdateCommentMutation,
+  UpdateCommentMutationVariables,
+  DeleteCommentMutation,
+  DeleteCommentMutationVariables,
+  GetSessionQuery
+} from '@bibleproject/types/src/graphql'
 
 const CREATE_COMMENT = gql`
   mutation CreateComment($input: CreateCommentInput!) {
@@ -20,6 +28,22 @@ const CREATE_COMMENT = gql`
       sessionId
       parentId
     }
+  }
+`
+
+const UPDATE_COMMENT = gql`
+  mutation UpdateComment($id: ID!, $input: UpdateCommentInput!) {
+    updateComment(id: $id, input: $input) {
+      id
+      content
+      updatedAt
+    }
+  }
+`
+
+const DELETE_COMMENT = gql`
+  mutation DeleteComment($id: ID!) {
+    deleteComment(id: $id)
   }
 `
 
@@ -43,6 +67,10 @@ export default function CommentItem({
   const { data: session } = useSession()
   const [showReplyForm, setShowReplyForm] = useState(false)
   const [replyContent, setReplyContent] = useState('')
+  const [isEditing, setIsEditing] = useState(false)
+  const [editContent, setEditContent] = useState(comment.content)
+
+  const isOwner = session?.user?.id === comment.user.id
 
   const [createComment, { loading }] = useMutation<CreateCommentMutation, CreateCommentMutationVariables>(
     CREATE_COMMENT,
@@ -52,6 +80,23 @@ export default function CommentItem({
         setReplyContent('')
         setShowReplyForm(false)
       },
+    }
+  )
+
+  const [updateComment, { loading: updating }] = useMutation<UpdateCommentMutation, UpdateCommentMutationVariables>(
+    UPDATE_COMMENT,
+    {
+      refetchQueries: ['GetSession'],
+      onCompleted: () => {
+        setIsEditing(false)
+      },
+    }
+  )
+
+  const [deleteComment, { loading: deleting }] = useMutation<DeleteCommentMutation, DeleteCommentMutationVariables>(
+    DELETE_COMMENT,
+    {
+      refetchQueries: ['GetSession'],
     }
   )
 
@@ -69,6 +114,33 @@ export default function CommentItem({
         },
       },
     })
+  }
+
+  const handleEditSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!editContent.trim()) return
+
+    await updateComment({
+      variables: {
+        id: comment.id,
+        input: {
+          content: editContent.trim(),
+        },
+      },
+    })
+  }
+
+  const handleDelete = async () => {
+    if (!confirm('Are you sure you want to delete this comment?')) return
+
+    await deleteComment({
+      variables: { id: comment.id },
+    })
+  }
+
+  const handleCancelEdit = () => {
+    setIsEditing(false)
+    setEditContent(comment.content)
   }
 
   const timeAgo = (date: string) => {
@@ -101,18 +173,73 @@ export default function CommentItem({
               <span className="font-semibold text-gray-900">{comment.user.name}</span>
               <span className="text-gray-500 text-sm">{timeAgo(comment.createdAt)}</span>
             </div>
+
+            {/* Edit/Delete Menu */}
+            {isOwner && !isEditing && (
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="text-sm text-gray-600 hover:text-blue-600"
+                  title="Edit comment"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="text-sm text-gray-600 hover:text-red-600 disabled:opacity-50"
+                  title="Delete comment"
+                >
+                  {deleting ? 'Deleting...' : 'Delete'}
+                </button>
+              </div>
+            )}
           </div>
 
-          <p className="text-gray-800 whitespace-pre-wrap">{comment.content}</p>
+          {/* Edit Form */}
+          {isEditing ? (
+            <form onSubmit={handleEditSubmit} className="space-y-2">
+              <textarea
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none text-sm"
+                rows={3}
+                autoFocus
+              />
+              <div className="flex space-x-2">
+                <button
+                  type="submit"
+                  disabled={updating || !editContent.trim()}
+                  className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                >
+                  {updating ? 'Saving...' : 'Save'}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCancelEdit}
+                  disabled={updating}
+                  className="px-3 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50 text-sm font-medium"
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          ) : (
+            <>
+              <p className="text-gray-800 whitespace-pre-wrap">{comment.content}</p>
 
-          {/* Reply Button */}
-          {canComment && !isReply && (
-            <button
-              onClick={() => setShowReplyForm(!showReplyForm)}
-              className="mt-2 text-sm text-blue-600 hover:text-blue-700 font-medium"
-            >
-              Reply
-            </button>
+              {/* Action Buttons */}
+              <div className="mt-2 flex items-center space-x-3">
+                {canComment && !isReply && (
+                  <button
+                    onClick={() => setShowReplyForm(!showReplyForm)}
+                    className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                  >
+                    Reply
+                  </button>
+                )}
+              </div>
+            </>
           )}
 
           {/* Reply Form */}
