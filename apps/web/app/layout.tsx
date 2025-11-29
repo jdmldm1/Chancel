@@ -5,8 +5,8 @@ import Navigation from "@/components/navigation"
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "BibleProject - Group Bible Study",
-  description: "Collaborative platform for group Bible study sessions",
+  title: "Chancel - Sacred Space. Shared Study.",
+  description: "Online Bible study platform for collaborative group sessions",
 }
 
 export default function RootLayout({

@@ -3,7 +3,13 @@ query GetMySessions {
     id
     title
     description
-    scheduledDate
+    startDate
+    endDate
+    visibility
+    series {
+      id
+      title
+    }
     leader {
       id
       name
@@ -29,11 +35,17 @@ query GetMySessions {
 }
 
 query GetAllSessions {
-  sessions {
+  publicSessions {
     id
     title
     description
-    scheduledDate
+    startDate
+    endDate
+    visibility
+    series {
+      id
+      title
+    }
     leader {
       id
       name
@@ -63,7 +75,10 @@ mutation CreateSession($input: CreateSessionInput!) {
     id
     title
     description
-    scheduledDate
+    startDate
+    endDate
+    seriesId
+    visibility
     videoCallUrl
     leader {
       id
@@ -86,7 +101,10 @@ mutation UpdateSession($id: ID!, $input: UpdateSessionInput!) {
     id
     title
     description
-    scheduledDate
+    startDate
+    endDate
+    seriesId
+    visibility
     videoCallUrl
   }
 }

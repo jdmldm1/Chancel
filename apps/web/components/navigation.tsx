@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
+import ChanelLogo from './ChanelLogo'
 
 export default function Navigation() {
   const { data: session, status } = useSession()
@@ -11,8 +12,9 @@ export default function Navigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex">
-            <Link href="/" className="flex items-center px-2 text-gray-900 font-semibold text-xl">
-              BibleProject
+            <Link href="/" className="flex items-center gap-2 px-2 text-gray-900 font-semibold text-xl">
+              <ChanelLogo size="sm" className="text-blue-600" />
+              <span>Chancel</span>
             </Link>
             {session && (
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">

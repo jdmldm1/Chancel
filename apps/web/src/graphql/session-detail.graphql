@@ -3,9 +3,16 @@ query GetSession($id: ID!) {
     id
     title
     description
-    scheduledDate
+    startDate
+    endDate
+    seriesId
+    visibility
     videoCallUrl
     imageUrl
+    series {
+      id
+      title
+    }
     leader {
       id
       name

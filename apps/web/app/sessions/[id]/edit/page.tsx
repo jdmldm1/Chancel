@@ -12,7 +12,10 @@ const GET_SESSION = gql`
       id
       title
       description
-      scheduledDate
+      startDate
+      endDate
+      seriesId
+      visibility
       videoCallUrl
       imageUrl
       scripturePassages {
@@ -61,7 +64,10 @@ export default function EditSessionPage() {
           id: data.session.id,
           title: data.session.title,
           description: data.session.description,
-          scheduledDate: data.session.scheduledDate,
+          startDate: data.session.startDate,
+          endDate: data.session.endDate,
+          seriesId: data.session.seriesId,
+          visibility: data.session.visibility,
           videoCallUrl: data.session.videoCallUrl,
           imageUrl: data.session.imageUrl,
           scripturePassages: data.session.scripturePassages.map(p => ({

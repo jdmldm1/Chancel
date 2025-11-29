@@ -1,8 +1,8 @@
 {
-  "name": "bibleproject",
+  "name": "chancel",
   "version": "0.1.0",
   "private": true,
-  "description": "Collaborative group Bible study platform",
+  "description": "Chancel - Sacred space. Shared study. Online Bible study platform for collaborative group sessions",
   "workspaces": [
     "apps/web",
     "apps/api",

@@ -18,8 +18,16 @@ const GET_SESSION = gql`
       id
       title
       description
-      scheduledDate
+      startDate
+      endDate
+      seriesId
+      visibility
       videoCallUrl
+      series {
+        id
+        title
+        imageUrl
+      }
       leader {
         id
         name
@@ -32,6 +40,7 @@ const GET_SESSION = gql`
         verseStart
         verseEnd
         content
+        note
         order
         comments {
           id
@@ -139,6 +148,7 @@ export default function SessionDetailPage() {
   const { data: session } = useSession()
   const sessionId = params.id as string
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false)
+  const [participantsCollapsed, setParticipantsCollapsed] = useState(false)
 
   const { data, loading, error, refetch } = useQuery<GetSessionQuery>(GET_SESSION, {
     variables: { id: sessionId },
@@ -213,27 +223,51 @@ export default function SessionDetailPage() {
 
       {/* Header */}
       <div className="mb-8">
-        <div className="flex justify-between items-start">
-          <div>
-            <h1 className="text-4xl font-bold text-gray-900">{sessionData.title}</h1>
-            {sessionData.description && (
-              <p className="mt-2 text-lg text-gray-600">{sessionData.description}</p>
+        <div className="flex justify-between items-start gap-6">
+          <div className="flex gap-6 flex-1">
+            {(sessionData.series?.imageUrl || sessionData.imageUrl) && (
+              <div className="flex-shrink-0">
+                <img
+                  src={sessionData.series?.imageUrl || sessionData.imageUrl}
+                  alt={sessionData.series?.title || sessionData.title}
+                  className="w-48 h-48 object-cover rounded-lg shadow-md"
+                />
+              </div>
             )}
-            <div className="mt-4 flex items-center space-x-6 text-sm text-gray-500">
-              <div>
-                <span className="font-medium">Leader:</span> {sessionData.leader.name}
-              </div>
-              <div>
-                <span className="font-medium">Scheduled:</span>{' '}
-                {new Date(sessionData.scheduledDate).toLocaleDateString('en-US', {
-                  weekday: 'long',
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-              </div>
-              <div>
-                <span className="font-medium">Participants:</span> {sessionData.participants.length}
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold text-gray-900">{sessionData.title}</h1>
+              {sessionData.series && (
+                <p className="mt-2 text-sm text-indigo-600 font-medium">
+                  Part of series: {sessionData.series.title}
+                </p>
+              )}
+              {sessionData.description && (
+                <p className="mt-2 text-lg text-gray-600">{sessionData.description}</p>
+              )}
+              <div className="mt-4 flex items-center space-x-6 text-sm text-gray-500">
+                <div>
+                  <span className="font-medium">Leader:</span> {sessionData.leader.name}
+                </div>
+                <div>
+                  <span className="font-medium">Start:</span>{' '}
+                  {new Date(sessionData.startDate).toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </div>
+                <div>
+                  <span className="font-medium">End:</span>{' '}
+                  {new Date(sessionData.endDate).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </div>
+                <div>
+                  <span className="font-medium">Participants:</span> {sessionData.participants.length}
+                </div>
               </div>
             </div>
           </div>
@@ -308,25 +342,44 @@ export default function SessionDetailPage() {
 
       {/* Participants */}
       <div className="mt-8">
-        <h2 className="text-2xl font-semibold text-gray-900 mb-4">Participants</h2>
-        <div className="bg-white shadow overflow-hidden sm:rounded-md">
-          <ul className="divide-y divide-gray-200">
-            {sessionData.participants.map((participant) => (
-              <li key={participant.id} className="px-6 py-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">{participant.user.name}</p>
-                    <p className="text-sm text-gray-500">
-                      Joined {new Date(participant.joinedAt).toLocaleDateString()}
-                    </p>
+        <div className="bg-white shadow-md rounded-lg overflow-hidden">
+          {/* Header */}
+          <div className="bg-blue-50 px-6 py-4 border-b border-blue-100">
+            <button
+              onClick={() => setParticipantsCollapsed(!participantsCollapsed)}
+              className="flex items-center gap-2 text-xl font-semibold text-blue-900 hover:text-blue-700"
+            >
+              <svg
+                className={`w-5 h-5 transition-transform ${participantsCollapsed ? '-rotate-90' : ''}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+              Participants ({sessionData.participants.length})
+            </button>
+          </div>
+
+          {!participantsCollapsed && (
+            <ul className="divide-y divide-gray-200">
+              {sessionData.participants.map((participant) => (
+                <li key={participant.id} className="px-6 py-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">{participant.user.name}</p>
+                      <p className="text-sm text-gray-500">
+                        Joined {new Date(participant.joinedAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      {participant.role}
+                    </span>
                   </div>
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    {participant.role}
-                  </span>
-                </div>
-              </li>
-            ))}
-          </ul>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
 

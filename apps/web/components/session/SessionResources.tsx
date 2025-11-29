@@ -64,6 +64,7 @@ export default function SessionResources({
   const [uploadError, setUploadError] = useState('')
   const [videoUrl, setVideoUrl] = useState('')
   const [uploadType, setUploadType] = useState<'file' | 'video'>('file')
+  const [isCollapsed, setIsCollapsed] = useState(false)
 
   const [createResource] = useMutation<CreateSessionResourceMutation, CreateSessionResourceMutationVariables>(
     CREATE_SESSION_RESOURCE,
@@ -188,10 +189,24 @@ export default function SessionResources({
   }
 
   return (
-    <div className="bg-white shadow rounded-lg p-6">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold text-gray-900">Resources</h2>
-        {canUpload && (
+    <div className="bg-white shadow-md rounded-lg overflow-hidden">
+      {/* Header */}
+      <div className="bg-blue-50 px-6 py-4 border-b border-blue-100 flex items-center justify-between">
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="flex items-center gap-2 text-xl font-semibold text-blue-900 hover:text-blue-700"
+        >
+          <svg
+            className={`w-5 h-5 transition-transform ${isCollapsed ? '-rotate-90' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+          Resources ({resources.length})
+        </button>
+        {canUpload && !isCollapsed && (
           <button
             onClick={() => setShowUploadForm(!showUploadForm)}
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm font-medium"
@@ -200,6 +215,9 @@ export default function SessionResources({
           </button>
         )}
       </div>
+
+      {!isCollapsed && (
+        <div className="px-6 py-6">
 
       {/* Upload Form */}
       {showUploadForm && (
@@ -359,6 +377,8 @@ export default function SessionResources({
               </div>
             )
           })}
+        </div>
+      )}
         </div>
       )}
     </div>

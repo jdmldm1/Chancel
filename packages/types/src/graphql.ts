@@ -62,13 +62,22 @@ export type CreateScripturePassageInput = {
   verseStart: Scalars['Int']['input'];
 };
 
-export type CreateSessionInput = {
+export type CreateSeriesInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   imageUrl?: InputMaybe<Scalars['String']['input']>;
-  scheduledDate: Scalars['DateTime']['input'];
+  title: Scalars['String']['input'];
+};
+
+export type CreateSessionInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  endDate: Scalars['DateTime']['input'];
+  imageUrl?: InputMaybe<Scalars['String']['input']>;
   scripturePassages: Array<CreateScripturePassageInput>;
+  seriesId?: InputMaybe<Scalars['String']['input']>;
+  startDate: Scalars['DateTime']['input'];
   title: Scalars['String']['input'];
   videoCallUrl?: InputMaybe<Scalars['String']['input']>;
+  visibility?: InputMaybe<SessionVisibility>;
 };
 
 export type CreateSessionResourceInput = {
@@ -81,22 +90,53 @@ export type CreateSessionResourceInput = {
   videoId?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type JoinRequest = {
+  __typename?: 'JoinRequest';
+  createdAt: Scalars['DateTime']['output'];
+  from: User;
+  fromId: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  session: Session;
+  sessionId: Scalars['String']['output'];
+  status: JoinRequestStatus;
+  to: User;
+  toId: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export enum JoinRequestStatus {
+  Accepted = 'ACCEPTED',
+  Pending = 'PENDING',
+  Rejected = 'REJECTED'
+}
+
 export type Mutation = {
   __typename?: 'Mutation';
+  acceptJoinRequest: JoinRequest;
   createComment: Comment;
   createScripturePassage: ScripturePassage;
+  createSeries: Series;
   createSession: Session;
   createSessionResource: SessionResource;
   deleteComment: Scalars['Boolean']['output'];
   deleteScripturePassage: Scalars['Boolean']['output'];
+  deleteSeries: Series;
   deleteSession: Session;
   deleteSessionResource: Scalars['Boolean']['output'];
   joinSession: SessionParticipant;
   leaveSession: Scalars['Boolean']['output'];
+  rejectJoinRequest: JoinRequest;
   sendChatMessage: ChatMessage;
+  sendJoinRequest: JoinRequest;
   signup: User;
   updateComment: Comment;
+  updateSeries: Series;
   updateSession: Session;
+};
+
+
+export type MutationAcceptJoinRequestArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -107,6 +147,11 @@ export type MutationCreateCommentArgs = {
 
 export type MutationCreateScripturePassageArgs = {
   input: CreateScripturePassageInput;
+};
+
+
+export type MutationCreateSeriesArgs = {
+  input: CreateSeriesInput;
 };
 
 
@@ -126,6 +171,11 @@ export type MutationDeleteCommentArgs = {
 
 
 export type MutationDeleteScripturePassageArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteSeriesArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -150,9 +200,20 @@ export type MutationLeaveSessionArgs = {
 };
 
 
+export type MutationRejectJoinRequestArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationSendChatMessageArgs = {
   message: Scalars['String']['input'];
   sessionId: Scalars['ID']['input'];
+};
+
+
+export type MutationSendJoinRequestArgs = {
+  sessionId: Scalars['ID']['input'];
+  toUserId: Scalars['ID']['input'];
 };
 
 
@@ -167,6 +228,12 @@ export type MutationSignupArgs = {
 export type MutationUpdateCommentArgs = {
   id: Scalars['ID']['input'];
   input: UpdateCommentInput;
+};
+
+
+export type MutationUpdateSeriesArgs = {
+  id: Scalars['ID']['input'];
+  input: UpdateSeriesInput;
 };
 
 
@@ -190,13 +257,19 @@ export type Notification = {
 
 export type Query = {
   __typename?: 'Query';
+  allSeries: Array<Series>;
   chatMessages: Array<ChatMessage>;
   comments: Array<Comment>;
   commentsByPassage: Array<Comment>;
   me?: Maybe<User>;
+  myJoinRequests: Array<JoinRequest>;
+  mySeries: Array<Series>;
   mySessions: Array<Session>;
+  publicSessions: Array<Session>;
   scripturePassages: Array<ScripturePassage>;
+  series?: Maybe<Series>;
   session?: Maybe<Session>;
+  sessionJoinRequests: Array<JoinRequest>;
   sessionResources: Array<SessionResource>;
   sessions: Array<Session>;
   user?: Maybe<User>;
@@ -224,8 +297,18 @@ export type QueryScripturePassagesArgs = {
 };
 
 
+export type QuerySeriesArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type QuerySessionArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QuerySessionJoinRequestsArgs = {
+  sessionId: Scalars['ID']['input'];
 };
 
 
@@ -262,23 +345,41 @@ export type ScripturePassage = {
   verseStart: Scalars['Int']['output'];
 };
 
-export type Session = {
-  __typename?: 'Session';
-  chatMessages: Array<ChatMessage>;
-  comments: Array<Comment>;
+export type Series = {
+  __typename?: 'Series';
   createdAt: Scalars['DateTime']['output'];
   description?: Maybe<Scalars['String']['output']>;
   id: Scalars['ID']['output'];
   imageUrl?: Maybe<Scalars['String']['output']>;
   leader: User;
   leaderId: Scalars['String']['output'];
+  sessions: Array<Session>;
+  title: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export type Session = {
+  __typename?: 'Session';
+  chatMessages: Array<ChatMessage>;
+  comments: Array<Comment>;
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  endDate: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  imageUrl?: Maybe<Scalars['String']['output']>;
+  joinRequests: Array<JoinRequest>;
+  leader: User;
+  leaderId: Scalars['String']['output'];
   participants: Array<SessionParticipant>;
   resources: Array<SessionResource>;
-  scheduledDate: Scalars['DateTime']['output'];
   scripturePassages: Array<ScripturePassage>;
+  series?: Maybe<Series>;
+  seriesId?: Maybe<Scalars['String']['output']>;
+  startDate: Scalars['DateTime']['output'];
   title: Scalars['String']['output'];
   updatedAt: Scalars['DateTime']['output'];
   videoCallUrl?: Maybe<Scalars['String']['output']>;
+  visibility: SessionVisibility;
 };
 
 export type SessionParticipant = {
@@ -308,6 +409,11 @@ export type SessionResource = {
   uploader: User;
   videoId?: Maybe<Scalars['String']['output']>;
 };
+
+export enum SessionVisibility {
+  Private = 'PRIVATE',
+  Public = 'PUBLIC'
+}
 
 export type Subscription = {
   __typename?: 'Subscription';
@@ -355,12 +461,21 @@ export type UpdateCommentInput = {
   content: Scalars['String']['input'];
 };
 
-export type UpdateSessionInput = {
+export type UpdateSeriesInput = {
   description?: InputMaybe<Scalars['String']['input']>;
   imageUrl?: InputMaybe<Scalars['String']['input']>;
-  scheduledDate?: InputMaybe<Scalars['DateTime']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+};
+
+export type UpdateSessionInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  endDate?: InputMaybe<Scalars['DateTime']['input']>;
+  imageUrl?: InputMaybe<Scalars['String']['input']>;
+  seriesId?: InputMaybe<Scalars['String']['input']>;
+  startDate?: InputMaybe<Scalars['DateTime']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
   videoCallUrl?: InputMaybe<Scalars['String']['input']>;
+  visibility?: InputMaybe<SessionVisibility>;
 };
 
 export type User = {
@@ -407,7 +522,7 @@ export type GetSessionQueryVariables = Exact<{
 }>;
 
 
-export type GetSessionQuery = { __typename?: 'Query', session?: { __typename?: 'Session', id: string, title: string, description?: string | null, scheduledDate: any, videoCallUrl?: string | null, imageUrl?: string | null, leader: { __typename?: 'User', id: string, name?: string | null, email: string }, scripturePassages: Array<{ __typename?: 'ScripturePassage', id: string, book: string, chapter: number, verseStart: number, verseEnd?: number | null, content: string, note?: string | null, order: number, comments: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: any, verseNumber?: number | null, parentId?: string | null, user: { __typename?: 'User', id: string, name?: string | null }, replies: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: any, verseNumber?: number | null, parentId?: string | null, user: { __typename?: 'User', id: string, name?: string | null }, replies: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: any, verseNumber?: number | null, user: { __typename?: 'User', id: string, name?: string | null } }> }> }> }>, participants: Array<{ __typename?: 'SessionParticipant', id: string, joinedAt: any, role: UserRole, user: { __typename?: 'User', id: string, name?: string | null, role: UserRole } }>, resources: Array<{ __typename?: 'SessionResource', id: string, fileName: string, fileUrl: string, fileType: string, resourceType: ResourceType, videoId?: string | null, description?: string | null, createdAt: any, uploader: { __typename?: 'User', id: string, name?: string | null } }> } | null };
+export type GetSessionQuery = { __typename?: 'Query', session?: { __typename?: 'Session', id: string, title: string, description?: string | null, startDate: any, endDate: any, seriesId?: string | null, visibility: SessionVisibility, videoCallUrl?: string | null, imageUrl?: string | null, series?: { __typename?: 'Series', id: string, title: string } | null, leader: { __typename?: 'User', id: string, name?: string | null, email: string }, scripturePassages: Array<{ __typename?: 'ScripturePassage', id: string, book: string, chapter: number, verseStart: number, verseEnd?: number | null, content: string, note?: string | null, order: number, comments: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: any, verseNumber?: number | null, parentId?: string | null, user: { __typename?: 'User', id: string, name?: string | null }, replies: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: any, verseNumber?: number | null, parentId?: string | null, user: { __typename?: 'User', id: string, name?: string | null }, replies: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: any, verseNumber?: number | null, user: { __typename?: 'User', id: string, name?: string | null } }> }> }> }>, participants: Array<{ __typename?: 'SessionParticipant', id: string, joinedAt: any, role: UserRole, user: { __typename?: 'User', id: string, name?: string | null, role: UserRole } }>, resources: Array<{ __typename?: 'SessionResource', id: string, fileName: string, fileUrl: string, fileType: string, resourceType: ResourceType, videoId?: string | null, description?: string | null, createdAt: any, uploader: { __typename?: 'User', id: string, name?: string | null } }> } | null };
 
 export type GetCommentsByPassageQueryVariables = Exact<{
   passageId: Scalars['ID']['input'];
@@ -469,19 +584,19 @@ export type CommentAddedSubscription = { __typename?: 'Subscription', commentAdd
 export type GetMySessionsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetMySessionsQuery = { __typename?: 'Query', mySessions: Array<{ __typename?: 'Session', id: string, title: string, description?: string | null, scheduledDate: any, leader: { __typename?: 'User', id: string, name?: string | null, email: string }, scripturePassages: Array<{ __typename?: 'ScripturePassage', id: string, book: string, chapter: number, verseStart: number, verseEnd?: number | null, content: string, order: number }>, participants: Array<{ __typename?: 'SessionParticipant', id: string, user: { __typename?: 'User', id: string, name?: string | null } }> }> };
+export type GetMySessionsQuery = { __typename?: 'Query', mySessions: Array<{ __typename?: 'Session', id: string, title: string, description?: string | null, startDate: any, endDate: any, visibility: SessionVisibility, series?: { __typename?: 'Series', id: string, title: string } | null, leader: { __typename?: 'User', id: string, name?: string | null, email: string }, scripturePassages: Array<{ __typename?: 'ScripturePassage', id: string, book: string, chapter: number, verseStart: number, verseEnd?: number | null, content: string, order: number }>, participants: Array<{ __typename?: 'SessionParticipant', id: string, user: { __typename?: 'User', id: string, name?: string | null } }> }> };
 
 export type GetAllSessionsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetAllSessionsQuery = { __typename?: 'Query', sessions: Array<{ __typename?: 'Session', id: string, title: string, description?: string | null, scheduledDate: any, leader: { __typename?: 'User', id: string, name?: string | null, email: string }, scripturePassages: Array<{ __typename?: 'ScripturePassage', id: string, book: string, chapter: number, verseStart: number, verseEnd?: number | null, content: string, order: number }>, participants: Array<{ __typename?: 'SessionParticipant', id: string, user: { __typename?: 'User', id: string, name?: string | null } }> }> };
+export type GetAllSessionsQuery = { __typename?: 'Query', publicSessions: Array<{ __typename?: 'Session', id: string, title: string, description?: string | null, startDate: any, endDate: any, visibility: SessionVisibility, series?: { __typename?: 'Series', id: string, title: string } | null, leader: { __typename?: 'User', id: string, name?: string | null, email: string }, scripturePassages: Array<{ __typename?: 'ScripturePassage', id: string, book: string, chapter: number, verseStart: number, verseEnd?: number | null, content: string, order: number }>, participants: Array<{ __typename?: 'SessionParticipant', id: string, user: { __typename?: 'User', id: string, name?: string | null } }> }> };
 
 export type CreateSessionMutationVariables = Exact<{
   input: CreateSessionInput;
 }>;
 
 
-export type CreateSessionMutation = { __typename?: 'Mutation', createSession: { __typename?: 'Session', id: string, title: string, description?: string | null, scheduledDate: any, videoCallUrl?: string | null, leader: { __typename?: 'User', id: string, name?: string | null }, scripturePassages: Array<{ __typename?: 'ScripturePassage', id: string, book: string, chapter: number, verseStart: number, verseEnd?: number | null, content: string, order: number }> } };
+export type CreateSessionMutation = { __typename?: 'Mutation', createSession: { __typename?: 'Session', id: string, title: string, description?: string | null, startDate: any, endDate: any, seriesId?: string | null, visibility: SessionVisibility, videoCallUrl?: string | null, leader: { __typename?: 'User', id: string, name?: string | null }, scripturePassages: Array<{ __typename?: 'ScripturePassage', id: string, book: string, chapter: number, verseStart: number, verseEnd?: number | null, content: string, order: number }> } };
 
 export type UpdateSessionMutationVariables = Exact<{
   id: Scalars['ID']['input'];
@@ -489,7 +604,7 @@ export type UpdateSessionMutationVariables = Exact<{
 }>;
 
 
-export type UpdateSessionMutation = { __typename?: 'Mutation', updateSession: { __typename?: 'Session', id: string, title: string, description?: string | null, scheduledDate: any, videoCallUrl?: string | null } };
+export type UpdateSessionMutation = { __typename?: 'Mutation', updateSession: { __typename?: 'Session', id: string, title: string, description?: string | null, startDate: any, endDate: any, seriesId?: string | null, visibility: SessionVisibility, videoCallUrl?: string | null } };
 
 export type DeleteSessionMutationVariables = Exact<{
   id: Scalars['ID']['input'];

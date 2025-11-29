@@ -13,6 +13,17 @@ export const typeDefs = `#graphql
     VIDEO_VIMEO
   }
 
+  enum SessionVisibility {
+    PUBLIC
+    PRIVATE
+  }
+
+  enum JoinRequestStatus {
+    PENDING
+    ACCEPTED
+    REJECTED
+  }
+
   type User {
     id: ID!
     email: String!
@@ -24,20 +35,50 @@ export const typeDefs = `#graphql
     comments: [Comment!]!
   }
 
+  type Series {
+    id: ID!
+    title: String!
+    description: String
+    imageUrl: String
+    leaderId: String!
+    leader: User!
+    sessions: [Session!]!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+  }
+
   type Session {
     id: ID!
     title: String!
     description: String
-    scheduledDate: DateTime!
+    startDate: DateTime!
+    endDate: DateTime!
     leaderId: String!
+    seriesId: String
+    visibility: SessionVisibility!
     videoCallUrl: String
     imageUrl: String
     leader: User!
+    series: Series
     scripturePassages: [ScripturePassage!]!
     comments: [Comment!]!
     resources: [SessionResource!]!
     participants: [SessionParticipant!]!
     chatMessages: [ChatMessage!]!
+    joinRequests: [JoinRequest!]!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+  }
+
+  type JoinRequest {
+    id: ID!
+    sessionId: String!
+    fromId: String!
+    toId: String!
+    status: JoinRequestStatus!
+    session: Session!
+    from: User!
+    to: User!
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -125,10 +166,25 @@ export const typeDefs = `#graphql
   }
 
   # Input types for mutations
+  input CreateSeriesInput {
+    title: String!
+    description: String
+    imageUrl: String
+  }
+
+  input UpdateSeriesInput {
+    title: String
+    description: String
+    imageUrl: String
+  }
+
   input CreateSessionInput {
     title: String!
     description: String
-    scheduledDate: DateTime!
+    startDate: DateTime!
+    endDate: DateTime!
+    seriesId: String
+    visibility: SessionVisibility
     videoCallUrl: String
     imageUrl: String
     scripturePassages: [CreateScripturePassageInput!]!
@@ -137,7 +193,10 @@ export const typeDefs = `#graphql
   input UpdateSessionInput {
     title: String
     description: String
-    scheduledDate: DateTime
+    startDate: DateTime
+    endDate: DateTime
+    seriesId: String
+    visibility: SessionVisibility
     videoCallUrl: String
     imageUrl: String
   }
@@ -179,10 +238,16 @@ export const typeDefs = `#graphql
     user(id: ID!): User
     users: [User!]!
 
+    # Series queries
+    series(id: ID!): Series
+    allSeries: [Series!]!
+    mySeries: [Series!]!
+
     # Session queries
     session(id: ID!): Session
     sessions: [Session!]!
     mySessions: [Session!]!
+    publicSessions: [Session!]!
 
     # Comment queries
     comments(sessionId: ID!): [Comment!]!
@@ -196,11 +261,20 @@ export const typeDefs = `#graphql
 
     # Chat queries
     chatMessages(sessionId: ID!): [ChatMessage!]!
+
+    # Join request queries
+    myJoinRequests: [JoinRequest!]!
+    sessionJoinRequests(sessionId: ID!): [JoinRequest!]!
   }
 
   type Mutation {
     # Auth mutations
     signup(email: String!, password: String!, name: String!, role: UserRole!): User!
+
+    # Series mutations
+    createSeries(input: CreateSeriesInput!): Series!
+    updateSeries(id: ID!, input: UpdateSeriesInput!): Series!
+    deleteSeries(id: ID!): Series!
 
     # Session mutations
     createSession(input: CreateSessionInput!): Session!
@@ -226,6 +300,11 @@ export const typeDefs = `#graphql
 
     # Chat mutations
     sendChatMessage(sessionId: ID!, message: String!): ChatMessage!
+
+    # Join request mutations
+    sendJoinRequest(sessionId: ID!, toUserId: ID!): JoinRequest!
+    acceptJoinRequest(id: ID!): JoinRequest!
+    rejectJoinRequest(id: ID!): JoinRequest!
   }
 
   type Subscription {

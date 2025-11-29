@@ -12,7 +12,15 @@ const GET_MY_SESSIONS = gql`
       id
       title
       description
-      scheduledDate
+      startDate
+      endDate
+      visibility
+      imageUrl
+      series {
+        id
+        title
+        imageUrl
+      }
       leader {
         id
         name
@@ -40,11 +48,19 @@ const GET_MY_SESSIONS = gql`
 
 const GET_ALL_SESSIONS = gql`
   query GetAllSessions {
-    sessions {
+    publicSessions {
       id
       title
       description
-      scheduledDate
+      startDate
+      endDate
+      visibility
+      imageUrl
+      series {
+        id
+        title
+        imageUrl
+      }
       leader {
         id
         name
@@ -99,7 +115,7 @@ export default function SessionList({ viewMode }: SessionListProps) {
 
   const loading = viewMode === 'my' ? myLoading : allLoading
   const error = viewMode === 'my' ? myError : allError
-  const sessions = viewMode === 'my' ? (myData?.mySessions || []) : (allData?.sessions || [])
+  const sessions = viewMode === 'my' ? (myData?.mySessions || []) : (allData?.publicSessions || [])
 
   const handleDeleteSession = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this study session?')) {
@@ -151,27 +167,55 @@ export default function SessionList({ viewMode }: SessionListProps) {
                     )}
                   </div>
                 )}
-                <Link href={`/sessions/${session.id}`} className="text-blue-600 hover:underline">
-                  <h3 className="text-xl font-bold">{session.title}</h3>
-                </Link>
-                <p className="text-gray-600">{session.description}</p>
-                <p className="text-sm text-gray-500">
-                  Scheduled for: {new Date(session.scheduledDate).toLocaleDateString()}
-                </p>
-                <p className="text-sm text-gray-500">
-                  Leader: {session.leader?.name || 'N/A'}
-                </p>
-                <p className="text-sm text-gray-500">
-                  Participants: {session.participants.length}
-                </p>
-                {isLeader && (
-                  <button
-                    onClick={() => handleDeleteSession(session.id)}
-                    className="mt-2 rounded-md bg-red-600 px-3 py-1 text-white font-semibold hover:bg-red-700 text-sm"
-                  >
-                    Delete
-                  </button>
-                )}
+                <div className="flex gap-4">
+                  {(session.series?.imageUrl || session.imageUrl) && (
+                    <div className="flex-shrink-0">
+                      <img
+                        src={session.series?.imageUrl || session.imageUrl}
+                        alt={session.series?.title || session.title}
+                        className="w-32 h-32 object-cover rounded-md"
+                      />
+                    </div>
+                  )}
+                  <div className="flex-1">
+                    <Link href={`/sessions/${session.id}`} className="text-blue-600 hover:underline">
+                      <h3 className="text-xl font-bold">{session.title}</h3>
+                    </Link>
+                    {session.series && (
+                      <p className="text-sm text-indigo-600 font-medium mb-1">
+                        Series: {session.series.title}
+                      </p>
+                    )}
+                    <p className="text-gray-600">{session.description}</p>
+                    <div className="flex gap-4 text-sm text-gray-500 mt-2">
+                      <p>
+                        Start: {new Date(session.startDate).toLocaleDateString()}
+                      </p>
+                      <p>
+                        End: {new Date(session.endDate).toLocaleDateString()}
+                      </p>
+                    </div>
+                    <p className="text-sm text-gray-500">
+                      Leader: {session.leader?.name || 'N/A'}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Participants: {session.participants.length}
+                    </p>
+                    {session.visibility === 'PRIVATE' && (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 mt-2">
+                        Private Session
+                      </span>
+                    )}
+                    {isLeader && (
+                      <button
+                        onClick={() => handleDeleteSession(session.id)}
+                        className="mt-2 rounded-md bg-red-600 px-3 py-1 text-white font-semibold hover:bg-red-700 text-sm"
+                      >
+                        Delete
+                      </button>
+                    )}
+                  </div>
+                </div>
               </li>
             )
           })}

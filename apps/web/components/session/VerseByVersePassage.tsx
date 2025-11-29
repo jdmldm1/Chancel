@@ -186,8 +186,8 @@ export default function VerseByVersePassage({
 
       {/* Verse-by-Verse Display */}
       <div className="px-6 py-6">
-        {verses.map((verse) => (
-          <div key={verse.number} className="mb-6 last:mb-0">
+        {verses.map((verse, index) => (
+          <div key={verse.number} className={verse.comments.length > 0 || selectedVerse === verse.number ? "mb-6" : "mb-2"}>
             {/* Verse Row */}
             <div className="flex items-start gap-4 group">
               {/* Verse Number */}
@@ -197,16 +197,16 @@ export default function VerseByVersePassage({
 
               {/* Verse Text */}
               <div className="flex-1">
-                <p className="text-gray-800 text-base leading-relaxed">
+                <p className="text-gray-800 text-base leading-relaxed inline">
                   {verse.text}
                 </p>
 
-                {/* Comment Button & Count */}
-                <div className="mt-2 flex items-center gap-3">
+                {/* Comment Button & Count - Show button only on hover */}
+                <div className="mt-1 flex items-center gap-3">
                   {canComment && (
                     <button
                       onClick={() => setSelectedVerse(selectedVerse === verse.number ? null : verse.number)}
-                      className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
+                      className="text-sm text-blue-600 hover:text-blue-800 font-medium items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 inline-flex"
                     >
                       <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -216,7 +216,7 @@ export default function VerseByVersePassage({
                   )}
 
                   {verse.comments.length > 0 && (
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-gray-500 inline-flex">
                       {verse.comments.length} {verse.comments.length === 1 ? 'comment' : 'comments'}
                     </span>
                   )}

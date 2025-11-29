@@ -1,10 +1,12 @@
-# BibleProject
+# Chancel
 
-A collaborative web application for group Bible study sessions with real-time commenting and discussion.
+**Sacred space. Shared study.**
+
+An online Bible study platform for collaborative group sessions with real-time commenting and discussion.
 
 ## Overview
 
-BibleProject enables Bible study leaders to organize study sessions with scripture passages, videos, and resources, while allowing group members to engage through inline comments and discussions on specific verses. Built with GraphQL, Next.js, and PostgreSQL for a modern, type-safe development experience.
+Chancel enables Bible study leaders to organize study sessions with scripture passages, videos, and resources, while allowing group members to engage through inline comments and discussions on specific verses. Built with GraphQL, Next.js, and PostgreSQL for a modern, type-safe development experience.
 
 ## Features
 

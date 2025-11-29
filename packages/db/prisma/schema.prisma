@@ -12,6 +12,17 @@ enum UserRole {
   MEMBER
 }
 
+enum SessionVisibility {
+  PUBLIC
+  PRIVATE
+}
+
+enum JoinRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
 model User {
   id        String   @id @default(cuid())
   email     String   @unique
@@ -22,36 +33,82 @@ model User {
   updatedAt DateTime @updatedAt
 
   sessions              Session[]
+  leadingSeries         Series[]
   comments              Comment[]
   sessionParticipants   SessionParticipant[]
   uploadedResources     SessionResource[]
   notifications         Notification[]
   chatMessages          ChatMessage[]
+  sentJoinRequests      JoinRequest[]        @relation("SentRequests")
+  receivedJoinRequests  JoinRequest[]        @relation("ReceivedRequests")
 
   @@index([email])
 }
 
+model Series {
+  id          String   @id @default(cuid())
+  title       String
+  description String?  @db.Text
+  imageUrl    String?
+  leaderId    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  leader   User      @relation(fields: [leaderId], references: [id])
+  sessions Session[]
+
+  @@index([leaderId])
+}
+
 model Session {
-  id            String   @id @default(cuid())
+  id            String            @id @default(cuid())
   title         String
   description   String?
-  scheduledDate DateTime
+  startDate     DateTime
+  endDate       DateTime
   leaderId      String
-  videoCallUrl  String?  // Jitsi Meet or other video call URL
-  imageUrl      String?  // Optional session header image
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  seriesId      String?
+  visibility    SessionVisibility @default(PUBLIC)
+  videoCallUrl  String?           // Jitsi Meet or other video call URL
+  imageUrl      String?           // Optional session header image
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
 
   leader               User                 @relation(fields: [leaderId], references: [id])
+  series               Series?              @relation(fields: [seriesId], references: [id], onDelete: SetNull)
   scripturePassages    ScripturePassage[]
   comments             Comment[]
   resources            SessionResource[]
   participants         SessionParticipant[]
   notifications        Notification[]
   chatMessages         ChatMessage[]
+  joinRequests         JoinRequest[]
 
   @@index([leaderId])
-  @@index([scheduledDate])
+  @@index([seriesId])
+  @@index([startDate])
+  @@index([endDate])
+  @@index([visibility])
+}
+
+model JoinRequest {
+  id        String            @id @default(cuid())
+  sessionId String
+  fromId    String            // Leader who sends the request
+  toId      String            // Member who receives the request
+  status    JoinRequestStatus @default(PENDING)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  from    User    @relation("SentRequests", fields: [fromId], references: [id], onDelete: Cascade)
+  to      User    @relation("ReceivedRequests", fields: [toId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, toId])
+  @@index([sessionId])
+  @@index([fromId])
+  @@index([toId])
+  @@index([status])
 }
 
 model ScripturePassage {

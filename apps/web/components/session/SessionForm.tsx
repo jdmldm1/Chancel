@@ -5,7 +5,7 @@ import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { gql } from '@apollo/client'
-import { useMutation } from '@apollo/client/react'
+import { useMutation, useQuery } from '@apollo/client/react'
 import { CreateSessionMutation, CreateSessionMutationVariables, UpdateSessionMutation, UpdateSessionMutationVariables } from '@bibleproject/types/src/graphql'
 import { BIBLE_BOOKS, getChapterCount, getVerseCount, getLastVerseInBook } from '@/src/lib/bible-books'
 
@@ -15,7 +15,10 @@ const CREATE_SESSION = gql`
       id
       title
       description
-      scheduledDate
+      startDate
+      endDate
+      seriesId
+      visibility
       leader {
         id
         name
@@ -39,7 +42,32 @@ const UPDATE_SESSION = gql`
       id
       title
       description
-      scheduledDate
+      startDate
+      endDate
+      seriesId
+      visibility
+    }
+  }
+`
+
+const GET_MY_SERIES = gql`
+  query GetMySeries {
+    mySeries {
+      id
+      title
+      description
+      imageUrl
+    }
+  }
+`
+
+const CREATE_SERIES = gql`
+  mutation CreateSeries($input: CreateSeriesInput!) {
+    createSeries(input: $input) {
+      id
+      title
+      description
+      imageUrl
     }
   }
 `
@@ -49,7 +77,10 @@ interface SessionFormProps {
     id: string
     title: string
     description?: string | null
-    scheduledDate: string
+    startDate: string
+    endDate: string
+    seriesId?: string | null
+    visibility?: string | null
     videoCallUrl?: string | null
     imageUrl?: string | null
     scripturePassages: {
@@ -76,10 +107,15 @@ const scripturePassageSchema = z.object({
 const formSchema = z.object({
   title: z.string().min(1, 'Title is required'),
   description: z.string().optional().nullable(),
-  scheduledDate: z.string().min(1, 'Scheduled date is required'),
+  startDate: z.string().min(1, 'Start date is required'),
+  endDate: z.string().min(1, 'End date is required'),
+  seriesId: z.string().optional().nullable(),
+  visibility: z.enum(['PUBLIC', 'PRIVATE']).default('PUBLIC'),
   videoCallUrl: z.string().optional().nullable(),
   imageUrl: z.string().optional().nullable(),
   scripturePassages: z.array(scripturePassageSchema).min(1, 'At least one scripture passage is required'),
+  newSeriesTitle: z.string().optional(),
+  newSeriesImageUrl: z.string().optional(),
 })
 
 type FormData = z.infer<typeof formSchema>
@@ -87,15 +123,60 @@ type FormData = z.infer<typeof formSchema>
 export default function SessionForm({ session, onSuccess }: SessionFormProps) {
   const [createSession] = useMutation<CreateSessionMutation, CreateSessionMutationVariables>(CREATE_SESSION)
   const [updateSession] = useMutation<UpdateSessionMutation, UpdateSessionMutationVariables>(UPDATE_SESSION)
+  const [createSeries] = useMutation<any>(CREATE_SERIES, {
+    refetchQueries: [{ query: GET_MY_SERIES }],
+  })
+  const { data: seriesData } = useQuery<any>(GET_MY_SERIES)
+  const [showNewSeriesInput, setShowNewSeriesInput] = useState(false)
+  const [uploadingSessionImage, setUploadingSessionImage] = useState(false)
+  const [uploadingSeriesImage, setUploadingSeriesImage] = useState(false)
+
+  // Calculate default dates
+  const today = new Date().toISOString().split('T')[0]
+  const oneWeekLater = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+
+  const handleImageUpload = async (file: File, fieldName: 'imageUrl' | 'newSeriesImageUrl') => {
+    const isSeriesImage = fieldName === 'newSeriesImageUrl'
+    const setUploading = isSeriesImage ? setUploadingSeriesImage : setUploadingSessionImage
+
+    setUploading(true)
+    try {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Upload failed')
+      }
+
+      const data = await response.json()
+      setValue(fieldName, data.fileUrl)
+    } catch (error) {
+      console.error('Image upload error:', error)
+      alert('Failed to upload image. Please try again.')
+    } finally {
+      setUploading(false)
+    }
+  }
 
   const { register, handleSubmit, formState: { errors }, reset, control, setValue, watch } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: session?.title || '',
       description: session?.description || '',
-      scheduledDate: session?.scheduledDate.split('T')[0] || '',
+      startDate: session?.startDate?.split('T')[0] || today,
+      endDate: session?.endDate?.split('T')[0] || oneWeekLater,
+      seriesId: session?.seriesId || '',
+      visibility: (session?.visibility as 'PUBLIC' | 'PRIVATE') || 'PUBLIC',
       videoCallUrl: session?.videoCallUrl || '',
       imageUrl: session?.imageUrl || '',
+      newSeriesTitle: '',
+      newSeriesImageUrl: '',
       scripturePassages: session?.scripturePassages.map(p => ({
         book: p.book,
         chapter: p.chapter,
@@ -123,10 +204,28 @@ export default function SessionForm({ session, onSuccess }: SessionFormProps) {
 
   const onSubmit = async (data: FormData) => {
     try {
+      let seriesId = data.seriesId
+
+      // Create new series if requested
+      if (data.newSeriesTitle && data.newSeriesTitle.trim()) {
+        const result = await createSeries({
+          variables: {
+            input: {
+              title: data.newSeriesTitle.trim(),
+              imageUrl: data.newSeriesImageUrl?.trim() || null,
+            },
+          },
+        })
+        seriesId = result.data.createSeries.id
+      }
+
       const input = {
         title: data.title,
         description: data.description,
-        scheduledDate: new Date(data.scheduledDate).toISOString(),
+        startDate: new Date(data.startDate).toISOString(),
+        endDate: new Date(data.endDate).toISOString(),
+        seriesId: seriesId || null,
+        visibility: data.visibility as any,
         videoCallUrl: data.videoCallUrl || null,
         imageUrl: data.imageUrl || null,
         scripturePassages: data.scripturePassages.map(p => ({
@@ -146,7 +245,10 @@ export default function SessionForm({ session, onSuccess }: SessionFormProps) {
             input: {
               title: input.title,
               description: input.description,
-              scheduledDate: input.scheduledDate,
+              startDate: input.startDate,
+              endDate: input.endDate,
+              seriesId: input.seriesId,
+              visibility: input.visibility as any,
               videoCallUrl: input.videoCallUrl,
               imageUrl: input.imageUrl,
             }
@@ -198,15 +300,133 @@ export default function SessionForm({ session, onSuccess }: SessionFormProps) {
         {errors.description && <p className="text-red-500 text-sm">{errors.description.message}</p>}
       </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label htmlFor="startDate" className="block text-sm font-medium text-gray-700">Start Date</label>
+          <input
+            id="startDate"
+            type="date"
+            {...register('startDate')}
+            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+          />
+          {errors.startDate && <p className="text-red-500 text-sm">{errors.startDate.message}</p>}
+        </div>
+
+        <div>
+          <label htmlFor="endDate" className="block text-sm font-medium text-gray-700">End Date</label>
+          <input
+            id="endDate"
+            type="date"
+            {...register('endDate')}
+            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+          />
+          {errors.endDate && <p className="text-red-500 text-sm">{errors.endDate.message}</p>}
+        </div>
+      </div>
+
       <div>
-        <label htmlFor="scheduledDate" className="block text-sm font-medium text-gray-700">Scheduled Date</label>
-        <input
-          id="scheduledDate"
-          type="date"
-          {...register('scheduledDate')}
-          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-        />
-        {errors.scheduledDate && <p className="text-red-500 text-sm">{errors.scheduledDate.message}</p>}
+        <label htmlFor="seriesId" className="block text-sm font-medium text-gray-700">
+          Series (Optional)
+        </label>
+        <div className="flex gap-2">
+          {!showNewSeriesInput ? (
+            <>
+              <select
+                id="seriesId"
+                {...register('seriesId')}
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-white"
+              >
+                <option value="">No series (standalone session)</option>
+                {seriesData?.mySeries?.map((series: any) => (
+                  <option key={series.id} value={series.id}>{series.title}</option>
+                ))}
+              </select>
+              <button
+                type="button"
+                onClick={() => setShowNewSeriesInput(true)}
+                className="mt-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 text-sm whitespace-nowrap"
+              >
+                + New Series
+              </button>
+            </>
+          ) : (
+            <>
+              <div className="space-y-2 flex-1">
+                <input
+                  type="text"
+                  {...register('newSeriesTitle')}
+                  placeholder="Enter new series title"
+                  className="block w-full border border-gray-300 rounded-md shadow-sm p-2"
+                />
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    {...register('newSeriesImageUrl')}
+                    placeholder="Enter series image URL or upload"
+                    className="flex-1 border border-gray-300 rounded-md shadow-sm p-2"
+                  />
+                  <label className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 cursor-pointer whitespace-nowrap text-sm">
+                    {uploadingSeriesImage ? 'Uploading...' : 'Upload'}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      disabled={uploadingSeriesImage}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) handleImageUpload(file, 'newSeriesImageUrl')
+                      }}
+                    />
+                  </label>
+                </div>
+                {watch('newSeriesImageUrl') && (
+                  <img
+                    src={watch('newSeriesImageUrl') || ''}
+                    alt="Series preview"
+                    className="h-24 w-24 object-cover rounded-md border"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none'
+                    }}
+                  />
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowNewSeriesInput(false)
+                  setValue('newSeriesTitle', '')
+                  setValue('newSeriesImageUrl', '')
+                }}
+                className="mt-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 text-sm whitespace-nowrap"
+              >
+                Cancel
+              </button>
+            </>
+          )}
+        </div>
+        {showNewSeriesInput && (
+          <p className="mt-1 text-xs text-gray-500">
+            Creating a new series will group related study sessions together.
+          </p>
+        )}
+      </div>
+
+      <div>
+        <label htmlFor="visibility" className="block text-sm font-medium text-gray-700">
+          Session Visibility
+        </label>
+        <select
+          id="visibility"
+          {...register('visibility')}
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-white"
+        >
+          <option value="PUBLIC">Public - Anyone can join</option>
+          <option value="PRIVATE">Private - Join by invitation only</option>
+        </select>
+        <p className="mt-1 text-xs text-gray-500">
+          Private sessions require you to send join requests to specific members.
+        </p>
+        {errors.visibility && <p className="text-red-500 text-sm">{errors.visibility.message}</p>}
       </div>
 
       <div>
@@ -228,17 +448,44 @@ export default function SessionForm({ session, onSuccess }: SessionFormProps) {
 
       <div>
         <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700">
-          Session Image URL (Optional)
+          Session Image (Optional)
         </label>
-        <input
-          id="imageUrl"
-          type="text"
-          {...register('imageUrl')}
-          placeholder="https://example.com/image.jpg"
-          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-        />
+        <div className="mt-1 flex gap-2">
+          <input
+            id="imageUrl"
+            type="text"
+            {...register('imageUrl')}
+            placeholder="https://example.com/image.jpg or upload below"
+            className="flex-1 border border-gray-300 rounded-md shadow-sm p-2"
+          />
+          <label className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 cursor-pointer whitespace-nowrap">
+            {uploadingSessionImage ? 'Uploading...' : 'Upload Image'}
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              disabled={uploadingSessionImage}
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) handleImageUpload(file, 'imageUrl')
+              }}
+            />
+          </label>
+        </div>
+        {watch('imageUrl') && (
+          <div className="mt-2">
+            <img
+              src={watch('imageUrl') || ''}
+              alt="Session preview"
+              className="h-32 w-32 object-cover rounded-md border"
+              onError={(e) => {
+                e.currentTarget.style.display = 'none'
+              }}
+            />
+          </div>
+        )}
         <p className="mt-1 text-xs text-gray-500">
-          Enter a URL for an image to display at the top of the session page.
+          Enter a URL or upload an image to display at the top of the session page.
         </p>
         {errors.imageUrl && <p className="text-red-500 text-sm">{errors.imageUrl.message}</p>}
       </div>

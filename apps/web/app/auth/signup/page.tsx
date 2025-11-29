@@ -75,7 +75,7 @@ export default function SignupPage() {
         <div>
           <h2 className="text-3xl font-bold text-center">Create your account</h2>
           <p className="mt-2 text-center text-gray-600">
-            Join BibleProject for collaborative Bible study
+            Join Chancel for collaborative Bible study
           </p>
         </div>
 
