@@ -7,6 +7,7 @@ import { GetMySessionsQuery, GetAllSessionsQuery, DeleteSessionMutation, DeleteS
 import Link from 'next/link'
 import { useState } from 'react'
 import { SessionListSkeleton } from './SessionListSkeleton'
+import EmptyState from '../ui/EmptyState'
 
 const GET_MY_SESSIONS = gql`
   query GetMySessions {
@@ -108,6 +109,8 @@ interface SessionListProps {
 export default function SessionList({ viewMode }: SessionListProps) {
   const { data: authSession } = useSession()
   const [sessionTypeFilter, setSessionTypeFilter] = useState<'all' | 'SCRIPTURE_BASED' | 'TOPIC_BASED'>('all')
+  const [searchQuery, setSearchQuery] = useState('')
+  const [sortBy, setSortBy] = useState<'date' | 'participants' | 'title'>('date')
 
   const { data: myData, loading: myLoading, error: myError } = useQuery<GetMySessionsQuery>(GET_MY_SESSIONS, {
     skip: viewMode !== 'my',
@@ -123,10 +126,35 @@ export default function SessionList({ viewMode }: SessionListProps) {
   const error = viewMode === 'my' ? myError : allError
   const allSessions = viewMode === 'my' ? (myData?.mySessions || []) : (allData?.publicSessions || [])
 
-  // Filter sessions by type
-  const sessions = sessionTypeFilter === 'all'
+  // Filter, search, and sort sessions
+  let sessions = sessionTypeFilter === 'all'
     ? allSessions
     : allSessions.filter(s => s.sessionType === sessionTypeFilter)
+
+  // Apply search filter
+  if (searchQuery.trim()) {
+    const query = searchQuery.toLowerCase()
+    sessions = sessions.filter(s =>
+      s.title.toLowerCase().includes(query) ||
+      s.description?.toLowerCase().includes(query) ||
+      s.leader.name.toLowerCase().includes(query) ||
+      s.series?.title.toLowerCase().includes(query)
+    )
+  }
+
+  // Apply sorting
+  sessions = [...sessions].sort((a, b) => {
+    switch (sortBy) {
+      case 'date':
+        return new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+      case 'participants':
+        return b.participants.length - a.participants.length
+      case 'title':
+        return a.title.localeCompare(b.title)
+      default:
+        return 0
+    }
+  })
 
   const handleDeleteSession = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this study session?')) {
@@ -210,15 +238,49 @@ export default function SessionList({ viewMode }: SessionListProps) {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="text-2xl font-semibold">
+      {/* Header with title and count */}
+      <div className="mb-6">
+        <h2 className="text-2xl font-semibold mb-4">
           {viewMode === 'my' ? 'Your Study Sessions' : 'All Study Sessions'}
+          <span className="ml-3 text-lg font-normal text-gray-500">
+            ({sessions.length} {sessions.length === 1 ? 'session' : 'sessions'})
+          </span>
         </h2>
 
-        {/* Session Type Filter */}
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-600">Filter by type:</span>
-          <div className="flex gap-2 bg-white border border-gray-200 rounded-lg p-1 shadow-sm">
+        {/* Search Bar */}
+        <div className="mb-4">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by title, description, leader, or series..."
+              className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-smooth"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Filters and Sort Row */}
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+          {/* Session Type Filter */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">Type:</span>
+            <div className="flex gap-2 bg-white border border-gray-200 rounded-lg p-1 shadow-sm">
             <button
               onClick={() => setSessionTypeFilter('all')}
               className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
@@ -256,39 +318,45 @@ export default function SessionList({ viewMode }: SessionListProps) {
               Topics
             </button>
           </div>
+          </div>
+
+          {/* Sort Dropdown */}
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-600">Sort by:</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as 'date' | 'participants' | 'title')}
+              className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-smooth cursor-pointer shadow-sm"
+            >
+              <option value="date">Newest First</option>
+              <option value="participants">Most Participants</option>
+              <option value="title">Title (A-Z)</option>
+            </select>
+          </div>
         </div>
       </div>
       {sessions.length === 0 ? (
-        <div className="text-center py-16 px-4">
-          <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-blue-100 mb-6">
-            <svg className="w-10 h-10 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-            </svg>
-          </div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">
-            {sessionTypeFilter === 'all'
-              ? 'No study sessions found'
-              : `No ${sessionTypeFilter === 'SCRIPTURE_BASED' ? 'scripture-based' : 'topic-based'} sessions found`}
-          </h3>
-          <p className="text-gray-600 mb-6 max-w-md mx-auto">
-            {viewMode === 'my'
+        <EmptyState
+          title={searchQuery ? 'No sessions match your search' : sessionTypeFilter === 'all' ? 'No study sessions found' : `No ${sessionTypeFilter === 'SCRIPTURE_BASED' ? 'scripture-based' : 'topic-based'} sessions found`}
+          description={
+            searchQuery
+              ? `No sessions found for "${searchQuery}". Try different keywords or clear your search.`
+              : viewMode === 'my'
               ? "You haven't created or joined any sessions yet. Start your Bible study journey by creating a new session!"
               : sessionTypeFilter !== 'all'
               ? "Try adjusting your filters or check back later for new sessions."
-              : "There are no public sessions available at the moment. Check back later or create your own!"}
-          </p>
-          {viewMode === 'my' && (
-            <button
-              onClick={() => window.location.href = '/sessions?create=true'}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-105"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              Create Your First Session
-            </button>
-          )}
-        </div>
+              : "There are no public sessions available at the moment. Check back later or create your own!"
+          }
+          icon={searchQuery ? 'search' : sessionTypeFilter !== 'all' ? 'filter' : 'sessions'}
+          action={
+            viewMode === 'my' && !searchQuery
+              ? {
+                  label: 'Create Your First Session',
+                  onClick: () => (window.location.href = '/sessions?create=true'),
+                }
+              : undefined
+          }
+        />
       ) : (
         <ul className="space-y-4">
           {sessions.map((session: Session) => {
