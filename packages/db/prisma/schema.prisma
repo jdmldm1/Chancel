@@ -17,6 +17,11 @@ enum SessionVisibility {
   PRIVATE
 }
 
+enum SessionType {
+  TOPIC_BASED
+  SCRIPTURE_BASED
+}
+
 enum JoinRequestStatus {
   PENDING
   ACCEPTED
@@ -69,6 +74,7 @@ model Session {
   leaderId      String
   seriesId      String?
   visibility    SessionVisibility @default(PUBLIC)
+  sessionType   SessionType       @default(SCRIPTURE_BASED) // Topic-based or Scripture-based study
   videoCallUrl  String?           // Jitsi Meet or other video call URL
   imageUrl      String?           // Optional session header image
   createdAt     DateTime          @default(now())
@@ -89,6 +95,7 @@ model Session {
   @@index([startDate])
   @@index([endDate])
   @@index([visibility])
+  @@index([sessionType])
 }
 
 model JoinRequest {

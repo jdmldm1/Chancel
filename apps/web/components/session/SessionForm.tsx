@@ -81,6 +81,7 @@ interface SessionFormProps {
     endDate: string
     seriesId?: string | null
     visibility?: string | null
+    sessionType?: string | null
     videoCallUrl?: string | null
     imageUrl?: string | null
     scripturePassages: {
@@ -111,6 +112,7 @@ const formSchema = z.object({
   endDate: z.string().min(1, 'End date is required'),
   seriesId: z.string().optional().nullable(),
   visibility: z.enum(['PUBLIC', 'PRIVATE']).default('PUBLIC'),
+  sessionType: z.enum(['TOPIC_BASED', 'SCRIPTURE_BASED']).default('SCRIPTURE_BASED'),
   videoCallUrl: z.string().optional().nullable(),
   imageUrl: z.string().optional().nullable(),
   scripturePassages: z.array(scripturePassageSchema).min(1, 'At least one scripture passage is required'),
@@ -173,6 +175,7 @@ export default function SessionForm({ session, onSuccess }: SessionFormProps) {
       endDate: session?.endDate?.split('T')[0] || oneWeekLater,
       seriesId: session?.seriesId || '',
       visibility: (session?.visibility as 'PUBLIC' | 'PRIVATE') || 'PUBLIC',
+      sessionType: (session?.sessionType as 'TOPIC_BASED' | 'SCRIPTURE_BASED') || 'SCRIPTURE_BASED',
       videoCallUrl: session?.videoCallUrl || '',
       imageUrl: session?.imageUrl || '',
       newSeriesTitle: '',
@@ -226,6 +229,7 @@ export default function SessionForm({ session, onSuccess }: SessionFormProps) {
         endDate: new Date(data.endDate).toISOString(),
         seriesId: seriesId || null,
         visibility: data.visibility as any,
+        sessionType: data.sessionType as any,
         videoCallUrl: data.videoCallUrl || null,
         imageUrl: data.imageUrl || null,
         scripturePassages: data.scripturePassages.map(p => ({
@@ -249,6 +253,7 @@ export default function SessionForm({ session, onSuccess }: SessionFormProps) {
               endDate: input.endDate,
               seriesId: input.seriesId,
               visibility: input.visibility as any,
+              sessionType: input.sessionType as any,
               videoCallUrl: input.videoCallUrl,
               imageUrl: input.imageUrl,
             }
@@ -427,6 +432,88 @@ export default function SessionForm({ session, onSuccess }: SessionFormProps) {
           Private sessions require you to send join requests to specific members.
         </p>
         {errors.visibility && <p className="text-red-500 text-sm">{errors.visibility.message}</p>}
+      </div>
+
+      {/* Session Type Selector */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-3">
+          Study Session Type
+        </label>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Scripture-Based Option */}
+          <label className={`relative flex flex-col p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
+            watch('sessionType') === 'SCRIPTURE_BASED'
+              ? 'border-blue-600 bg-blue-50 shadow-md'
+              : 'border-gray-200 hover:border-blue-300 bg-white'
+          }`}>
+            <input
+              type="radio"
+              value="SCRIPTURE_BASED"
+              {...register('sessionType')}
+              className="sr-only"
+            />
+            <div className="flex items-start gap-3">
+              <div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${
+                watch('sessionType') === 'SCRIPTURE_BASED'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-100 text-gray-600'
+              }`}>
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h4 className={`font-semibold mb-1 ${
+                  watch('sessionType') === 'SCRIPTURE_BASED' ? 'text-blue-900' : 'text-gray-900'
+                }`}>
+                  Scripture-Based
+                </h4>
+                <p className="text-sm text-gray-600">
+                  Study specific books of the Bible chapter by chapter or verse by verse
+                </p>
+              </div>
+            </div>
+          </label>
+
+          {/* Topic-Based Option */}
+          <label className={`relative flex flex-col p-4 border-2 rounded-lg cursor-pointer transition-all duration-200 ${
+            watch('sessionType') === 'TOPIC_BASED'
+              ? 'border-purple-600 bg-purple-50 shadow-md'
+              : 'border-gray-200 hover:border-purple-300 bg-white'
+          }`}>
+            <input
+              type="radio"
+              value="TOPIC_BASED"
+              {...register('sessionType')}
+              className="sr-only"
+            />
+            <div className="flex items-start gap-3">
+              <div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${
+                watch('sessionType') === 'TOPIC_BASED'
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-gray-100 text-gray-600'
+              }`}>
+                <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                </svg>
+              </div>
+              <div className="flex-1">
+                <h4 className={`font-semibold mb-1 ${
+                  watch('sessionType') === 'TOPIC_BASED' ? 'text-purple-900' : 'text-gray-900'
+                }`}>
+                  Topic-Based
+                </h4>
+                <p className="text-sm text-gray-600">
+                  Explore biblical themes like prayer, faith, or relationships across different passages
+                </p>
+              </div>
+            </div>
+          </label>
+        </div>
+        <p className="mt-2 text-xs text-gray-500">
+          This helps participants find sessions that match their study preferences
+        </p>
+        {errors.sessionType && <p className="text-red-500 text-sm mt-1">{errors.sessionType.message}</p>}
       </div>
 
       <div>

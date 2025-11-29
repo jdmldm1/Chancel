@@ -22,6 +22,7 @@ const GET_SESSION = gql`
       endDate
       seriesId
       visibility
+      sessionType
       videoCallUrl
       series {
         id
@@ -208,16 +209,56 @@ export default function SessionDetailPage() {
     await joinSession({ variables: { sessionId } })
   }
 
+  // Helper function to get session type badge styles
+  const getSessionTypeBadge = (type: string) => {
+    if (type === 'TOPIC_BASED') {
+      return {
+        bg: 'bg-purple-100',
+        text: 'text-purple-800',
+        border: 'border-purple-200',
+        label: 'Topic-Based Study',
+        icon: (
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+          </svg>
+        )
+      }
+    }
+    return {
+      bg: 'bg-blue-100',
+      text: 'text-blue-800',
+      border: 'border-blue-200',
+      label: 'Scripture-Based Study',
+      icon: (
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+        </svg>
+      )
+    }
+  }
+
+  const typeBadge = getSessionTypeBadge(sessionData.sessionType)
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Session Image */}
+      {/* Hero Section with Image */}
       {sessionData.imageUrl && (
-        <div className="mb-8 rounded-lg overflow-hidden shadow-lg">
+        <div className="relative mb-8 rounded-2xl overflow-hidden shadow-2xl animate-fade-in">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10" />
           <img
             src={sessionData.imageUrl}
             alt={sessionData.title}
-            className="w-full h-64 object-cover"
+            className="w-full h-80 object-cover"
           />
+          <div className="absolute bottom-0 left-0 right-0 p-6 z-20">
+            <div className="flex items-center gap-2 mb-2">
+              <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${typeBadge.bg} ${typeBadge.text} ${typeBadge.border}`}>
+                {typeBadge.icon}
+                {typeBadge.label}
+              </span>
+            </div>
+            <h1 className="text-4xl font-bold text-white drop-shadow-lg">{sessionData.title}</h1>
+          </div>
         </div>
       )}
 
@@ -235,16 +276,29 @@ export default function SessionDetailPage() {
               </div>
             )}
             <div className="flex-1">
-              <h1 className="text-4xl font-bold text-gray-900">{sessionData.title}</h1>
+              {!sessionData.imageUrl && (
+                <div className="flex items-center gap-2 mb-3">
+                  <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border ${typeBadge.bg} ${typeBadge.text} ${typeBadge.border} shadow-sm`}>
+                    {typeBadge.icon}
+                    {typeBadge.label}
+                  </span>
+                </div>
+              )}
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                {sessionData.title}
+              </h1>
               {sessionData.series && (
-                <p className="mt-2 text-sm text-indigo-600 font-medium">
+                <p className="mt-2 text-sm text-indigo-600 font-semibold flex items-center gap-1">
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                  </svg>
                   Part of series: {sessionData.series.title}
                 </p>
               )}
               {sessionData.description && (
-                <p className="mt-2 text-lg text-gray-600">{sessionData.description}</p>
+                <p className="mt-3 text-lg text-gray-600 leading-relaxed">{sessionData.description}</p>
               )}
-              <div className="mt-4 flex items-center space-x-6 text-sm text-gray-500">
+              <div className="mt-6 flex flex-wrap items-center gap-4 text-sm text-gray-600">
                 <div>
                   <span className="font-medium">Leader:</span> {sessionData.leader.name}
                 </div>

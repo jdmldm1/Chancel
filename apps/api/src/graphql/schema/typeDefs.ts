@@ -18,6 +18,11 @@ export const typeDefs = `#graphql
     PRIVATE
   }
 
+  enum SessionType {
+    TOPIC_BASED
+    SCRIPTURE_BASED
+  }
+
   enum JoinRequestStatus {
     PENDING
     ACCEPTED
@@ -56,6 +61,7 @@ export const typeDefs = `#graphql
     leaderId: String!
     seriesId: String
     visibility: SessionVisibility!
+    sessionType: SessionType!
     videoCallUrl: String
     imageUrl: String
     leader: User!
@@ -185,6 +191,7 @@ export const typeDefs = `#graphql
     endDate: DateTime!
     seriesId: String
     visibility: SessionVisibility
+    sessionType: SessionType
     videoCallUrl: String
     imageUrl: String
     scripturePassages: [CreateScripturePassageInput!]!
@@ -197,6 +204,7 @@ export const typeDefs = `#graphql
     endDate: DateTime
     seriesId: String
     visibility: SessionVisibility
+    sessionType: SessionType
     videoCallUrl: String
     imageUrl: String
   }

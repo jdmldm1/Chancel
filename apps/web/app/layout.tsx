@@ -1,7 +1,8 @@
 import type { Metadata } from "next"
 import { ApolloProviderWrapper } from "@/lib/apollo-provider"
 import { AuthSessionProvider } from "@/lib/session-provider"
-import Navigation from "@/components/navigation"
+import EnhancedNavigation from "@/components/EnhancedNavigation"
+import MainLayout from "@/components/MainLayout"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -16,11 +17,13 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
         <AuthSessionProvider>
           <ApolloProviderWrapper>
-            <Navigation />
-            {children}
+            <EnhancedNavigation />
+            <MainLayout>
+              {children}
+            </MainLayout>
           </ApolloProviderWrapper>
         </AuthSessionProvider>
       </body>
