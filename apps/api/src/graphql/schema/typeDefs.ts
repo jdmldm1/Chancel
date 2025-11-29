@@ -31,6 +31,7 @@ export const typeDefs = `#graphql
     scheduledDate: DateTime!
     leaderId: String!
     videoCallUrl: String
+    imageUrl: String
     leader: User!
     scripturePassages: [ScripturePassage!]!
     comments: [Comment!]!
@@ -49,6 +50,7 @@ export const typeDefs = `#graphql
     verseStart: Int!
     verseEnd: Int
     content: String!
+    note: String
     order: Int!
     session: Session!
     comments: [Comment!]!
@@ -128,6 +130,7 @@ export const typeDefs = `#graphql
     description: String
     scheduledDate: DateTime!
     videoCallUrl: String
+    imageUrl: String
     scripturePassages: [CreateScripturePassageInput!]!
   }
 
@@ -136,6 +139,7 @@ export const typeDefs = `#graphql
     description: String
     scheduledDate: DateTime
     videoCallUrl: String
+    imageUrl: String
   }
 
   input CreateCommentInput {
@@ -156,6 +160,7 @@ export const typeDefs = `#graphql
     verseStart: Int!
     verseEnd: Int
     content: String!
+    note: String
   }
 
   input CreateSessionResourceInput {

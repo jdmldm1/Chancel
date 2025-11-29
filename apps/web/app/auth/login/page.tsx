@@ -45,17 +45,18 @@ export default function LoginPage() {
       if (result?.error) {
         console.error('Sign in error:', result.error)
         setError('Invalid email or password')
+        setIsLoading(false)
       } else if (result?.ok) {
         console.log('Sign in successful, redirecting...')
-        router.push('/sessions')
-        router.refresh()
+        // Force immediate redirect
+        window.location.href = '/sessions'
       } else {
         setError('An unexpected error occurred')
+        setIsLoading(false)
       }
     } catch (err) {
       console.error('Sign in exception:', err)
       setError('An error occurred. Please try again.')
-    } finally {
       setIsLoading(false)
     }
   }

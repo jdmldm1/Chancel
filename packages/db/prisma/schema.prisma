@@ -38,6 +38,7 @@ model Session {
   scheduledDate DateTime
   leaderId      String
   videoCallUrl  String?  // Jitsi Meet or other video call URL
+  imageUrl      String?  // Optional session header image
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -61,6 +62,7 @@ model ScripturePassage {
   verseStart Int
   verseEnd   Int?
   content    String
+  note       String?  @db.Text // Optional leader's note for this passage
   order      Int      @default(0)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt

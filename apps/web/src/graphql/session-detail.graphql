@@ -5,6 +5,7 @@ query GetSession($id: ID!) {
     description
     scheduledDate
     videoCallUrl
+    imageUrl
     leader {
       id
       name
@@ -17,6 +18,7 @@ query GetSession($id: ID!) {
       verseStart
       verseEnd
       content
+      note
       order
       comments {
         id

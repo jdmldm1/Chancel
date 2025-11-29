@@ -200,6 +200,17 @@ export default function SessionDetailPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Session Image */}
+      {sessionData.imageUrl && (
+        <div className="mb-8 rounded-lg overflow-hidden shadow-lg">
+          <img
+            src={sessionData.imageUrl}
+            alt={sessionData.title}
+            className="w-full h-64 object-cover"
+          />
+        </div>
+      )}
+
       {/* Header */}
       <div className="mb-8">
         <div className="flex justify-between items-start">

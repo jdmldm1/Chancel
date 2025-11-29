@@ -1,13 +1,13 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { gql } from '@apollo/client'
 import { useMutation } from '@apollo/client/react'
 import { CreateSessionMutation, CreateSessionMutationVariables, UpdateSessionMutation, UpdateSessionMutationVariables } from '@bibleproject/types/src/graphql'
-import { BIBLE_BOOKS, getChapterCount, getVerseCount, getLastChapterInBook, getLastVerseInBook } from '@/src/lib/bible-books'
+import { BIBLE_BOOKS, getChapterCount, getVerseCount, getLastVerseInBook } from '@/src/lib/bible-books'
 
 const CREATE_SESSION = gql`
   mutation CreateSession($input: CreateSessionInput!) {
@@ -51,12 +51,14 @@ interface SessionFormProps {
     description?: string | null
     scheduledDate: string
     videoCallUrl?: string | null
+    imageUrl?: string | null
     scripturePassages: {
       book: string
       chapter: number
       verseStart: number
       verseEnd?: number | null
       content: string
+      note?: string | null
     }[]
   }
   onSuccess?: () => void
@@ -67,7 +69,8 @@ const scripturePassageSchema = z.object({
   chapter: z.number().min(1, 'Chapter is required'),
   verseStart: z.number().min(1, 'Starting verse is required'),
   verseEnd: z.number().optional().nullable(),
-  content: z.string().optional().default(''), // Content now fetched from API, not user-provided
+  content: z.string().optional().default(''),
+  note: z.string().optional().nullable(),
 })
 
 const formSchema = z.object({
@@ -75,6 +78,7 @@ const formSchema = z.object({
   description: z.string().optional().nullable(),
   scheduledDate: z.string().min(1, 'Scheduled date is required'),
   videoCallUrl: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
   scripturePassages: z.array(scripturePassageSchema).min(1, 'At least one scripture passage is required'),
 })
 
@@ -84,12 +88,6 @@ export default function SessionForm({ session, onSuccess }: SessionFormProps) {
   const [createSession] = useMutation<CreateSessionMutation, CreateSessionMutationVariables>(CREATE_SESSION)
   const [updateSession] = useMutation<UpdateSessionMutation, UpdateSessionMutationVariables>(UPDATE_SESSION)
 
-  // State for managing scripture passage selections
-  const [selectedBook, setSelectedBook] = useState(session?.scripturePassages[0]?.book || '')
-  const [selectedChapter, setSelectedChapter] = useState(session?.scripturePassages[0]?.chapter || 1)
-  const [chapters, setChapters] = useState<number[]>([])
-  const [versesInChapter, setVersesInChapter] = useState<number[]>([])
-
   const { register, handleSubmit, formState: { errors }, reset, control, setValue, watch } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -97,51 +95,31 @@ export default function SessionForm({ session, onSuccess }: SessionFormProps) {
       description: session?.description || '',
       scheduledDate: session?.scheduledDate.split('T')[0] || '',
       videoCallUrl: session?.videoCallUrl || '',
+      imageUrl: session?.imageUrl || '',
       scripturePassages: session?.scripturePassages.map(p => ({
         book: p.book,
         chapter: p.chapter,
         verseStart: p.verseStart,
         verseEnd: p.verseEnd,
         content: '',
+        note: p.note || '',
       })) || [{
         book: '',
         chapter: 1,
         verseStart: 1,
+        verseEnd: null,
         content: '',
+        note: '',
       }],
     },
   })
 
-  // Watch for changes to book and chapter
-  const watchedBook = watch('scripturePassages.0.book')
-  const watchedChapter = watch('scripturePassages.0.chapter')
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'scripturePassages',
+  })
 
-  // Update chapters when book changes
-  useEffect(() => {
-    if (watchedBook) {
-      const chapterCount = getChapterCount(watchedBook)
-      const chapterArray = Array.from({ length: chapterCount }, (_, i) => i + 1)
-      setChapters(chapterArray)
-      setSelectedBook(watchedBook)
-
-      // Auto-set end verse to last verse in the last chapter of the book
-      const lastChapter = getLastChapterInBook(watchedBook)
-      const lastVerse = getLastVerseInBook(watchedBook)
-      setValue('scripturePassages.0.chapter', 1)
-      setValue('scripturePassages.0.verseStart', 1)
-      setValue('scripturePassages.0.verseEnd', lastVerse)
-    }
-  }, [watchedBook, setValue])
-
-  // Update verses when chapter changes
-  useEffect(() => {
-    if (watchedBook && watchedChapter) {
-      const verseCount = getVerseCount(watchedBook, watchedChapter)
-      const verseArray = Array.from({ length: verseCount }, (_, i) => i + 1)
-      setVersesInChapter(verseArray)
-      setSelectedChapter(watchedChapter)
-    }
-  }, [watchedBook, watchedChapter])
+  const watchedPassages = watch('scripturePassages')
 
   const onSubmit = async (data: FormData) => {
     try {
@@ -150,12 +128,14 @@ export default function SessionForm({ session, onSuccess }: SessionFormProps) {
         description: data.description,
         scheduledDate: new Date(data.scheduledDate).toISOString(),
         videoCallUrl: data.videoCallUrl || null,
+        imageUrl: data.imageUrl || null,
         scripturePassages: data.scripturePassages.map(p => ({
           book: p.book,
           chapter: p.chapter,
           verseStart: p.verseStart,
           verseEnd: p.verseEnd || null,
-          content: '', // Content is now fetched from Bible API, not stored in DB
+          content: '',
+          note: p.note || null,
         })),
       }
 
@@ -168,6 +148,7 @@ export default function SessionForm({ session, onSuccess }: SessionFormProps) {
               description: input.description,
               scheduledDate: input.scheduledDate,
               videoCallUrl: input.videoCallUrl,
+              imageUrl: input.imageUrl,
             }
           },
         })
@@ -180,8 +161,18 @@ export default function SessionForm({ session, onSuccess }: SessionFormProps) {
       onSuccess?.()
     } catch (err) {
       console.error('Error saving session:', err)
-      // TODO: Display error to user
     }
+  }
+
+  const addPassage = () => {
+    append({
+      book: '',
+      chapter: 1,
+      verseStart: 1,
+      verseEnd: null,
+      content: '',
+      note: '',
+    })
   }
 
   return (
@@ -235,73 +226,52 @@ export default function SessionForm({ session, onSuccess }: SessionFormProps) {
         {errors.videoCallUrl && <p className="text-red-500 text-sm">{errors.videoCallUrl.message}</p>}
       </div>
 
+      <div>
+        <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700">
+          Session Image URL (Optional)
+        </label>
+        <input
+          id="imageUrl"
+          type="text"
+          {...register('imageUrl')}
+          placeholder="https://example.com/image.jpg"
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+        />
+        <p className="mt-1 text-xs text-gray-500">
+          Enter a URL for an image to display at the top of the session page.
+        </p>
+        {errors.imageUrl && <p className="text-red-500 text-sm">{errors.imageUrl.message}</p>}
+      </div>
+
       {/* Scripture Passages */}
       <div>
-        <h3 className="text-lg font-semibold mt-6 mb-2">Scripture Passages</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label htmlFor="scripturePassages.0.book" className="block text-sm font-medium text-gray-700">Book</label>
-            <select
-              id="scripturePassages.0.book"
-              {...register('scripturePassages.0.book')}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-white"
-            >
-              <option value="">Select a book...</option>
-              {BIBLE_BOOKS.map(book => (
-                <option key={book.name} value={book.name}>{book.name}</option>
-              ))}
-            </select>
-            {errors.scripturePassages?.[0]?.book && <p className="text-red-500 text-sm mt-1">{errors.scripturePassages[0].book.message}</p>}
-          </div>
-
-          <div>
-            <label htmlFor="scripturePassages.0.chapter" className="block text-sm font-medium text-gray-700">Chapter</label>
-            <select
-              id="scripturePassages.0.chapter"
-              {...register('scripturePassages.0.chapter', { valueAsNumber: true })}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-white"
-              disabled={!watchedBook}
-            >
-              <option value="">Select chapter...</option>
-              {chapters.map(ch => (
-                <option key={ch} value={ch}>{ch}</option>
-              ))}
-            </select>
-            {errors.scripturePassages?.[0]?.chapter && <p className="text-red-500 text-sm mt-1">{errors.scripturePassages[0].chapter.message}</p>}
-          </div>
-
-          <div>
-            <label htmlFor="scripturePassages.0.verseStart" className="block text-sm font-medium text-gray-700">Start Verse</label>
-            <select
-              id="scripturePassages.0.verseStart"
-              {...register('scripturePassages.0.verseStart', { valueAsNumber: true })}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-white"
-              disabled={!watchedChapter}
-            >
-              <option value="">Select verse...</option>
-              {versesInChapter.map(v => (
-                <option key={v} value={v}>{v}</option>
-              ))}
-            </select>
-            {errors.scripturePassages?.[0]?.verseStart && <p className="text-red-500 text-sm mt-1">{errors.scripturePassages[0].verseStart.message}</p>}
-          </div>
-
-          <div>
-            <label htmlFor="scripturePassages.0.verseEnd" className="block text-sm font-medium text-gray-700">End Verse (Optional)</label>
-            <select
-              id="scripturePassages.0.verseEnd"
-              {...register('scripturePassages.0.verseEnd', { valueAsNumber: true, required: false })}
-              className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-white"
-              disabled={!watchedChapter}
-            >
-              <option value="">Same as start verse...</option>
-              {versesInChapter.map(v => (
-                <option key={v} value={v}>{v}</option>
-              ))}
-            </select>
-            {errors.scripturePassages?.[0]?.verseEnd && <p className="text-red-500 text-sm mt-1">{errors.scripturePassages[0].verseEnd.message}</p>}
-          </div>
+        <div className="flex justify-between items-center mb-4">
+          <h3 className="text-lg font-semibold">Scripture Passages</h3>
+          <button
+            type="button"
+            onClick={addPassage}
+            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 text-sm"
+          >
+            + Add Another Passage
+          </button>
         </div>
+
+        {fields.map((field, index) => (
+          <ScripturePassageField
+            key={field.id}
+            index={index}
+            register={register}
+            setValue={setValue}
+            watch={watch}
+            errors={errors}
+            onRemove={fields.length > 1 ? () => remove(index) : undefined}
+          />
+        ))}
+
+        {errors.scripturePassages && (
+          <p className="text-red-500 text-sm mt-2">{errors.scripturePassages.message}</p>
+        )}
+
         <p className="mt-3 text-sm text-gray-600 bg-blue-50 p-3 rounded-md border border-blue-200">
           ℹ️ Scripture content will be automatically fetched from the Bible API when participants view this study session.
         </p>
@@ -314,5 +284,152 @@ export default function SessionForm({ session, onSuccess }: SessionFormProps) {
         {session ? 'Update Study Session' : 'Create Study Session'}
       </button>
     </form>
+  )
+}
+
+interface ScripturePassageFieldProps {
+  index: number
+  register: any
+  setValue: any
+  watch: any
+  errors: any
+  onRemove?: () => void
+}
+
+function ScripturePassageField({ index, register, setValue, watch, errors, onRemove }: ScripturePassageFieldProps) {
+  const [chapters, setChapters] = useState<number[]>([])
+  const [verses, setVerses] = useState<number[]>([])
+
+  const watchedBook = watch(`scripturePassages.${index}.book`)
+  const watchedChapter = watch(`scripturePassages.${index}.chapter`)
+
+  // Update chapters and verses when book changes
+  useEffect(() => {
+    if (watchedBook) {
+      const chapterCount = getChapterCount(watchedBook)
+      const chapterArray = Array.from({ length: chapterCount }, (_, i) => i + 1)
+      setChapters(chapterArray)
+
+      // Reset to chapter 1 and auto-set end verse
+      setValue(`scripturePassages.${index}.chapter`, 1)
+      setValue(`scripturePassages.${index}.verseStart`, 1)
+
+      const lastVerse = getLastVerseInBook(watchedBook)
+      setValue(`scripturePassages.${index}.verseEnd`, lastVerse)
+    }
+  }, [watchedBook, setValue, index])
+
+  // Update verses when chapter changes
+  useEffect(() => {
+    if (watchedBook && watchedChapter) {
+      const verseCount = getVerseCount(watchedBook, watchedChapter)
+      const verseArray = Array.from({ length: verseCount }, (_, i) => i + 1)
+      setVerses(verseArray)
+    }
+  }, [watchedBook, watchedChapter])
+
+  return (
+    <div className="mb-6 p-4 border border-gray-200 rounded-md bg-gray-50">
+      <div className="flex justify-between items-center mb-3">
+        <h4 className="font-medium text-gray-700">Passage {index + 1}</h4>
+        {onRemove && (
+          <button
+            type="button"
+            onClick={onRemove}
+            className="text-red-600 hover:text-red-800 text-sm font-medium"
+          >
+            Remove
+          </button>
+        )}
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Book</label>
+          <select
+            {...register(`scripturePassages.${index}.book`)}
+            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-white"
+          >
+            <option value="">Select a book...</option>
+            {BIBLE_BOOKS.map(book => (
+              <option key={book.name} value={book.name}>{book.name}</option>
+            ))}
+          </select>
+          {errors.scripturePassages?.[index]?.book && (
+            <p className="text-red-500 text-sm mt-1">{errors.scripturePassages[index].book.message}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Chapter</label>
+          <select
+            {...register(`scripturePassages.${index}.chapter`, { valueAsNumber: true })}
+            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-white"
+            disabled={!watchedBook}
+          >
+            <option value="">Select chapter...</option>
+            {chapters.map(ch => (
+              <option key={ch} value={ch}>{ch}</option>
+            ))}
+          </select>
+          {errors.scripturePassages?.[index]?.chapter && (
+            <p className="text-red-500 text-sm mt-1">{errors.scripturePassages[index].chapter.message}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">Start Verse</label>
+          <select
+            {...register(`scripturePassages.${index}.verseStart`, { valueAsNumber: true })}
+            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-white"
+            disabled={!watchedChapter}
+          >
+            <option value="">Select verse...</option>
+            {verses.map(v => (
+              <option key={v} value={v}>{v}</option>
+            ))}
+          </select>
+          {errors.scripturePassages?.[index]?.verseStart && (
+            <p className="text-red-500 text-sm mt-1">{errors.scripturePassages[index].verseStart.message}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block text-sm font-medium text-gray-700">End Verse (Optional)</label>
+          <select
+            {...register(`scripturePassages.${index}.verseEnd`, { valueAsNumber: true, required: false })}
+            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 bg-white"
+            disabled={!watchedChapter}
+          >
+            <option value="">Same as start verse...</option>
+            {verses.map(v => (
+              <option key={v} value={v}>{v}</option>
+            ))}
+          </select>
+          {errors.scripturePassages?.[index]?.verseEnd && (
+            <p className="text-red-500 text-sm mt-1">{errors.scripturePassages[index].verseEnd.message}</p>
+          )}
+        </div>
+      </div>
+
+      {/* Note field */}
+      <div className="mt-4">
+        <label className="block text-sm font-medium text-gray-700">
+          Leader's Note (Optional)
+        </label>
+        <textarea
+          {...register(`scripturePassages.${index}.note`)}
+          rows={3}
+          placeholder="Add a note about the point you're trying to make with this passage..."
+          className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
+        />
+        <p className="mt-1 text-xs text-gray-500">
+          This note will appear above the scripture passage to help participants understand your teaching point.
+        </p>
+        {errors.scripturePassages?.[index]?.note && (
+          <p className="text-red-500 text-sm mt-1">{errors.scripturePassages[index].note.message}</p>
+        )}
+      </div>
+    </div>
   )
 }

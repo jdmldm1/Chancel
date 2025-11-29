@@ -85,11 +85,13 @@ export type CreateScripturePassageInput = {
     book: Scalars['String']['input'];
     chapter: Scalars['Int']['input'];
     content: Scalars['String']['input'];
+    note?: InputMaybe<Scalars['String']['input']>;
     verseEnd?: InputMaybe<Scalars['Int']['input']>;
     verseStart: Scalars['Int']['input'];
 };
 export type CreateSessionInput = {
     description?: InputMaybe<Scalars['String']['input']>;
+    imageUrl?: InputMaybe<Scalars['String']['input']>;
     scheduledDate: Scalars['DateTime']['input'];
     scripturePassages: Array<CreateScripturePassageInput>;
     title: Scalars['String']['input'];
@@ -230,6 +232,7 @@ export type ScripturePassage = {
     content: Scalars['String']['output'];
     createdAt: Scalars['DateTime']['output'];
     id: Scalars['ID']['output'];
+    note?: Maybe<Scalars['String']['output']>;
     order: Scalars['Int']['output'];
     session: Session;
     sessionId: Scalars['String']['output'];
@@ -244,6 +247,7 @@ export type Session = {
     createdAt: Scalars['DateTime']['output'];
     description?: Maybe<Scalars['String']['output']>;
     id: Scalars['ID']['output'];
+    imageUrl?: Maybe<Scalars['String']['output']>;
     leader: User;
     leaderId: Scalars['String']['output'];
     participants: Array<SessionParticipant>;
@@ -315,6 +319,7 @@ export type UpdateCommentInput = {
 };
 export type UpdateSessionInput = {
     description?: InputMaybe<Scalars['String']['input']>;
+    imageUrl?: InputMaybe<Scalars['String']['input']>;
     scheduledDate?: InputMaybe<Scalars['DateTime']['input']>;
     title?: InputMaybe<Scalars['String']['input']>;
     videoCallUrl?: InputMaybe<Scalars['String']['input']>;
@@ -398,6 +403,7 @@ export type GetSessionQuery = {
         description?: string | null;
         scheduledDate: any;
         videoCallUrl?: string | null;
+        imageUrl?: string | null;
         leader: {
             __typename?: 'User';
             id: string;
@@ -412,6 +418,7 @@ export type GetSessionQuery = {
             verseStart: number;
             verseEnd?: number | null;
             content: string;
+            note?: string | null;
             order: number;
             comments: Array<{
                 __typename?: 'Comment';

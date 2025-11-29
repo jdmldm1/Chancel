@@ -48,6 +48,7 @@ export declare const resolvers: {
             scheduledDate: Date;
             leaderId: string;
             videoCallUrl: string | null;
+            imageUrl: string | null;
         } | null>;
         sessions: (_parent: unknown, _args: unknown, context: Context) => Promise<{
             description: string | null;
@@ -58,6 +59,7 @@ export declare const resolvers: {
             scheduledDate: Date;
             leaderId: string;
             videoCallUrl: string | null;
+            imageUrl: string | null;
         }[]>;
         mySessions: (_parent: unknown, _args: unknown, context: Context) => Promise<{
             description: string | null;
@@ -68,6 +70,7 @@ export declare const resolvers: {
             scheduledDate: Date;
             leaderId: string;
             videoCallUrl: string | null;
+            imageUrl: string | null;
         }[]>;
         comments: (_parent: unknown, args: {
             sessionId: string;
@@ -107,6 +110,7 @@ export declare const resolvers: {
             chapter: number;
             verseStart: number;
             verseEnd: number | null;
+            note: string | null;
             order: number;
         }[]>;
         sessionResources: (_parent: unknown, args: {
@@ -155,12 +159,15 @@ export declare const resolvers: {
                 title: string;
                 description?: string;
                 scheduledDate: Date;
+                videoCallUrl?: string;
+                imageUrl?: string;
                 scripturePassages: {
                     book: string;
                     chapter: number;
                     verseStart: number;
                     verseEnd?: number;
                     content: string;
+                    note?: string;
                 }[];
             };
         }, context: Context) => Promise<{
@@ -172,6 +179,7 @@ export declare const resolvers: {
             scheduledDate: Date;
             leaderId: string;
             videoCallUrl: string | null;
+            imageUrl: string | null;
         }>;
         updateSession: (_parent: unknown, args: {
             id: string;
@@ -179,6 +187,8 @@ export declare const resolvers: {
                 title?: string;
                 description?: string;
                 scheduledDate?: Date;
+                videoCallUrl?: string;
+                imageUrl?: string;
             };
         }, context: Context) => Promise<{
             description: string | null;
@@ -189,6 +199,7 @@ export declare const resolvers: {
             scheduledDate: Date;
             leaderId: string;
             videoCallUrl: string | null;
+            imageUrl: string | null;
         }>;
         deleteSession: (_parent: unknown, args: {
             id: string;
@@ -201,6 +212,7 @@ export declare const resolvers: {
             scheduledDate: Date;
             leaderId: string;
             videoCallUrl: string | null;
+            imageUrl: string | null;
         }>;
         createComment: (_parent: unknown, args: {
             input: {
@@ -281,6 +293,7 @@ export declare const resolvers: {
             chapter: number;
             verseStart: number;
             verseEnd: number | null;
+            note: string | null;
             order: number;
         }>;
         deleteScripturePassage: (_parent: unknown, args: {
@@ -358,6 +371,7 @@ export declare const resolvers: {
             scheduledDate: Date;
             leaderId: string;
             videoCallUrl: string | null;
+            imageUrl: string | null;
         }[]>;
         comments: (parent: {
             id: string;
@@ -397,6 +411,7 @@ export declare const resolvers: {
             chapter: number;
             verseStart: number;
             verseEnd: number | null;
+            note: string | null;
             order: number;
         }[]>;
         comments: (parent: {
@@ -459,6 +474,7 @@ export declare const resolvers: {
             scheduledDate: Date;
             leaderId: string;
             videoCallUrl: string | null;
+            imageUrl: string | null;
         } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
         comments: (parent: {
             id: string;
@@ -487,6 +503,7 @@ export declare const resolvers: {
             chapter: number;
             verseStart: number;
             verseEnd: number | null;
+            note: string | null;
             order: number;
         } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
         session: (parent: {
@@ -500,6 +517,7 @@ export declare const resolvers: {
             scheduledDate: Date;
             leaderId: string;
             videoCallUrl: string | null;
+            imageUrl: string | null;
         } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
         user: (parent: {
             userId: string;
@@ -551,6 +569,7 @@ export declare const resolvers: {
             scheduledDate: Date;
             leaderId: string;
             videoCallUrl: string | null;
+            imageUrl: string | null;
         } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
         uploader: (parent: {
             uploadedBy: string;
@@ -576,6 +595,7 @@ export declare const resolvers: {
             scheduledDate: Date;
             leaderId: string;
             videoCallUrl: string | null;
+            imageUrl: string | null;
         } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
         user: (parent: {
             userId: string;
@@ -612,6 +632,7 @@ export declare const resolvers: {
             scheduledDate: Date;
             leaderId: string;
             videoCallUrl: string | null;
+            imageUrl: string | null;
         } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
     };
     ChatMessage: {
@@ -626,6 +647,7 @@ export declare const resolvers: {
             scheduledDate: Date;
             leaderId: string;
             videoCallUrl: string | null;
+            imageUrl: string | null;
         } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
         user: (parent: {
             userId: string;

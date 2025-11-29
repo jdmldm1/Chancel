@@ -174,12 +174,15 @@ export const resolvers = {
           title: string
           description?: string
           scheduledDate: Date
+          videoCallUrl?: string
+          imageUrl?: string
           scripturePassages: {
             book: string
             chapter: number
             verseStart: number
             verseEnd?: number
             content: string
+            note?: string
           }[]
         }
       },
@@ -189,13 +192,15 @@ export const resolvers = {
         throw new Error('Not authenticated')
       }
 
-      const { title, description, scheduledDate, scripturePassages } = args.input
+      const { title, description, scheduledDate, videoCallUrl, imageUrl, scripturePassages } = args.input
 
       return context.prisma.session.create({
         data: {
           title,
           description,
           scheduledDate,
+          videoCallUrl,
+          imageUrl,
           leaderId: context.userId,
           scripturePassages: {
             create: scripturePassages.map((passage, index) => ({
@@ -211,7 +216,7 @@ export const resolvers = {
       _parent: unknown,
       args: {
         id: string
-        input: { title?: string; description?: string; scheduledDate?: Date }
+        input: { title?: string; description?: string; scheduledDate?: Date; videoCallUrl?: string; imageUrl?: string }
       },
       context: Context
     ) => {

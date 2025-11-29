@@ -132,12 +132,14 @@ export const resolvers = {
             if (!context.userId) {
                 throw new Error('Not authenticated');
             }
-            const { title, description, scheduledDate, scripturePassages } = args.input;
+            const { title, description, scheduledDate, videoCallUrl, imageUrl, scripturePassages } = args.input;
             return context.prisma.session.create({
                 data: {
                     title,
                     description,
                     scheduledDate,
+                    videoCallUrl,
+                    imageUrl,
                     leaderId: context.userId,
                     scripturePassages: {
                         create: scripturePassages.map((passage, index) => ({

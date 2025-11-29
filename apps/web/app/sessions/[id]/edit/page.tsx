@@ -14,6 +14,7 @@ const GET_SESSION = gql`
       description
       scheduledDate
       videoCallUrl
+      imageUrl
       scripturePassages {
         id
         book
@@ -21,6 +22,7 @@ const GET_SESSION = gql`
         verseStart
         verseEnd
         content
+        note
       }
     }
   }
@@ -61,12 +63,14 @@ export default function EditSessionPage() {
           description: data.session.description,
           scheduledDate: data.session.scheduledDate,
           videoCallUrl: data.session.videoCallUrl,
+          imageUrl: data.session.imageUrl,
           scripturePassages: data.session.scripturePassages.map(p => ({
             book: p.book,
             chapter: p.chapter,
             verseStart: p.verseStart,
             verseEnd: p.verseEnd,
             content: p.content,
+            note: p.note,
           })),
         }}
         onSuccess={() => router.push(`/sessions/${sessionId}`)}
