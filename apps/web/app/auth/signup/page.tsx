@@ -8,6 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { gql } from '@apollo/client'
 import { useMutation } from '@apollo/client/react'
+import { useToast } from '@/components/ui/toast'
 
 const signupSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -35,14 +36,25 @@ const SIGNUP_MUTATION = gql`
 
 export default function SignupPage() {
   const router = useRouter()
+  const { addToast } = useToast()
   const [error, setError] = useState<string | null>(null)
 
   const [signup, { loading }] = useMutation(SIGNUP_MUTATION, {
     onCompleted: () => {
+      addToast({
+        type: 'success',
+        message: 'Account created successfully!',
+        description: 'Please sign in with your new account.',
+      })
       router.push('/auth/login?registered=true')
     },
     onError: (error) => {
       setError(error.message || 'An error occurred during signup')
+      addToast({
+        type: 'error',
+        message: 'Sign up failed',
+        description: error.message || 'An error occurred during signup. Please try again.',
+      })
     },
   })
 

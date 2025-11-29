@@ -8,6 +8,7 @@ import { gql } from '@apollo/client'
 import { useMutation, useQuery } from '@apollo/client/react'
 import { CreateSessionMutation, CreateSessionMutationVariables, UpdateSessionMutation, UpdateSessionMutationVariables } from '@bibleproject/types/src/graphql'
 import { BIBLE_BOOKS, getChapterCount, getVerseCount, getLastVerseInBook } from '@/src/lib/bible-books'
+import { useToast } from '@/components/ui/toast'
 
 const CREATE_SESSION = gql`
   mutation CreateSession($input: CreateSessionInput!) {
@@ -123,6 +124,7 @@ const formSchema = z.object({
 type FormData = z.infer<typeof formSchema>
 
 export default function SessionForm({ session, onSuccess }: SessionFormProps) {
+  const { addToast } = useToast()
   const [createSession] = useMutation<CreateSessionMutation, CreateSessionMutationVariables>(CREATE_SESSION)
   const [updateSession] = useMutation<UpdateSessionMutation, UpdateSessionMutationVariables>(UPDATE_SESSION)
   const [createSeries] = useMutation<any>(CREATE_SERIES, {
@@ -158,15 +160,24 @@ export default function SessionForm({ session, onSuccess }: SessionFormProps) {
 
       const data = await response.json()
       setValue(fieldName, data.fileUrl)
+      addToast({
+        type: 'success',
+        message: 'Image uploaded successfully',
+        description: 'Your image has been uploaded and attached.',
+      })
     } catch (error) {
       console.error('Image upload error:', error)
-      alert('Failed to upload image. Please try again.')
+      addToast({
+        type: 'error',
+        message: 'Image upload failed',
+        description: error instanceof Error ? error.message : 'Failed to upload image. Please try again.',
+      })
     } finally {
       setUploading(false)
     }
   }
 
-  const { register, handleSubmit, formState: { errors }, reset, control, setValue, watch } = useForm<FormData>({
+  const { register, handleSubmit, formState: { errors, isSubmitting }, reset, control, setValue, watch } = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: session?.title || '',
@@ -259,15 +270,30 @@ export default function SessionForm({ session, onSuccess }: SessionFormProps) {
             }
           },
         })
+        addToast({
+          type: 'success',
+          message: 'Session updated successfully',
+          description: 'Your study session has been updated.',
+        })
       } else {
         await createSession({
           variables: { input },
+        })
+        addToast({
+          type: 'success',
+          message: 'Session created successfully',
+          description: 'Your new study session is ready to go!',
         })
       }
       reset()
       onSuccess?.()
     } catch (err) {
       console.error('Error saving session:', err)
+      addToast({
+        type: 'error',
+        message: session ? 'Failed to update session' : 'Failed to create session',
+        description: err instanceof Error ? err.message : 'An unexpected error occurred. Please try again.',
+      })
     }
   }
 
@@ -613,9 +639,16 @@ export default function SessionForm({ session, onSuccess }: SessionFormProps) {
 
       <button
         type="submit"
-        className="rounded-md bg-blue-600 px-6 py-3 text-white font-semibold hover:bg-blue-700"
+        disabled={isSubmitting}
+        className="rounded-md bg-blue-600 px-6 py-3 text-white font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-opacity"
       >
-        {session ? 'Update Study Session' : 'Create Study Session'}
+        {isSubmitting && (
+          <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+        )}
+        {isSubmitting ? (session ? 'Updating...' : 'Creating...') : (session ? 'Update Study Session' : 'Create Study Session')}
       </button>
     </form>
   )

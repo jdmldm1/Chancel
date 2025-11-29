@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import { useToast } from '@/components/ui/toast'
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -18,6 +19,7 @@ type LoginFormData = z.infer<typeof loginSchema>
 
 export default function LoginPage() {
   const router = useRouter()
+  const { addToast } = useToast()
   const [error, setError] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [socialLoading, setSocialLoading] = useState<string | null>(null)
@@ -59,13 +61,28 @@ export default function LoginPage() {
       if (result?.error) {
         console.error('Sign in error:', result.error)
         setError('Invalid email or password')
+        addToast({
+          type: 'error',
+          message: 'Sign in failed',
+          description: 'Invalid email or password. Please try again.',
+        })
         setIsLoading(false)
       } else if (result?.ok) {
         console.log('Sign in successful, redirecting...')
+        addToast({
+          type: 'success',
+          message: 'Welcome back!',
+          description: 'You have successfully signed in.',
+        })
         // Force immediate redirect
         window.location.href = '/sessions'
       } else {
         setError('An unexpected error occurred')
+        addToast({
+          type: 'error',
+          message: 'Sign in failed',
+          description: 'An unexpected error occurred. Please try again.',
+        })
         setIsLoading(false)
       }
     } catch (err) {
