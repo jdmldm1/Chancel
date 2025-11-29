@@ -1,6 +1,6 @@
 import { GraphQLScalarType } from 'graphql';
 import type { PrismaClient } from '@prisma/client';
-import { UserRole } from '@prisma/client';
+import { UserRole, ResourceType } from '@prisma/client';
 export interface Context {
     prisma: PrismaClient;
     userId?: string;
@@ -47,6 +47,7 @@ export declare const resolvers: {
             title: string;
             scheduledDate: Date;
             leaderId: string;
+            videoCallUrl: string | null;
         } | null>;
         sessions: (_parent: unknown, _args: unknown, context: Context) => Promise<{
             description: string | null;
@@ -56,6 +57,7 @@ export declare const resolvers: {
             title: string;
             scheduledDate: Date;
             leaderId: string;
+            videoCallUrl: string | null;
         }[]>;
         mySessions: (_parent: unknown, _args: unknown, context: Context) => Promise<{
             description: string | null;
@@ -65,6 +67,7 @@ export declare const resolvers: {
             title: string;
             scheduledDate: Date;
             leaderId: string;
+            videoCallUrl: string | null;
         }[]>;
         comments: (_parent: unknown, args: {
             sessionId: string;
@@ -117,7 +120,19 @@ export declare const resolvers: {
             fileName: string;
             fileUrl: string;
             fileType: string;
+            resourceType: import(".prisma/client").$Enums.ResourceType;
+            videoId: string | null;
             uploadedBy: string;
+        }[]>;
+        chatMessages: (_parent: unknown, args: {
+            sessionId: string;
+        }, context: Context) => Promise<{
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            sessionId: string;
+            userId: string;
+            message: string;
         }[]>;
     };
     Mutation: {
@@ -156,6 +171,7 @@ export declare const resolvers: {
             title: string;
             scheduledDate: Date;
             leaderId: string;
+            videoCallUrl: string | null;
         }>;
         updateSession: (_parent: unknown, args: {
             id: string;
@@ -172,6 +188,7 @@ export declare const resolvers: {
             title: string;
             scheduledDate: Date;
             leaderId: string;
+            videoCallUrl: string | null;
         }>;
         deleteSession: (_parent: unknown, args: {
             id: string;
@@ -183,6 +200,7 @@ export declare const resolvers: {
             title: string;
             scheduledDate: Date;
             leaderId: string;
+            videoCallUrl: string | null;
         }>;
         createComment: (_parent: unknown, args: {
             input: {
@@ -286,6 +304,8 @@ export declare const resolvers: {
                 fileName: string;
                 fileUrl: string;
                 fileType: string;
+                resourceType?: ResourceType;
+                videoId?: string;
                 description?: string;
             };
         }, context: Context) => Promise<{
@@ -297,11 +317,34 @@ export declare const resolvers: {
             fileName: string;
             fileUrl: string;
             fileType: string;
+            resourceType: import(".prisma/client").$Enums.ResourceType;
+            videoId: string | null;
             uploadedBy: string;
         }>;
         deleteSessionResource: (_parent: unknown, args: {
             id: string;
         }, context: Context) => Promise<boolean>;
+        sendChatMessage: (_parent: unknown, args: {
+            sessionId: string;
+            message: string;
+        }, context: Context) => Promise<{
+            user: {
+                name: string | null;
+                id: string;
+                email: string;
+                password: string;
+                role: import(".prisma/client").$Enums.UserRole;
+                createdAt: Date;
+                updatedAt: Date;
+            };
+        } & {
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            sessionId: string;
+            userId: string;
+            message: string;
+        }>;
     };
     User: {
         sessions: (parent: {
@@ -314,6 +357,7 @@ export declare const resolvers: {
             title: string;
             scheduledDate: Date;
             leaderId: string;
+            videoCallUrl: string | null;
         }[]>;
         comments: (parent: {
             id: string;
@@ -379,6 +423,8 @@ export declare const resolvers: {
             fileName: string;
             fileUrl: string;
             fileType: string;
+            resourceType: import(".prisma/client").$Enums.ResourceType;
+            videoId: string | null;
             uploadedBy: string;
         }[]>;
         participants: (parent: {
@@ -389,6 +435,16 @@ export declare const resolvers: {
             sessionId: string;
             userId: string;
             joinedAt: Date;
+        }[]>;
+        chatMessages: (parent: {
+            id: string;
+        }, _args: unknown, context: Context) => import(".prisma/client").Prisma.PrismaPromise<{
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            sessionId: string;
+            userId: string;
+            message: string;
         }[]>;
     };
     ScripturePassage: {
@@ -402,6 +458,7 @@ export declare const resolvers: {
             title: string;
             scheduledDate: Date;
             leaderId: string;
+            videoCallUrl: string | null;
         } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
         comments: (parent: {
             id: string;
@@ -442,6 +499,7 @@ export declare const resolvers: {
             title: string;
             scheduledDate: Date;
             leaderId: string;
+            videoCallUrl: string | null;
         } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
         user: (parent: {
             userId: string;
@@ -492,6 +550,7 @@ export declare const resolvers: {
             title: string;
             scheduledDate: Date;
             leaderId: string;
+            videoCallUrl: string | null;
         } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
         uploader: (parent: {
             uploadedBy: string;
@@ -516,6 +575,7 @@ export declare const resolvers: {
             title: string;
             scheduledDate: Date;
             leaderId: string;
+            videoCallUrl: string | null;
         } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
         user: (parent: {
             userId: string;
@@ -551,10 +611,41 @@ export declare const resolvers: {
             title: string;
             scheduledDate: Date;
             leaderId: string;
+            videoCallUrl: string | null;
+        } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
+    };
+    ChatMessage: {
+        session: (parent: {
+            sessionId: string;
+        }, _args: unknown, context: Context) => import(".prisma/client").Prisma.Prisma__SessionClient<{
+            description: string | null;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            title: string;
+            scheduledDate: Date;
+            leaderId: string;
+            videoCallUrl: string | null;
+        } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
+        user: (parent: {
+            userId: string;
+        }, _args: unknown, context: Context) => import(".prisma/client").Prisma.Prisma__UserClient<{
+            name: string | null;
+            id: string;
+            email: string;
+            password: string;
+            role: import(".prisma/client").$Enums.UserRole;
+            createdAt: Date;
+            updatedAt: Date;
         } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
     };
     Subscription: {
         commentAdded: {
+            subscribe: (_parent: unknown, args: {
+                sessionId: string;
+            }, _context: Context) => AsyncGenerator<any, void, unknown>;
+        };
+        chatMessageAdded: {
             subscribe: (_parent: unknown, args: {
                 sessionId: string;
             }, _context: Context) => AsyncGenerator<any, void, unknown>;

@@ -125,6 +125,13 @@ export const resolvers = {
         orderBy: { createdAt: 'desc' },
       })
     },
+
+    chatMessages: async (_parent: unknown, args: { sessionId: string }, context: Context) => {
+      return context.prisma.chatMessage.findMany({
+        where: { sessionId: args.sessionId },
+        orderBy: { createdAt: 'asc' },
+      })
+    },
   },
 
   Mutation: {
@@ -515,6 +522,50 @@ export const resolvers = {
 
       return true
     },
+
+    sendChatMessage: async (
+      _parent: unknown,
+      args: { sessionId: string; message: string },
+      context: Context
+    ) => {
+      if (!context.userId) {
+        throw new Error('Not authenticated')
+      }
+
+      // Verify user is leader or participant
+      const session = await context.prisma.session.findUnique({
+        where: { id: args.sessionId },
+        include: { participants: true },
+      })
+
+      if (!session) {
+        throw new Error('Session not found')
+      }
+
+      const isLeader = session.leaderId === context.userId
+      const isParticipant = session.participants.some(p => p.userId === context.userId)
+
+      if (!isLeader && !isParticipant) {
+        throw new Error('Not authorized to send messages in this session')
+      }
+
+      const chatMessage = await context.prisma.chatMessage.create({
+        data: {
+          sessionId: args.sessionId,
+          userId: context.userId,
+          message: args.message,
+        },
+        include: {
+          user: true,
+        },
+      })
+
+      // Publish the message to subscribers
+      const { pubsub } = await import('../../index.js')
+      pubsub.publish(`CHAT_MESSAGE_ADDED_${args.sessionId}`, chatMessage)
+
+      return chatMessage
+    },
   },
 
   // Field resolvers for nested data
@@ -556,6 +607,12 @@ export const resolvers = {
     participants: (parent: { id: string }, _args: unknown, context: Context) => {
       return context.prisma.sessionParticipant.findMany({
         where: { sessionId: parent.id },
+      })
+    },
+    chatMessages: (parent: { id: string }, _args: unknown, context: Context) => {
+      return context.prisma.chatMessage.findMany({
+        where: { sessionId: parent.id },
+        orderBy: { createdAt: 'asc' },
       })
     },
   },
@@ -641,6 +698,19 @@ export const resolvers = {
     },
   },
 
+  ChatMessage: {
+    session: (parent: { sessionId: string }, _args: unknown, context: Context) => {
+      return context.prisma.session.findUnique({
+        where: { id: parent.sessionId },
+      })
+    },
+    user: (parent: { userId: string }, _args: unknown, context: Context) => {
+      return context.prisma.user.findUnique({
+        where: { id: parent.userId },
+      })
+    },
+  },
+
   Subscription: {
     commentAdded: {
       subscribe: async function* (_parent: unknown, args: { sessionId: string }, _context: Context) {
@@ -665,6 +735,49 @@ export const resolvers = {
               next() {
                 if (queue.length > 0) {
                   return Promise.resolve({ value: { commentAdded: queue.shift() }, done: false })
+                }
+                return new Promise<IteratorResult<any>>((resolve) => {
+                  resolver = resolve
+                })
+              },
+              return() {
+                unsubscribe()
+                return Promise.resolve({ value: undefined, done: true })
+              },
+              throw(_error: any) {
+                unsubscribe()
+                return Promise.resolve({ value: undefined, done: true })
+              },
+            }
+          },
+        }
+
+        yield* asyncIterator
+      },
+    },
+    chatMessageAdded: {
+      subscribe: async function* (_parent: unknown, args: { sessionId: string }, _context: Context) {
+        const { pubsub } = await import('../../index.js')
+        const topic = `CHAT_MESSAGE_ADDED_${args.sessionId}`
+
+        const asyncIterator = {
+          [Symbol.asyncIterator]() {
+            const queue: any[] = []
+            let resolver: ((value: IteratorResult<any>) => void) | null = null
+
+            const unsubscribe = pubsub.subscribe(topic, (data: any) => {
+              if (resolver) {
+                resolver({ value: { chatMessageAdded: data }, done: false })
+                resolver = null
+              } else {
+                queue.push(data)
+              }
+            })
+
+            return {
+              next() {
+                if (queue.length > 0) {
+                  return Promise.resolve({ value: { chatMessageAdded: queue.shift() }, done: false })
                 }
                 return new Promise<IteratorResult<any>>((resolve) => {
                   resolver = resolve

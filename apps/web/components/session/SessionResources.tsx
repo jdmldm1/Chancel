@@ -9,7 +9,8 @@ import {
   CreateSessionResourceMutationVariables,
   DeleteSessionResourceMutation,
   DeleteSessionResourceMutationVariables,
-  GetSessionQuery
+  GetSessionQuery,
+  ResourceType
 } from '@bibleproject/types/src/graphql'
 import VideoPlayer from './VideoPlayer'
 import { parseVideoUrl, isVideoUrl } from '@/lib/video-utils'
@@ -154,7 +155,7 @@ export default function SessionResources({
             fileName: parsedVideo.fileName,
             fileUrl: videoUrl.trim(),
             fileType: 'video/url',
-            resourceType: parsedVideo.resourceType,
+            resourceType: parsedVideo.resourceType as ResourceType,
             videoId: parsedVideo.videoId,
             description: description.trim() || undefined,
           },

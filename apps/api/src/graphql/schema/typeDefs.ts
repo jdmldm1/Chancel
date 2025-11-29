@@ -30,11 +30,13 @@ export const typeDefs = `#graphql
     description: String
     scheduledDate: DateTime!
     leaderId: String!
+    videoCallUrl: String
     leader: User!
     scripturePassages: [ScripturePassage!]!
     comments: [Comment!]!
     resources: [SessionResource!]!
     participants: [SessionParticipant!]!
+    chatMessages: [ChatMessage!]!
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -109,11 +111,23 @@ export const typeDefs = `#graphql
     session: Session!
   }
 
+  type ChatMessage {
+    id: ID!
+    sessionId: String!
+    userId: String!
+    message: String!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    session: Session!
+    user: User!
+  }
+
   # Input types for mutations
   input CreateSessionInput {
     title: String!
     description: String
     scheduledDate: DateTime!
+    videoCallUrl: String
     scripturePassages: [CreateScripturePassageInput!]!
   }
 
@@ -121,6 +135,7 @@ export const typeDefs = `#graphql
     title: String
     description: String
     scheduledDate: DateTime
+    videoCallUrl: String
   }
 
   input CreateCommentInput {
@@ -173,6 +188,9 @@ export const typeDefs = `#graphql
 
     # Resource queries
     sessionResources(sessionId: ID!): [SessionResource!]!
+
+    # Chat queries
+    chatMessages(sessionId: ID!): [ChatMessage!]!
   }
 
   type Mutation {
@@ -200,6 +218,9 @@ export const typeDefs = `#graphql
     # Resource mutations
     createSessionResource(input: CreateSessionResourceInput!): SessionResource!
     deleteSessionResource(id: ID!): Boolean!
+
+    # Chat mutations
+    sendChatMessage(sessionId: ID!, message: String!): ChatMessage!
   }
 
   type Subscription {
@@ -210,6 +231,9 @@ export const typeDefs = `#graphql
 
     # Typing indicators
     userTyping(sessionId: ID!): TypingIndicator!
+
+    # Chat subscriptions
+    chatMessageAdded(sessionId: ID!): ChatMessage!
   }
 
   type TypingIndicator {

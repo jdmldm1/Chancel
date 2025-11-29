@@ -28,12 +28,43 @@ query GetMySessions {
   }
 }
 
+query GetAllSessions {
+  sessions {
+    id
+    title
+    description
+    scheduledDate
+    leader {
+      id
+      name
+      email
+    }
+    scripturePassages {
+      id
+      book
+      chapter
+      verseStart
+      verseEnd
+      content
+      order
+    }
+    participants {
+      id
+      user {
+        id
+        name
+      }
+    }
+  }
+}
+
 mutation CreateSession($input: CreateSessionInput!) {
   createSession(input: $input) {
     id
     title
     description
     scheduledDate
+    videoCallUrl
     leader {
       id
       name
@@ -56,6 +87,7 @@ mutation UpdateSession($id: ID!, $input: UpdateSessionInput!) {
     title
     description
     scheduledDate
+    videoCallUrl
   }
 }
 

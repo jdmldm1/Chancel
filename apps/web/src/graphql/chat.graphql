@@ -1,0 +1,35 @@
+query GetChatMessages($sessionId: ID!) {
+  chatMessages(sessionId: $sessionId) {
+    id
+    message
+    createdAt
+    user {
+      id
+      name
+    }
+  }
+}
+
+mutation SendChatMessage($sessionId: ID!, $message: String!) {
+  sendChatMessage(sessionId: $sessionId, message: $message) {
+    id
+    message
+    createdAt
+    user {
+      id
+      name
+    }
+  }
+}
+
+subscription ChatMessageAdded($sessionId: ID!) {
+  chatMessageAdded(sessionId: $sessionId) {
+    id
+    message
+    createdAt
+    user {
+      id
+      name
+    }
+  }
+}

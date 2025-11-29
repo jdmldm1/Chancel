@@ -16,11 +16,11 @@ export default function Navigation() {
             </Link>
             {session && (
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-                <Link
+<Link
                   href="/sessions"
                   className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 hover:text-blue-600"
                 >
-                  Sessions
+                  Study Sessions
                 </Link>
               </div>
             )}

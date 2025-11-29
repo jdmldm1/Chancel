@@ -4,6 +4,7 @@ query GetSession($id: ID!) {
     title
     description
     scheduledDate
+    videoCallUrl
     leader {
       id
       name
@@ -65,6 +66,8 @@ query GetSession($id: ID!) {
       fileName
       fileUrl
       fileType
+      resourceType
+      videoId
       description
       createdAt
       uploader {
@@ -111,6 +114,26 @@ mutation CreateComment($input: CreateCommentInput!) {
     sessionId
     parentId
   }
+}
+
+mutation UpdateComment($id: ID!, $input: UpdateCommentInput!) {
+  updateComment(id: $id, input: $input) {
+    id
+    content
+    createdAt
+    verseNumber
+    user {
+      id
+      name
+    }
+    passageId
+    sessionId
+    parentId
+  }
+}
+
+mutation DeleteComment($id: ID!) {
+  deleteComment(id: $id)
 }
 
 mutation JoinSession($sessionId: ID!) {

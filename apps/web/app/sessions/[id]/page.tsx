@@ -1,13 +1,16 @@
 'use client'
 
 import { useParams, useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { gql } from '@apollo/client'
 import { useQuery, useMutation, useSubscription } from '@apollo/client/react'
 import { useSession } from 'next-auth/react'
 import { GetSessionQuery, JoinSessionMutation, JoinSessionMutationVariables, CommentAddedSubscription } from '@bibleproject/types/src/graphql'
 import ScripturePassageCard from '@/components/session/ScripturePassageCard'
 import SessionResources from '@/components/session/SessionResources'
+import VideoCallModal from '@/components/session/VideoCallModal'
+import SessionChat from '@/components/session/SessionChat'
 
 const GET_SESSION = gql`
   query GetSession($id: ID!) {
@@ -16,6 +19,7 @@ const GET_SESSION = gql`
       title
       description
       scheduledDate
+      videoCallUrl
       leader {
         id
         name
@@ -134,6 +138,7 @@ export default function SessionDetailPage() {
   const router = useRouter()
   const { data: session } = useSession()
   const sessionId = params.id as string
+  const [isVideoCallOpen, setIsVideoCallOpen] = useState(false)
 
   const { data, loading, error, refetch } = useQuery<GetSessionQuery>(GET_SESSION, {
     variables: { id: sessionId },
@@ -162,7 +167,7 @@ export default function SessionDetailPage() {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <div className="text-lg">Loading session...</div>
+        <div className="text-lg">Loading study session...</div>
       </div>
     )
   }
@@ -178,7 +183,7 @@ export default function SessionDetailPage() {
   if (!data?.session) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <div className="text-gray-600">Session not found</div>
+        <div className="text-gray-600">Study session not found</div>
       </div>
     )
   }
@@ -222,15 +227,39 @@ export default function SessionDetailPage() {
             </div>
           </div>
 
-          {!isLeader && !isParticipant && session && (
-            <button
-              onClick={handleJoinSession}
-              disabled={joining}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-            >
-              {joining ? 'Joining...' : 'Join Session'}
-            </button>
-          )}
+          <div className="flex gap-3">
+            {isLeader && (
+              <Link
+                href={`/sessions/${sessionId}/edit`}
+                className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 flex items-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Edit Session
+              </Link>
+            )}
+            {sessionData.videoCallUrl && (isParticipant || isLeader) && (
+              <button
+                onClick={() => setIsVideoCallOpen(true)}
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                Join Video Call
+              </button>
+            )}
+            {!isLeader && !isParticipant && session && (
+              <button
+                onClick={handleJoinSession}
+                disabled={joining}
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+              >
+                {joining ? 'Joining...' : 'Join Study Session'}
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
@@ -289,6 +318,23 @@ export default function SessionDetailPage() {
           </ul>
         </div>
       </div>
+
+      {/* Session Chat */}
+      {(isParticipant || isLeader) && (
+        <div className="mt-8">
+          <SessionChat sessionId={sessionId} />
+        </div>
+      )}
+
+      {/* Video Call Modal */}
+      {sessionData.videoCallUrl && (
+        <VideoCallModal
+          isOpen={isVideoCallOpen}
+          onClose={() => setIsVideoCallOpen(false)}
+          roomName={sessionData.videoCallUrl}
+          displayName={session?.user?.name || 'Guest'}
+        />
+      )}
     </div>
   )
 }

@@ -26,6 +26,7 @@ model User {
   sessionParticipants   SessionParticipant[]
   uploadedResources     SessionResource[]
   notifications         Notification[]
+  chatMessages          ChatMessage[]
 
   @@index([email])
 }
@@ -36,6 +37,7 @@ model Session {
   description   String?
   scheduledDate DateTime
   leaderId      String
+  videoCallUrl  String?  // Jitsi Meet or other video call URL
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -45,6 +47,7 @@ model Session {
   resources            SessionResource[]
   participants         SessionParticipant[]
   notifications        Notification[]
+  chatMessages         ChatMessage[]
 
   @@index([leaderId])
   @@index([scheduledDate])
@@ -152,15 +155,18 @@ model Notification {
   @@index([sentAt])
 }
 
-model ScriptureLibrary {
-  id         String   @id @default(cuid())
-  book       String
-  chapter    Int
-  verseStart Int
-  verseEnd   Int?
-  content    String   @db.Text
-  createdAt  DateTime @default(now())
+model ChatMessage {
+  id        String   @id @default(cuid())
+  sessionId String
+  userId    String
+  message   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@unique([book, chapter, verseStart, verseEnd])
-  @@index([book, chapter])
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@index([userId])
+  @@index([createdAt])
 }

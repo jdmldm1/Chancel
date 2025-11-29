@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { gql } from '@apollo/client'
 import { useMutation } from '@apollo/client/react'
 import { useSession } from 'next-auth/react'
@@ -10,6 +10,8 @@ import {
   GetSessionQuery
 } from '@bibleproject/types/src/graphql'
 import CommentItem from './CommentItem'
+import { fetchBiblePassage, BibleTranslationId } from '@/src/lib/bible-api'
+import BibleVersionSelector from '../scripture/BibleVersionSelector'
 
 const CREATE_COMMENT = gql`
   mutation CreateComment($input: CreateCommentInput!) {
@@ -44,54 +46,6 @@ interface VerseByVersePassageProps {
   canComment: boolean
 }
 
-// Parse scripture content into individual verses
-function parseVerses(passage: ScripturePassage): VerseData[] {
-  const verses: VerseData[] = []
-  const lines = passage.content.split('\n')
-
-  let currentVerseNumber = passage.verseStart
-  let currentVerseText = ''
-
-  for (const line of lines) {
-    const trimmedLine = line.trim()
-    if (!trimmedLine) continue
-
-    // Check if line starts with a verse number pattern (e.g., "1 " or "1. ")
-    const verseMatch = trimmedLine.match(/^(\d+)[.\s]+(.*)/)
-
-    if (verseMatch) {
-      // Save previous verse if exists
-      if (currentVerseText) {
-        const verseComments = passage.comments.filter(c => c.verseNumber === currentVerseNumber)
-        verses.push({
-          number: currentVerseNumber,
-          text: currentVerseText.trim(),
-          comments: verseComments
-        })
-      }
-
-      // Start new verse
-      currentVerseNumber = parseInt(verseMatch[1])
-      currentVerseText = verseMatch[2]
-    } else {
-      // Continue current verse
-      currentVerseText += ' ' + trimmedLine
-    }
-  }
-
-  // Add last verse
-  if (currentVerseText) {
-    const verseComments = passage.comments.filter(c => c.verseNumber === currentVerseNumber)
-    verses.push({
-      number: currentVerseNumber,
-      text: currentVerseText.trim(),
-      comments: verseComments
-    })
-  }
-
-  return verses
-}
-
 type SortOption = 'newest' | 'oldest'
 
 export default function VerseByVersePassage({
@@ -103,8 +57,44 @@ export default function VerseByVersePassage({
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null)
   const [newComment, setNewComment] = useState('')
   const [sortBy, setSortBy] = useState<SortOption>('oldest')
+  const [bibleTranslation, setBibleTranslation] = useState<BibleTranslationId>('web')
+  const [verses, setVerses] = useState<VerseData[]>([])
+  const [loadingVerses, setLoadingVerses] = useState(true)
+  const [versesError, setVersesError] = useState<string | null>(null)
 
-  const verses = parseVerses(passage)
+  // Fetch verses from Bible API
+  useEffect(() => {
+    const loadVerses = async () => {
+      setLoadingVerses(true)
+      setVersesError(null)
+
+      try {
+        const biblePassage = await fetchBiblePassage(
+          passage.book,
+          passage.chapter,
+          passage.verseStart,
+          passage.verseEnd || undefined,
+          bibleTranslation
+        )
+
+        // Map API verses to our VerseData format with comments
+        const versesWithComments: VerseData[] = biblePassage.verses.map(v => ({
+          number: v.verse,
+          text: v.text,
+          comments: passage.comments.filter(c => c.verseNumber === v.verse)
+        }))
+
+        setVerses(versesWithComments)
+      } catch (error) {
+        console.error('Failed to load Bible verses:', error)
+        setVersesError('Failed to load scripture from Bible API')
+      } finally {
+        setLoadingVerses(false)
+      }
+    }
+
+    loadVerses()
+  }, [passage.book, passage.chapter, passage.verseStart, passage.verseEnd, bibleTranslation, passage.comments])
 
   const sortComments = (comments: Comment[]) => {
     return [...comments].sort((a, b) => {
@@ -143,11 +133,38 @@ export default function VerseByVersePassage({
 
   const reference = `${passage.book} ${passage.chapter}`
 
+  if (loadingVerses) {
+    return (
+      <div className="bg-white shadow-md rounded-lg overflow-hidden">
+        <div className="px-6 py-8 flex items-center justify-center">
+          <div className="text-gray-600">Loading scripture...</div>
+        </div>
+      </div>
+    )
+  }
+
+  if (versesError) {
+    return (
+      <div className="bg-white shadow-md rounded-lg overflow-hidden">
+        <div className="px-6 py-8">
+          <div className="bg-red-50 border border-red-200 rounded-md p-4">
+            <p className="text-red-800">{versesError}</p>
+            <p className="text-sm text-red-600 mt-2">Reference: {reference}</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="bg-white shadow-md rounded-lg overflow-hidden">
       {/* Scripture Header */}
-      <div className="bg-blue-50 px-6 py-4 border-b border-blue-100">
+      <div className="bg-blue-50 px-6 py-4 border-b border-blue-100 flex items-center justify-between">
         <h3 className="text-xl font-semibold text-blue-900">{reference}</h3>
+        <BibleVersionSelector
+          selectedVersion={bibleTranslation}
+          onVersionChange={setBibleTranslation}
+        />
       </div>
 
       {/* Verse-by-Verse Display */}

@@ -20,7 +20,9 @@
       "Bash(npx tsx:*)",
       "Bash(node:*)",
       "Bash(echo:*)",
-      "Bash(npx prisma db push)"
+      "Bash(npx prisma db push)",
+      "WebSearch",
+      "Bash(grep:*)"
     ],
     "deny": [],
     "ask": []

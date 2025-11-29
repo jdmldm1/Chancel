@@ -46,6 +46,17 @@ export type Scalars = {
         output: any;
     };
 };
+export type ChatMessage = {
+    __typename?: 'ChatMessage';
+    createdAt: Scalars['DateTime']['output'];
+    id: Scalars['ID']['output'];
+    message: Scalars['String']['output'];
+    session: Session;
+    sessionId: Scalars['String']['output'];
+    updatedAt: Scalars['DateTime']['output'];
+    user: User;
+    userId: Scalars['String']['output'];
+};
 export type Comment = {
     __typename?: 'Comment';
     content: Scalars['String']['output'];
@@ -82,13 +93,16 @@ export type CreateSessionInput = {
     scheduledDate: Scalars['DateTime']['input'];
     scripturePassages: Array<CreateScripturePassageInput>;
     title: Scalars['String']['input'];
+    videoCallUrl?: InputMaybe<Scalars['String']['input']>;
 };
 export type CreateSessionResourceInput = {
     description?: InputMaybe<Scalars['String']['input']>;
     fileName: Scalars['String']['input'];
     fileType: Scalars['String']['input'];
     fileUrl: Scalars['String']['input'];
+    resourceType?: InputMaybe<ResourceType>;
     sessionId: Scalars['String']['input'];
+    videoId?: InputMaybe<Scalars['String']['input']>;
 };
 export type Mutation = {
     __typename?: 'Mutation';
@@ -102,6 +116,7 @@ export type Mutation = {
     deleteSessionResource: Scalars['Boolean']['output'];
     joinSession: SessionParticipant;
     leaveSession: Scalars['Boolean']['output'];
+    sendChatMessage: ChatMessage;
     signup: User;
     updateComment: Comment;
     updateSession: Session;
@@ -136,6 +151,10 @@ export type MutationJoinSessionArgs = {
 export type MutationLeaveSessionArgs = {
     sessionId: Scalars['ID']['input'];
 };
+export type MutationSendChatMessageArgs = {
+    message: Scalars['String']['input'];
+    sessionId: Scalars['ID']['input'];
+};
 export type MutationSignupArgs = {
     email: Scalars['String']['input'];
     name: Scalars['String']['input'];
@@ -164,6 +183,7 @@ export type Notification = {
 };
 export type Query = {
     __typename?: 'Query';
+    chatMessages: Array<ChatMessage>;
     comments: Array<Comment>;
     commentsByPassage: Array<Comment>;
     me?: Maybe<User>;
@@ -174,6 +194,9 @@ export type Query = {
     sessions: Array<Session>;
     user?: Maybe<User>;
     users: Array<User>;
+};
+export type QueryChatMessagesArgs = {
+    sessionId: Scalars['ID']['input'];
 };
 export type QueryCommentsArgs = {
     sessionId: Scalars['ID']['input'];
@@ -193,6 +216,12 @@ export type QuerySessionResourcesArgs = {
 export type QueryUserArgs = {
     id: Scalars['ID']['input'];
 };
+export declare enum ResourceType {
+    File = "FILE",
+    VideoUpload = "VIDEO_UPLOAD",
+    VideoVimeo = "VIDEO_VIMEO",
+    VideoYoutube = "VIDEO_YOUTUBE"
+}
 export type ScripturePassage = {
     __typename?: 'ScripturePassage';
     book: Scalars['String']['output'];
@@ -210,6 +239,7 @@ export type ScripturePassage = {
 };
 export type Session = {
     __typename?: 'Session';
+    chatMessages: Array<ChatMessage>;
     comments: Array<Comment>;
     createdAt: Scalars['DateTime']['output'];
     description?: Maybe<Scalars['String']['output']>;
@@ -222,6 +252,7 @@ export type Session = {
     scripturePassages: Array<ScripturePassage>;
     title: Scalars['String']['output'];
     updatedAt: Scalars['DateTime']['output'];
+    videoCallUrl?: Maybe<Scalars['String']['output']>;
 };
 export type SessionParticipant = {
     __typename?: 'SessionParticipant';
@@ -241,18 +272,24 @@ export type SessionResource = {
     fileType: Scalars['String']['output'];
     fileUrl: Scalars['String']['output'];
     id: Scalars['ID']['output'];
+    resourceType: ResourceType;
     session: Session;
     sessionId: Scalars['String']['output'];
     updatedAt: Scalars['DateTime']['output'];
     uploadedBy: Scalars['String']['output'];
     uploader: User;
+    videoId?: Maybe<Scalars['String']['output']>;
 };
 export type Subscription = {
     __typename?: 'Subscription';
+    chatMessageAdded: ChatMessage;
     commentAdded: Comment;
     commentDeleted: Scalars['ID']['output'];
     commentUpdated: Comment;
     userTyping: TypingIndicator;
+};
+export type SubscriptionChatMessageAddedArgs = {
+    sessionId: Scalars['ID']['input'];
 };
 export type SubscriptionCommentAddedArgs = {
     sessionId: Scalars['ID']['input'];
@@ -280,6 +317,7 @@ export type UpdateSessionInput = {
     description?: InputMaybe<Scalars['String']['input']>;
     scheduledDate?: InputMaybe<Scalars['DateTime']['input']>;
     title?: InputMaybe<Scalars['String']['input']>;
+    videoCallUrl?: InputMaybe<Scalars['String']['input']>;
 };
 export type User = {
     __typename?: 'User';
@@ -296,6 +334,58 @@ export declare enum UserRole {
     Leader = "LEADER",
     Member = "MEMBER"
 }
+export type GetChatMessagesQueryVariables = Exact<{
+    sessionId: Scalars['ID']['input'];
+}>;
+export type GetChatMessagesQuery = {
+    __typename?: 'Query';
+    chatMessages: Array<{
+        __typename?: 'ChatMessage';
+        id: string;
+        message: string;
+        createdAt: any;
+        user: {
+            __typename?: 'User';
+            id: string;
+            name?: string | null;
+        };
+    }>;
+};
+export type SendChatMessageMutationVariables = Exact<{
+    sessionId: Scalars['ID']['input'];
+    message: Scalars['String']['input'];
+}>;
+export type SendChatMessageMutation = {
+    __typename?: 'Mutation';
+    sendChatMessage: {
+        __typename?: 'ChatMessage';
+        id: string;
+        message: string;
+        createdAt: any;
+        user: {
+            __typename?: 'User';
+            id: string;
+            name?: string | null;
+        };
+    };
+};
+export type ChatMessageAddedSubscriptionVariables = Exact<{
+    sessionId: Scalars['ID']['input'];
+}>;
+export type ChatMessageAddedSubscription = {
+    __typename?: 'Subscription';
+    chatMessageAdded: {
+        __typename?: 'ChatMessage';
+        id: string;
+        message: string;
+        createdAt: any;
+        user: {
+            __typename?: 'User';
+            id: string;
+            name?: string | null;
+        };
+    };
+};
 export type GetSessionQueryVariables = Exact<{
     id: Scalars['ID']['input'];
 }>;
@@ -307,6 +397,7 @@ export type GetSessionQuery = {
         title: string;
         description?: string | null;
         scheduledDate: any;
+        videoCallUrl?: string | null;
         leader: {
             __typename?: 'User';
             id: string;
@@ -379,6 +470,8 @@ export type GetSessionQuery = {
             fileName: string;
             fileUrl: string;
             fileType: string;
+            resourceType: ResourceType;
+            videoId?: string | null;
             description?: string | null;
             createdAt: any;
             uploader: {
@@ -438,6 +531,35 @@ export type CreateCommentMutation = {
             name?: string | null;
         };
     };
+};
+export type UpdateCommentMutationVariables = Exact<{
+    id: Scalars['ID']['input'];
+    input: UpdateCommentInput;
+}>;
+export type UpdateCommentMutation = {
+    __typename?: 'Mutation';
+    updateComment: {
+        __typename?: 'Comment';
+        id: string;
+        content: string;
+        createdAt: any;
+        verseNumber?: number | null;
+        passageId: string;
+        sessionId: string;
+        parentId?: string | null;
+        user: {
+            __typename?: 'User';
+            id: string;
+            name?: string | null;
+        };
+    };
+};
+export type DeleteCommentMutationVariables = Exact<{
+    id: Scalars['ID']['input'];
+}>;
+export type DeleteCommentMutation = {
+    __typename?: 'Mutation';
+    deleteComment: boolean;
 };
 export type JoinSessionMutationVariables = Exact<{
     sessionId: Scalars['ID']['input'];
@@ -553,6 +675,44 @@ export type GetMySessionsQuery = {
         }>;
     }>;
 };
+export type GetAllSessionsQueryVariables = Exact<{
+    [key: string]: never;
+}>;
+export type GetAllSessionsQuery = {
+    __typename?: 'Query';
+    sessions: Array<{
+        __typename?: 'Session';
+        id: string;
+        title: string;
+        description?: string | null;
+        scheduledDate: any;
+        leader: {
+            __typename?: 'User';
+            id: string;
+            name?: string | null;
+            email: string;
+        };
+        scripturePassages: Array<{
+            __typename?: 'ScripturePassage';
+            id: string;
+            book: string;
+            chapter: number;
+            verseStart: number;
+            verseEnd?: number | null;
+            content: string;
+            order: number;
+        }>;
+        participants: Array<{
+            __typename?: 'SessionParticipant';
+            id: string;
+            user: {
+                __typename?: 'User';
+                id: string;
+                name?: string | null;
+            };
+        }>;
+    }>;
+};
 export type CreateSessionMutationVariables = Exact<{
     input: CreateSessionInput;
 }>;
@@ -564,6 +724,7 @@ export type CreateSessionMutation = {
         title: string;
         description?: string | null;
         scheduledDate: any;
+        videoCallUrl?: string | null;
         leader: {
             __typename?: 'User';
             id: string;
@@ -593,6 +754,7 @@ export type UpdateSessionMutation = {
         title: string;
         description?: string | null;
         scheduledDate: any;
+        videoCallUrl?: string | null;
     };
 };
 export type DeleteSessionMutationVariables = Exact<{

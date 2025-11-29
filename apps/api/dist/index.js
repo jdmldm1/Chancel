@@ -74,7 +74,11 @@ async function startServer() {
     await server.start();
     // Apply middleware
     app.use('/graphql', cors({
-        origin: process.env.CORS_ORIGIN || 'http://localhost:3001',
+        origin: process.env.CORS_ORIGIN || [
+            'http://localhost:3000',
+            'http://localhost:3001',
+            /https:\/\/3000--.*\.coder\.app$/,
+        ],
         credentials: true,
     }), express.json(), expressMiddleware(server, {
         context: async ({ req }) => {

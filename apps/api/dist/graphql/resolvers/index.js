@@ -1,4 +1,5 @@
 import { GraphQLScalarType, Kind } from 'graphql';
+import { ResourceType } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 // Custom DateTime scalar
 const dateTimeScalar = new GraphQLScalarType({
@@ -95,6 +96,12 @@ export const resolvers = {
             return context.prisma.sessionResource.findMany({
                 where: { sessionId: args.sessionId },
                 orderBy: { createdAt: 'desc' },
+            });
+        },
+        chatMessages: async (_parent, args, context) => {
+            return context.prisma.chatMessage.findMany({
+                where: { sessionId: args.sessionId },
+                orderBy: { createdAt: 'asc' },
             });
         },
     },
@@ -308,6 +315,8 @@ export const resolvers = {
                     fileName: args.input.fileName,
                     fileUrl: args.input.fileUrl,
                     fileType: args.input.fileType,
+                    resourceType: args.input.resourceType || ResourceType.FILE,
+                    videoId: args.input.videoId,
                     description: args.input.description,
                     uploadedBy: context.userId,
                 },
@@ -332,6 +341,38 @@ export const resolvers = {
                 where: { id: args.id },
             });
             return true;
+        },
+        sendChatMessage: async (_parent, args, context) => {
+            if (!context.userId) {
+                throw new Error('Not authenticated');
+            }
+            // Verify user is leader or participant
+            const session = await context.prisma.session.findUnique({
+                where: { id: args.sessionId },
+                include: { participants: true },
+            });
+            if (!session) {
+                throw new Error('Session not found');
+            }
+            const isLeader = session.leaderId === context.userId;
+            const isParticipant = session.participants.some(p => p.userId === context.userId);
+            if (!isLeader && !isParticipant) {
+                throw new Error('Not authorized to send messages in this session');
+            }
+            const chatMessage = await context.prisma.chatMessage.create({
+                data: {
+                    sessionId: args.sessionId,
+                    userId: context.userId,
+                    message: args.message,
+                },
+                include: {
+                    user: true,
+                },
+            });
+            // Publish the message to subscribers
+            const { pubsub } = await import('../../index.js');
+            pubsub.publish(`CHAT_MESSAGE_ADDED_${args.sessionId}`, chatMessage);
+            return chatMessage;
         },
     },
     // Field resolvers for nested data
@@ -372,6 +413,12 @@ export const resolvers = {
         participants: (parent, _args, context) => {
             return context.prisma.sessionParticipant.findMany({
                 where: { sessionId: parent.id },
+            });
+        },
+        chatMessages: (parent, _args, context) => {
+            return context.prisma.chatMessage.findMany({
+                where: { sessionId: parent.id },
+                orderBy: { createdAt: 'asc' },
             });
         },
     },
@@ -452,6 +499,18 @@ export const resolvers = {
             });
         },
     },
+    ChatMessage: {
+        session: (parent, _args, context) => {
+            return context.prisma.session.findUnique({
+                where: { id: parent.sessionId },
+            });
+        },
+        user: (parent, _args, context) => {
+            return context.prisma.user.findUnique({
+                where: { id: parent.userId },
+            });
+        },
+    },
     Subscription: {
         commentAdded: {
             subscribe: async function* (_parent, args, _context) {
@@ -474,6 +533,46 @@ export const resolvers = {
                             next() {
                                 if (queue.length > 0) {
                                     return Promise.resolve({ value: { commentAdded: queue.shift() }, done: false });
+                                }
+                                return new Promise((resolve) => {
+                                    resolver = resolve;
+                                });
+                            },
+                            return() {
+                                unsubscribe();
+                                return Promise.resolve({ value: undefined, done: true });
+                            },
+                            throw(_error) {
+                                unsubscribe();
+                                return Promise.resolve({ value: undefined, done: true });
+                            },
+                        };
+                    },
+                };
+                yield* asyncIterator;
+            },
+        },
+        chatMessageAdded: {
+            subscribe: async function* (_parent, args, _context) {
+                const { pubsub } = await import('../../index.js');
+                const topic = `CHAT_MESSAGE_ADDED_${args.sessionId}`;
+                const asyncIterator = {
+                    [Symbol.asyncIterator]() {
+                        const queue = [];
+                        let resolver = null;
+                        const unsubscribe = pubsub.subscribe(topic, (data) => {
+                            if (resolver) {
+                                resolver({ value: { chatMessageAdded: data }, done: false });
+                                resolver = null;
+                            }
+                            else {
+                                queue.push(data);
+                            }
+                        });
+                        return {
+                            next() {
+                                if (queue.length > 0) {
+                                    return Promise.resolve({ value: { chatMessageAdded: queue.shift() }, done: false });
                                 }
                                 return new Promise((resolve) => {
                                     resolver = resolve;
