@@ -299,7 +299,7 @@ export default function SessionList({ viewMode }: SessionListProps) {
             return (
               <li
                 key={session.id}
-                className="p-6 border-2 border-gray-100 rounded-xl shadow-sm hover:shadow-md transition-all duration-200 relative bg-white hover:border-gray-200"
+                className="p-6 border-2 border-gray-100 rounded-xl shadow-sm relative bg-white card-lift group cursor-pointer"
               >
                 {viewMode === 'all' && (
                   <div className="absolute top-4 right-4 flex gap-2">

@@ -135,7 +135,7 @@ export default function VerseByVersePassage({
 
   if (loadingVerses) {
     return (
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
+      <div className="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-100 transition-smooth hover:shadow-xl">
         <div className="px-6 py-8 flex items-center justify-center">
           <div className="text-gray-600">Loading scripture...</div>
         </div>
@@ -145,7 +145,7 @@ export default function VerseByVersePassage({
 
   if (versesError) {
     return (
-      <div className="bg-white shadow-md rounded-lg overflow-hidden">
+      <div className="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-100 transition-smooth hover:shadow-xl">
         <div className="px-6 py-8">
           <div className="bg-red-50 border border-red-200 rounded-md p-4">
             <p className="text-red-800">{versesError}</p>
@@ -157,7 +157,7 @@ export default function VerseByVersePassage({
   }
 
   return (
-    <div className="bg-white shadow-md rounded-lg overflow-hidden">
+    <div className="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-100 transition-smooth hover:shadow-xl">
       {/* Scripture Header */}
       <div className="bg-blue-50 px-6 py-4 border-b border-blue-100 flex items-center justify-between">
         <h3 className="text-xl font-semibold text-blue-900">{reference}</h3>

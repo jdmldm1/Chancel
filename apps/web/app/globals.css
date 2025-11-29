@@ -133,4 +133,43 @@
   .animate-slide-in-right {
     animation: slide-in-right 0.3s ease-out;
   }
+
+  /* Hover scale effect for interactive elements */
+  .hover-scale {
+    transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  }
+
+  .hover-scale:hover {
+    transform: translateY(-2px) scale(1.02);
+  }
+
+  /* Button press effect */
+  .button-press:active {
+    transform: scale(0.98);
+  }
+
+  /* Focus ring for accessibility */
+  .focus-ring:focus {
+    outline: 2px solid rgb(59 130 246);
+    outline-offset: 2px;
+  }
+
+  .focus-ring:focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* Smooth transitions for all interactive elements */
+  .transition-smooth {
+    transition: all 0.2s ease-out;
+  }
+
+  /* Card lift effect */
+  .card-lift {
+    transition: transform 0.3s ease-out, box-shadow 0.3s ease-out;
+  }
+
+  .card-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
 }
