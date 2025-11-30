@@ -1,6 +1,6 @@
 import { GraphQLScalarType } from 'graphql';
 import type { PrismaClient } from '@prisma/client';
-import { UserRole, ResourceType } from '@prisma/client';
+import { UserRole, ResourceType, SessionVisibility } from '@prisma/client';
 export interface Context {
     prisma: PrismaClient;
     userId?: string;
@@ -45,8 +45,12 @@ export declare const resolvers: {
             createdAt: Date;
             updatedAt: Date;
             title: string;
-            scheduledDate: Date;
+            startDate: Date;
+            endDate: Date;
             leaderId: string;
+            seriesId: string | null;
+            visibility: import(".prisma/client").$Enums.SessionVisibility;
+            sessionType: import(".prisma/client").$Enums.SessionType;
             videoCallUrl: string | null;
             imageUrl: string | null;
         } | null>;
@@ -56,8 +60,27 @@ export declare const resolvers: {
             createdAt: Date;
             updatedAt: Date;
             title: string;
-            scheduledDate: Date;
+            startDate: Date;
+            endDate: Date;
             leaderId: string;
+            seriesId: string | null;
+            visibility: import(".prisma/client").$Enums.SessionVisibility;
+            sessionType: import(".prisma/client").$Enums.SessionType;
+            videoCallUrl: string | null;
+            imageUrl: string | null;
+        }[]>;
+        publicSessions: (_parent: unknown, _args: unknown, context: Context) => Promise<{
+            description: string | null;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            title: string;
+            startDate: Date;
+            endDate: Date;
+            leaderId: string;
+            seriesId: string | null;
+            visibility: import(".prisma/client").$Enums.SessionVisibility;
+            sessionType: import(".prisma/client").$Enums.SessionType;
             videoCallUrl: string | null;
             imageUrl: string | null;
         }[]>;
@@ -67,10 +90,63 @@ export declare const resolvers: {
             createdAt: Date;
             updatedAt: Date;
             title: string;
-            scheduledDate: Date;
+            startDate: Date;
+            endDate: Date;
             leaderId: string;
+            seriesId: string | null;
+            visibility: import(".prisma/client").$Enums.SessionVisibility;
+            sessionType: import(".prisma/client").$Enums.SessionType;
             videoCallUrl: string | null;
             imageUrl: string | null;
+        }[]>;
+        series: (_parent: unknown, args: {
+            id: string;
+        }, context: Context) => Promise<{
+            description: string | null;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            title: string;
+            leaderId: string;
+            imageUrl: string | null;
+        } | null>;
+        allSeries: (_parent: unknown, _args: unknown, context: Context) => Promise<{
+            description: string | null;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            title: string;
+            leaderId: string;
+            imageUrl: string | null;
+        }[]>;
+        mySeries: (_parent: unknown, _args: unknown, context: Context) => Promise<{
+            description: string | null;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            title: string;
+            leaderId: string;
+            imageUrl: string | null;
+        }[]>;
+        myJoinRequests: (_parent: unknown, _args: unknown, context: Context) => Promise<{
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            sessionId: string;
+            fromId: string;
+            toId: string;
+            status: import(".prisma/client").$Enums.JoinRequestStatus;
+        }[]>;
+        sessionJoinRequests: (_parent: unknown, args: {
+            sessionId: string;
+        }, context: Context) => Promise<{
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            sessionId: string;
+            fromId: string;
+            toId: string;
+            status: import(".prisma/client").$Enums.JoinRequestStatus;
         }[]>;
         comments: (_parent: unknown, args: {
             sessionId: string;
@@ -138,6 +214,36 @@ export declare const resolvers: {
             userId: string;
             message: string;
         }[]>;
+        bibleBooks: (_parent: unknown, _args: unknown, context: Context) => Promise<{
+            name: string;
+            number: number;
+            chapterCount: number;
+        }[]>;
+        biblePassages: (_parent: unknown, args: {
+            book: string;
+            chapter: number;
+        }, context: Context) => Promise<{
+            id: string;
+            createdAt: Date;
+            content: string;
+            book: string;
+            chapter: number;
+            verseStart: number;
+            verseEnd: number | null;
+            bookNumber: number;
+        }[]>;
+        searchBible: (_parent: unknown, args: {
+            query: string;
+        }, context: Context) => Promise<{
+            id: string;
+            createdAt: Date;
+            content: string;
+            book: string;
+            chapter: number;
+            verseStart: number;
+            verseEnd: number | null;
+            bookNumber: number;
+        }[]>;
     };
     Mutation: {
         signup: (_parent: unknown, args: {
@@ -154,11 +260,74 @@ export declare const resolvers: {
             createdAt: Date;
             updatedAt: Date;
         }>;
+        updateUser: (_parent: unknown, args: {
+            input: {
+                name?: string;
+                email?: string;
+            };
+        }, context: Context) => Promise<{
+            name: string | null;
+            id: string;
+            email: string;
+            password: string;
+            role: import(".prisma/client").$Enums.UserRole;
+            createdAt: Date;
+            updatedAt: Date;
+        }>;
+        changePassword: (_parent: unknown, args: {
+            currentPassword: string;
+            newPassword: string;
+        }, context: Context) => Promise<boolean>;
+        createSeries: (_parent: unknown, args: {
+            input: {
+                title: string;
+                description?: string;
+                imageUrl?: string;
+            };
+        }, context: Context) => Promise<{
+            description: string | null;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            title: string;
+            leaderId: string;
+            imageUrl: string | null;
+        }>;
+        updateSeries: (_parent: unknown, args: {
+            id: string;
+            input: {
+                title?: string;
+                description?: string;
+                imageUrl?: string;
+            };
+        }, context: Context) => Promise<{
+            description: string | null;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            title: string;
+            leaderId: string;
+            imageUrl: string | null;
+        }>;
+        deleteSeries: (_parent: unknown, args: {
+            id: string;
+        }, context: Context) => Promise<{
+            description: string | null;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            title: string;
+            leaderId: string;
+            imageUrl: string | null;
+        }>;
         createSession: (_parent: unknown, args: {
             input: {
                 title: string;
                 description?: string;
-                scheduledDate: Date;
+                startDate: Date;
+                endDate: Date;
+                seriesId?: string;
+                visibility?: SessionVisibility;
                 videoCallUrl?: string;
                 imageUrl?: string;
                 scripturePassages: {
@@ -176,8 +345,12 @@ export declare const resolvers: {
             createdAt: Date;
             updatedAt: Date;
             title: string;
-            scheduledDate: Date;
+            startDate: Date;
+            endDate: Date;
             leaderId: string;
+            seriesId: string | null;
+            visibility: import(".prisma/client").$Enums.SessionVisibility;
+            sessionType: import(".prisma/client").$Enums.SessionType;
             videoCallUrl: string | null;
             imageUrl: string | null;
         }>;
@@ -186,7 +359,10 @@ export declare const resolvers: {
             input: {
                 title?: string;
                 description?: string;
-                scheduledDate?: Date;
+                startDate?: Date;
+                endDate?: Date;
+                seriesId?: string;
+                visibility?: SessionVisibility;
                 videoCallUrl?: string;
                 imageUrl?: string;
             };
@@ -196,8 +372,12 @@ export declare const resolvers: {
             createdAt: Date;
             updatedAt: Date;
             title: string;
-            scheduledDate: Date;
+            startDate: Date;
+            endDate: Date;
             leaderId: string;
+            seriesId: string | null;
+            visibility: import(".prisma/client").$Enums.SessionVisibility;
+            sessionType: import(".prisma/client").$Enums.SessionType;
             videoCallUrl: string | null;
             imageUrl: string | null;
         }>;
@@ -209,8 +389,12 @@ export declare const resolvers: {
             createdAt: Date;
             updatedAt: Date;
             title: string;
-            scheduledDate: Date;
+            startDate: Date;
+            endDate: Date;
             leaderId: string;
+            seriesId: string | null;
+            visibility: import(".prisma/client").$Enums.SessionVisibility;
+            sessionType: import(".prisma/client").$Enums.SessionType;
             videoCallUrl: string | null;
             imageUrl: string | null;
         }>;
@@ -308,6 +492,40 @@ export declare const resolvers: {
             userId: string;
             joinedAt: Date;
         }>;
+        sendJoinRequest: (_parent: unknown, args: {
+            sessionId: string;
+            toUserId: string;
+        }, context: Context) => Promise<{
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            sessionId: string;
+            fromId: string;
+            toId: string;
+            status: import(".prisma/client").$Enums.JoinRequestStatus;
+        }>;
+        acceptJoinRequest: (_parent: unknown, args: {
+            id: string;
+        }, context: Context) => Promise<{
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            sessionId: string;
+            fromId: string;
+            toId: string;
+            status: import(".prisma/client").$Enums.JoinRequestStatus;
+        }>;
+        rejectJoinRequest: (_parent: unknown, args: {
+            id: string;
+        }, context: Context) => Promise<{
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            sessionId: string;
+            fromId: string;
+            toId: string;
+            status: import(".prisma/client").$Enums.JoinRequestStatus;
+        }>;
         leaveSession: (_parent: unknown, args: {
             sessionId: string;
         }, context: Context) => Promise<boolean>;
@@ -368,8 +586,12 @@ export declare const resolvers: {
             createdAt: Date;
             updatedAt: Date;
             title: string;
-            scheduledDate: Date;
+            startDate: Date;
+            endDate: Date;
             leaderId: string;
+            seriesId: string | null;
+            visibility: import(".prisma/client").$Enums.SessionVisibility;
+            sessionType: import(".prisma/client").$Enums.SessionType;
             videoCallUrl: string | null;
             imageUrl: string | null;
         }[]>;
@@ -387,6 +609,36 @@ export declare const resolvers: {
             parentId: string | null;
         }[]>;
     };
+    Series: {
+        leader: (parent: {
+            leaderId: string;
+        }, _args: unknown, context: Context) => import(".prisma/client").Prisma.Prisma__UserClient<{
+            name: string | null;
+            id: string;
+            email: string;
+            password: string;
+            role: import(".prisma/client").$Enums.UserRole;
+            createdAt: Date;
+            updatedAt: Date;
+        } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
+        sessions: (parent: {
+            id: string;
+        }, _args: unknown, context: Context) => import(".prisma/client").Prisma.PrismaPromise<{
+            description: string | null;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            title: string;
+            startDate: Date;
+            endDate: Date;
+            leaderId: string;
+            seriesId: string | null;
+            visibility: import(".prisma/client").$Enums.SessionVisibility;
+            sessionType: import(".prisma/client").$Enums.SessionType;
+            videoCallUrl: string | null;
+            imageUrl: string | null;
+        }[]>;
+    };
     Session: {
         leader: (parent: {
             leaderId: string;
@@ -399,6 +651,17 @@ export declare const resolvers: {
             createdAt: Date;
             updatedAt: Date;
         } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
+        series: (parent: {
+            seriesId?: string | null;
+        }, _args: unknown, context: Context) => import(".prisma/client").Prisma.Prisma__SeriesClient<{
+            description: string | null;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            title: string;
+            leaderId: string;
+            imageUrl: string | null;
+        } | null, null, import("@prisma/client/runtime/library").DefaultArgs> | null;
         scripturePassages: (parent: {
             id: string;
         }, _args: unknown, context: Context) => import(".prisma/client").Prisma.PrismaPromise<{
@@ -461,6 +724,58 @@ export declare const resolvers: {
             userId: string;
             message: string;
         }[]>;
+        joinRequests: (parent: {
+            id: string;
+        }, _args: unknown, context: Context) => import(".prisma/client").Prisma.PrismaPromise<{
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            sessionId: string;
+            fromId: string;
+            toId: string;
+            status: import(".prisma/client").$Enums.JoinRequestStatus;
+        }[]>;
+    };
+    JoinRequest: {
+        session: (parent: {
+            sessionId: string;
+        }, _args: unknown, context: Context) => import(".prisma/client").Prisma.Prisma__SessionClient<{
+            description: string | null;
+            id: string;
+            createdAt: Date;
+            updatedAt: Date;
+            title: string;
+            startDate: Date;
+            endDate: Date;
+            leaderId: string;
+            seriesId: string | null;
+            visibility: import(".prisma/client").$Enums.SessionVisibility;
+            sessionType: import(".prisma/client").$Enums.SessionType;
+            videoCallUrl: string | null;
+            imageUrl: string | null;
+        } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
+        from: (parent: {
+            fromId: string;
+        }, _args: unknown, context: Context) => import(".prisma/client").Prisma.Prisma__UserClient<{
+            name: string | null;
+            id: string;
+            email: string;
+            password: string;
+            role: import(".prisma/client").$Enums.UserRole;
+            createdAt: Date;
+            updatedAt: Date;
+        } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
+        to: (parent: {
+            toId: string;
+        }, _args: unknown, context: Context) => import(".prisma/client").Prisma.Prisma__UserClient<{
+            name: string | null;
+            id: string;
+            email: string;
+            password: string;
+            role: import(".prisma/client").$Enums.UserRole;
+            createdAt: Date;
+            updatedAt: Date;
+        } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
     };
     ScripturePassage: {
         session: (parent: {
@@ -471,8 +786,12 @@ export declare const resolvers: {
             createdAt: Date;
             updatedAt: Date;
             title: string;
-            scheduledDate: Date;
+            startDate: Date;
+            endDate: Date;
             leaderId: string;
+            seriesId: string | null;
+            visibility: import(".prisma/client").$Enums.SessionVisibility;
+            sessionType: import(".prisma/client").$Enums.SessionType;
             videoCallUrl: string | null;
             imageUrl: string | null;
         } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
@@ -514,8 +833,12 @@ export declare const resolvers: {
             createdAt: Date;
             updatedAt: Date;
             title: string;
-            scheduledDate: Date;
+            startDate: Date;
+            endDate: Date;
             leaderId: string;
+            seriesId: string | null;
+            visibility: import(".prisma/client").$Enums.SessionVisibility;
+            sessionType: import(".prisma/client").$Enums.SessionType;
             videoCallUrl: string | null;
             imageUrl: string | null;
         } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
@@ -566,8 +889,12 @@ export declare const resolvers: {
             createdAt: Date;
             updatedAt: Date;
             title: string;
-            scheduledDate: Date;
+            startDate: Date;
+            endDate: Date;
             leaderId: string;
+            seriesId: string | null;
+            visibility: import(".prisma/client").$Enums.SessionVisibility;
+            sessionType: import(".prisma/client").$Enums.SessionType;
             videoCallUrl: string | null;
             imageUrl: string | null;
         } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
@@ -592,8 +919,12 @@ export declare const resolvers: {
             createdAt: Date;
             updatedAt: Date;
             title: string;
-            scheduledDate: Date;
+            startDate: Date;
+            endDate: Date;
             leaderId: string;
+            seriesId: string | null;
+            visibility: import(".prisma/client").$Enums.SessionVisibility;
+            sessionType: import(".prisma/client").$Enums.SessionType;
             videoCallUrl: string | null;
             imageUrl: string | null;
         } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
@@ -629,8 +960,12 @@ export declare const resolvers: {
             createdAt: Date;
             updatedAt: Date;
             title: string;
-            scheduledDate: Date;
+            startDate: Date;
+            endDate: Date;
             leaderId: string;
+            seriesId: string | null;
+            visibility: import(".prisma/client").$Enums.SessionVisibility;
+            sessionType: import(".prisma/client").$Enums.SessionType;
             videoCallUrl: string | null;
             imageUrl: string | null;
         } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;
@@ -644,8 +979,12 @@ export declare const resolvers: {
             createdAt: Date;
             updatedAt: Date;
             title: string;
-            scheduledDate: Date;
+            startDate: Date;
+            endDate: Date;
             leaderId: string;
+            seriesId: string | null;
+            visibility: import(".prisma/client").$Enums.SessionVisibility;
+            sessionType: import(".prisma/client").$Enums.SessionType;
             videoCallUrl: string | null;
             imageUrl: string | null;
         } | null, null, import("@prisma/client/runtime/library").DefaultArgs>;

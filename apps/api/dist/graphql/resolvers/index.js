@@ -1,5 +1,5 @@
 import { GraphQLScalarType, Kind } from 'graphql';
-import { ResourceType } from '@prisma/client';
+import { ResourceType, SessionVisibility, JoinRequestStatus } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 // Custom DateTime scalar
 const dateTimeScalar = new GraphQLScalarType({
@@ -50,7 +50,13 @@ export const resolvers = {
         },
         sessions: async (_parent, _args, context) => {
             return context.prisma.session.findMany({
-                orderBy: { scheduledDate: 'desc' },
+                orderBy: { startDate: 'desc' },
+            });
+        },
+        publicSessions: async (_parent, _args, context) => {
+            return context.prisma.session.findMany({
+                where: { visibility: SessionVisibility.PUBLIC },
+                orderBy: { startDate: 'desc' },
             });
         },
         mySessions: async (_parent, _args, context) => {
@@ -72,7 +78,51 @@ export const resolvers = {
             ];
             // Remove duplicates based on id
             const uniqueSessions = Array.from(new Map(allSessions.map(s => [s.id, s])).values());
-            return uniqueSessions.sort((a, b) => b.scheduledDate.getTime() - a.scheduledDate.getTime());
+            return uniqueSessions.sort((a, b) => b.startDate.getTime() - a.startDate.getTime());
+        },
+        series: async (_parent, args, context) => {
+            return context.prisma.series.findUnique({
+                where: { id: args.id },
+            });
+        },
+        allSeries: async (_parent, _args, context) => {
+            return context.prisma.series.findMany({
+                orderBy: { createdAt: 'desc' },
+            });
+        },
+        mySeries: async (_parent, _args, context) => {
+            if (!context.userId) {
+                throw new Error('Not authenticated');
+            }
+            return context.prisma.series.findMany({
+                where: { leaderId: context.userId },
+                orderBy: { createdAt: 'desc' },
+            });
+        },
+        myJoinRequests: async (_parent, _args, context) => {
+            if (!context.userId) {
+                throw new Error('Not authenticated');
+            }
+            return context.prisma.joinRequest.findMany({
+                where: { toId: context.userId },
+                orderBy: { createdAt: 'desc' },
+            });
+        },
+        sessionJoinRequests: async (_parent, args, context) => {
+            if (!context.userId) {
+                throw new Error('Not authenticated');
+            }
+            // Check if user is the leader
+            const session = await context.prisma.session.findUnique({
+                where: { id: args.sessionId },
+            });
+            if (!session || session.leaderId !== context.userId) {
+                throw new Error('Not authorized');
+            }
+            return context.prisma.joinRequest.findMany({
+                where: { sessionId: args.sessionId },
+                orderBy: { createdAt: 'desc' },
+            });
         },
         comments: async (_parent, args, context) => {
             return context.prisma.comment.findMany({
@@ -104,6 +154,54 @@ export const resolvers = {
                 orderBy: { createdAt: 'asc' },
             });
         },
+        // Bible library queries
+        bibleBooks: async (_parent, _args, context) => {
+            // Get unique books with chapter counts
+            const books = await context.prisma.scriptureLibrary.groupBy({
+                by: ['book', 'bookNumber'],
+                _max: {
+                    chapter: true,
+                },
+                orderBy: {
+                    bookNumber: 'asc',
+                },
+            });
+            return books.map(b => ({
+                name: b.book,
+                number: b.bookNumber,
+                chapterCount: b._max.chapter || 0,
+            }));
+        },
+        biblePassages: async (_parent, args, context) => {
+            return context.prisma.scriptureLibrary.findMany({
+                where: {
+                    book: args.book,
+                    chapter: args.chapter,
+                },
+                orderBy: {
+                    verseStart: 'asc',
+                },
+            });
+        },
+        searchBible: async (_parent, args, context) => {
+            if (!args.query || args.query.trim().length < 2) {
+                return [];
+            }
+            return context.prisma.scriptureLibrary.findMany({
+                where: {
+                    content: {
+                        contains: args.query,
+                        mode: 'insensitive',
+                    },
+                },
+                take: 50, // Limit results
+                orderBy: [
+                    { bookNumber: 'asc' },
+                    { chapter: 'asc' },
+                    { verseStart: 'asc' },
+                ],
+            });
+        },
     },
     Mutation: {
         signup: async (_parent, args, context) => {
@@ -128,16 +226,104 @@ export const resolvers = {
             });
             return user;
         },
+        updateUser: async (_parent, args, context) => {
+            if (!context.userId) {
+                throw new Error('Not authenticated');
+            }
+            // If email is being updated, check if it's already taken
+            if (args.input.email) {
+                const existingUser = await context.prisma.user.findUnique({
+                    where: { email: args.input.email },
+                });
+                if (existingUser && existingUser.id !== context.userId) {
+                    throw new Error('Email is already in use');
+                }
+            }
+            return context.prisma.user.update({
+                where: { id: context.userId },
+                data: args.input,
+            });
+        },
+        changePassword: async (_parent, args, context) => {
+            if (!context.userId) {
+                throw new Error('Not authenticated');
+            }
+            // Get current user with password
+            const user = await context.prisma.user.findUnique({
+                where: { id: context.userId },
+            });
+            if (!user) {
+                throw new Error('User not found');
+            }
+            // Verify current password
+            const isValid = await bcrypt.compare(args.currentPassword, user.password);
+            if (!isValid) {
+                throw new Error('Current password is incorrect');
+            }
+            // Hash new password
+            const hashedPassword = await bcrypt.hash(args.newPassword, 10);
+            // Update password
+            await context.prisma.user.update({
+                where: { id: context.userId },
+                data: { password: hashedPassword },
+            });
+            return true;
+        },
+        createSeries: async (_parent, args, context) => {
+            if (!context.userId) {
+                throw new Error('Not authenticated');
+            }
+            return context.prisma.series.create({
+                data: {
+                    title: args.input.title,
+                    description: args.input.description,
+                    imageUrl: args.input.imageUrl,
+                    leaderId: context.userId,
+                },
+            });
+        },
+        updateSeries: async (_parent, args, context) => {
+            if (!context.userId) {
+                throw new Error('Not authenticated');
+            }
+            const series = await context.prisma.series.findUnique({
+                where: { id: args.id },
+            });
+            if (!series || series.leaderId !== context.userId) {
+                throw new Error('Not authorized');
+            }
+            return context.prisma.series.update({
+                where: { id: args.id },
+                data: args.input,
+            });
+        },
+        deleteSeries: async (_parent, args, context) => {
+            if (!context.userId) {
+                throw new Error('Not authenticated');
+            }
+            const series = await context.prisma.series.findUnique({
+                where: { id: args.id },
+            });
+            if (!series || series.leaderId !== context.userId) {
+                throw new Error('Not authorized');
+            }
+            return context.prisma.series.delete({
+                where: { id: args.id },
+            });
+        },
         createSession: async (_parent, args, context) => {
             if (!context.userId) {
                 throw new Error('Not authenticated');
             }
-            const { title, description, scheduledDate, videoCallUrl, imageUrl, scripturePassages } = args.input;
+            const { title, description, startDate, endDate, seriesId, visibility, videoCallUrl, imageUrl, scripturePassages } = args.input;
             return context.prisma.session.create({
                 data: {
                     title,
                     description,
-                    scheduledDate,
+                    startDate,
+                    endDate,
+                    seriesId,
+                    visibility: visibility || SessionVisibility.PUBLIC,
                     videoCallUrl,
                     imageUrl,
                     leaderId: context.userId,
@@ -275,11 +461,95 @@ export const resolvers = {
             if (!context.userId) {
                 throw new Error('Not authenticated');
             }
+            // Check session visibility
+            const session = await context.prisma.session.findUnique({
+                where: { id: args.sessionId },
+            });
+            if (!session) {
+                throw new Error('Session not found');
+            }
+            if (session.visibility === SessionVisibility.PRIVATE) {
+                // Check if there's an accepted join request
+                const joinRequest = await context.prisma.joinRequest.findFirst({
+                    where: {
+                        sessionId: args.sessionId,
+                        toId: context.userId,
+                        status: JoinRequestStatus.ACCEPTED,
+                    },
+                });
+                if (!joinRequest) {
+                    throw new Error('You need an accepted join request to join this private session');
+                }
+            }
             return context.prisma.sessionParticipant.create({
                 data: {
                     sessionId: args.sessionId,
                     userId: context.userId,
                 },
+            });
+        },
+        sendJoinRequest: async (_parent, args, context) => {
+            if (!context.userId) {
+                throw new Error('Not authenticated');
+            }
+            // Check if user is the session leader
+            const session = await context.prisma.session.findUnique({
+                where: { id: args.sessionId },
+            });
+            if (!session || session.leaderId !== context.userId) {
+                throw new Error('Only session leaders can send join requests');
+            }
+            if (session.visibility !== SessionVisibility.PRIVATE) {
+                throw new Error('Join requests can only be sent for private sessions');
+            }
+            // Check if join request already exists
+            const existing = await context.prisma.joinRequest.findUnique({
+                where: {
+                    sessionId_toId: {
+                        sessionId: args.sessionId,
+                        toId: args.toUserId,
+                    },
+                },
+            });
+            if (existing) {
+                throw new Error('Join request already exists for this user');
+            }
+            return context.prisma.joinRequest.create({
+                data: {
+                    sessionId: args.sessionId,
+                    fromId: context.userId,
+                    toId: args.toUserId,
+                },
+            });
+        },
+        acceptJoinRequest: async (_parent, args, context) => {
+            if (!context.userId) {
+                throw new Error('Not authenticated');
+            }
+            const joinRequest = await context.prisma.joinRequest.findUnique({
+                where: { id: args.id },
+            });
+            if (!joinRequest || joinRequest.toId !== context.userId) {
+                throw new Error('Not authorized');
+            }
+            return context.prisma.joinRequest.update({
+                where: { id: args.id },
+                data: { status: JoinRequestStatus.ACCEPTED },
+            });
+        },
+        rejectJoinRequest: async (_parent, args, context) => {
+            if (!context.userId) {
+                throw new Error('Not authenticated');
+            }
+            const joinRequest = await context.prisma.joinRequest.findUnique({
+                where: { id: args.id },
+            });
+            if (!joinRequest || joinRequest.toId !== context.userId) {
+                throw new Error('Not authorized');
+            }
+            return context.prisma.joinRequest.update({
+                where: { id: args.id },
+                data: { status: JoinRequestStatus.REJECTED },
             });
         },
         leaveSession: async (_parent, args, context) => {
@@ -390,10 +660,30 @@ export const resolvers = {
             });
         },
     },
+    Series: {
+        leader: (parent, _args, context) => {
+            return context.prisma.user.findUnique({
+                where: { id: parent.leaderId },
+            });
+        },
+        sessions: (parent, _args, context) => {
+            return context.prisma.session.findMany({
+                where: { seriesId: parent.id },
+                orderBy: { startDate: 'asc' },
+            });
+        },
+    },
     Session: {
         leader: (parent, _args, context) => {
             return context.prisma.user.findUnique({
                 where: { id: parent.leaderId },
+            });
+        },
+        series: (parent, _args, context) => {
+            if (!parent.seriesId)
+                return null;
+            return context.prisma.series.findUnique({
+                where: { id: parent.seriesId },
             });
         },
         scripturePassages: (parent, _args, context) => {
@@ -421,6 +711,29 @@ export const resolvers = {
             return context.prisma.chatMessage.findMany({
                 where: { sessionId: parent.id },
                 orderBy: { createdAt: 'asc' },
+            });
+        },
+        joinRequests: (parent, _args, context) => {
+            return context.prisma.joinRequest.findMany({
+                where: { sessionId: parent.id },
+                orderBy: { createdAt: 'desc' },
+            });
+        },
+    },
+    JoinRequest: {
+        session: (parent, _args, context) => {
+            return context.prisma.session.findUnique({
+                where: { id: parent.sessionId },
+            });
+        },
+        from: (parent, _args, context) => {
+            return context.prisma.user.findUnique({
+                where: { id: parent.fromId },
+            });
+        },
+        to: (parent, _args, context) => {
+            return context.prisma.user.findUnique({
+                where: { id: parent.toId },
             });
         },
     },

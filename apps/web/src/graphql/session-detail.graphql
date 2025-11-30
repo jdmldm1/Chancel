@@ -7,11 +7,13 @@ query GetSession($id: ID!) {
     endDate
     seriesId
     visibility
+    sessionType
     videoCallUrl
     imageUrl
     series {
       id
       title
+      imageUrl
     }
     leader {
       id

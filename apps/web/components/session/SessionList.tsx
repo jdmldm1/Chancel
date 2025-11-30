@@ -137,7 +137,7 @@ export default function SessionList({ viewMode }: SessionListProps) {
     sessions = sessions.filter(s =>
       s.title.toLowerCase().includes(query) ||
       s.description?.toLowerCase().includes(query) ||
-      s.leader.name.toLowerCase().includes(query) ||
+      s.leader.name?.toLowerCase().includes(query) ||
       s.series?.title.toLowerCase().includes(query)
     )
   }
@@ -386,7 +386,7 @@ export default function SessionList({ viewMode }: SessionListProps) {
                   {(session.series?.imageUrl || session.imageUrl) && (
                     <div className="flex-shrink-0">
                       <img
-                        src={session.series?.imageUrl || session.imageUrl}
+                        src={(session.series?.imageUrl || session.imageUrl) || undefined}
                         alt={session.series?.title || session.title}
                         className="w-32 h-32 object-cover rounded-md"
                       />

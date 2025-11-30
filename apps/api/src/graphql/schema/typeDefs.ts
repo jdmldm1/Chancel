@@ -171,7 +171,29 @@ export const typeDefs = `#graphql
     user: User!
   }
 
+  type ScriptureLibrary {
+    id: ID!
+    book: String!
+    bookNumber: Int!
+    chapter: Int!
+    verseStart: Int!
+    verseEnd: Int
+    content: String!
+    createdAt: DateTime!
+  }
+
+  type BibleBook {
+    name: String!
+    number: Int!
+    chapterCount: Int!
+  }
+
   # Input types for mutations
+  input UpdateUserInput {
+    name: String
+    email: String
+  }
+
   input CreateSeriesInput {
     title: String!
     description: String
@@ -273,11 +295,20 @@ export const typeDefs = `#graphql
     # Join request queries
     myJoinRequests: [JoinRequest!]!
     sessionJoinRequests(sessionId: ID!): [JoinRequest!]!
+
+    # Bible library queries
+    bibleBooks: [BibleBook!]!
+    biblePassages(book: String!, chapter: Int!): [ScriptureLibrary!]!
+    searchBible(query: String!): [ScriptureLibrary!]!
   }
 
   type Mutation {
     # Auth mutations
     signup(email: String!, password: String!, name: String!, role: UserRole!): User!
+
+    # User mutations
+    updateUser(input: UpdateUserInput!): User!
+    changePassword(currentPassword: String!, newPassword: String!): Boolean!
 
     # Series mutations
     createSeries(input: CreateSeriesInput!): Series!

@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: chancel-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-chancel}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-chancel_dev_password}
+      POSTGRES_DB: ${DB_NAME:-chancel}
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-chancel}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - chancel-network
+
+  # GraphQL API Server
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: chancel-api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      DATABASE_URL: postgresql://${DB_USER:-chancel}:${DB_PASSWORD:-chancel_dev_password}@postgres:5432/${DB_NAME:-chancel}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
+    ports:
+      - "4000:4000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - chancel-network
+    command: sh -c "npx prisma migrate deploy --schema=./packages/db/prisma/schema.prisma && node apps/api/dist/index.js"
+
+  # Next.js Web Application
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    container_name: chancel-web
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATABASE_URL: postgresql://${DB_USER:-chancel}:${DB_PASSWORD:-chancel_dev_password}@postgres:5432/${DB_NAME:-chancel}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000/graphql}
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    depends_on:
+      - postgres
+      - api
+    networks:
+      - chancel-network
+
+networks:
+  chancel-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+    driver: local

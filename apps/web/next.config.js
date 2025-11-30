@@ -2,6 +2,7 @@
 const nextConfig = {
   reactStrictMode: true,
   swcMinify: true,
+  output: 'standalone', // Enable standalone output for Docker
   compiler: {
     styledComponents: true,
   },
@@ -9,7 +10,7 @@ const nextConfig = {
     return [
       {
         source: '/api/graphql',
-        destination: 'http://localhost:4000/graphql',
+        destination: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/graphql',
       },
     ]
   },

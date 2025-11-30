@@ -193,6 +193,63 @@ export const resolvers = {
         orderBy: { createdAt: 'asc' },
       })
     },
+
+    // Bible library queries
+    bibleBooks: async (_parent: unknown, _args: unknown, context: Context) => {
+      // Get unique books with chapter counts
+      const books = await context.prisma.scriptureLibrary.groupBy({
+        by: ['book', 'bookNumber'],
+        _max: {
+          chapter: true,
+        },
+        orderBy: {
+          bookNumber: 'asc',
+        },
+      })
+
+      return books.map(b => ({
+        name: b.book,
+        number: b.bookNumber,
+        chapterCount: b._max.chapter || 0,
+      }))
+    },
+
+    biblePassages: async (
+      _parent: unknown,
+      args: { book: string; chapter: number },
+      context: Context
+    ) => {
+      return context.prisma.scriptureLibrary.findMany({
+        where: {
+          book: args.book,
+          chapter: args.chapter,
+        },
+        orderBy: {
+          verseStart: 'asc',
+        },
+      })
+    },
+
+    searchBible: async (_parent: unknown, args: { query: string }, context: Context) => {
+      if (!args.query || args.query.trim().length < 2) {
+        return []
+      }
+
+      return context.prisma.scriptureLibrary.findMany({
+        where: {
+          content: {
+            contains: args.query,
+            mode: 'insensitive',
+          },
+        },
+        take: 50, // Limit results
+        orderBy: [
+          { bookNumber: 'asc' },
+          { chapter: 'asc' },
+          { verseStart: 'asc' },
+        ],
+      })
+    },
   },
 
   Mutation: {
@@ -226,6 +283,68 @@ export const resolvers = {
       })
 
       return user
+    },
+
+    updateUser: async (
+      _parent: unknown,
+      args: { input: { name?: string; email?: string } },
+      context: Context
+    ) => {
+      if (!context.userId) {
+        throw new Error('Not authenticated')
+      }
+
+      // If email is being updated, check if it's already taken
+      if (args.input.email) {
+        const existingUser = await context.prisma.user.findUnique({
+          where: { email: args.input.email },
+        })
+
+        if (existingUser && existingUser.id !== context.userId) {
+          throw new Error('Email is already in use')
+        }
+      }
+
+      return context.prisma.user.update({
+        where: { id: context.userId },
+        data: args.input,
+      })
+    },
+
+    changePassword: async (
+      _parent: unknown,
+      args: { currentPassword: string; newPassword: string },
+      context: Context
+    ) => {
+      if (!context.userId) {
+        throw new Error('Not authenticated')
+      }
+
+      // Get current user with password
+      const user = await context.prisma.user.findUnique({
+        where: { id: context.userId },
+      })
+
+      if (!user) {
+        throw new Error('User not found')
+      }
+
+      // Verify current password
+      const isValid = await bcrypt.compare(args.currentPassword, user.password)
+      if (!isValid) {
+        throw new Error('Current password is incorrect')
+      }
+
+      // Hash new password
+      const hashedPassword = await bcrypt.hash(args.newPassword, 10)
+
+      // Update password
+      await context.prisma.user.update({
+        where: { id: context.userId },
+        data: { password: hashedPassword },
+      })
+
+      return true
     },
 
     createSeries: async (

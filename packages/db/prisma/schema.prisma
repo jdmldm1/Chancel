@@ -236,3 +236,19 @@ model ChatMessage {
   @@index([userId])
   @@index([createdAt])
 }
+
+// Bible Library for pre-loaded scripture passages
+model ScriptureLibrary {
+  id         String   @id @default(cuid())
+  book       String
+  bookNumber Int      // For ordering (Genesis=1, Exodus=2, etc.)
+  chapter    Int
+  verseStart Int
+  verseEnd   Int?
+  content    String   @db.Text
+  createdAt  DateTime @default(now())
+
+  @@unique([book, chapter, verseStart, verseEnd])
+  @@index([book, chapter])
+  @@index([bookNumber, chapter])
+}

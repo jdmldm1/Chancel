@@ -11,19 +11,45 @@ The project is a monorepo built with Turborepo and contains a Next.js frontend, 
 ### Key Technologies
 
 *   **Frontend:** Next.js, React, Tailwind CSS, Apollo Client, Zustand
-*   **Backend:** Node.js, Express, GraphQL, Apollo Server
+*   **Backend:** Node.js, Express, GraphQL, Apollo Server, graphql-ws
 *   **Database:** PostgreSQL with Prisma ORM
 *   **Authentication:** NextAuth.js
 *   **Testing:** Vitest (unit/integration), Playwright (E2E)
 *   **Monorepo:** Turborepo with npm workspaces
 
-### Future Enhancements
+### Project Status
 
-*   Email notifications for discussion activity
-*   Study session analytics and engagement tracking
-*   Rich text editor for comments and notes
-*   Video integration and timestamped references
-*   Study resources library (commentaries, study guides)
+The project has completed its foundational and core feature development phases. The backend API and database are robust, and the frontend has implemented the primary user flows for session management and commenting. The current focus is on building out user dashboards, implementing new pre-loading and video features, and preparing for deployment.
+
+#### ✅ Completed Features
+
+*   **Full Authentication:** User registration, login, and role management (Leader/Member) with NextAuth.js.
+*   **Session Management:** Full CRUD (Create, Read, Update, Delete) functionality for Bible study sessions.
+*   **Scripture Display:** Dynamically renders scripture passages with verse-by-verse organization.
+*   **Real-Time Commenting:** Users can comment on specific verses, with threaded replies and real-time updates via GraphQL Subscriptions.
+*   **File Sharing:** Leaders can upload and share resources (PDFs, documents) within a session.
+*   **Database Schema:** A comprehensive PostgreSQL schema managed with Prisma, covering all core features.
+
+#### 🔄 In Progress / Partially Complete
+
+*   **Video Embedding:** Backend schema is ready to support YouTube, Vimeo, and direct video uploads. UI and API logic are the next steps.
+*   **Bible Pre-loading System:** The database schema and import scripts are ready to pre-load the entire Bible, enabling faster session setup. UI and data migration are pending.
+*   **Participant Management:** Users can join and leave sessions, but a formal invitation system is not yet implemented.
+*   **Testing Coverage:** The project has an established testing foundation with Vitest and Playwright, but test coverage needs to be expanded.
+
+#### 🚀 Key Next Steps
+
+1.  **Implement Video Player UI:** Build the `VideoPlayer.tsx` component and related UI to allow leaders to embed videos from various sources.
+2.  **Build "Browse Bible" Page:** Create the frontend components for the Bible pre-loading system so leaders can easily search for and add scripture passages to sessions.
+3.  **Develop User Dashboards:** Create dedicated dashboard experiences for both Study Leaders (session planning, analytics) and Members (upcoming sessions, recent activity).
+4.  **Containerize Application:** Create Dockerfiles and a `docker-compose.yml` to streamline local development and prepare for production deployment.
+
+#### 🛣️ Future Roadmap
+
+*   **Email Notifications:** Integrate an email service for notifications on new comments, session invitations, and other activities.
+*   **Comprehensive Testing:** Increase unit, integration, and E2E test coverage to ensure application stability and reliability.
+*   **Deployment:** Build Kubernetes manifests and a CI/CD pipeline for automated deployment.
+*   **Advanced Features:** Implement session analytics, comment editing/@mentions, and full-text search.
 
 ## Building and Running
 

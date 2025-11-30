@@ -44,6 +44,12 @@ const UserCircleIcon = ({ className = "w-5 h-5" }) => (
   </svg>
 )
 
+const ChartBarIcon = ({ className = "w-5 h-5" }) => (
+  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+  </svg>
+)
+
 export default function EnhancedNavigation() {
   const { data: session, status } = useSession()
   const pathname = usePathname()
@@ -84,7 +90,10 @@ export default function EnhancedNavigation() {
                 </div>
               ) : session ? (
                 <>
-                  <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg">
+                  <Link
+                    href="/profile"
+                    className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
                     <UserCircleIcon className="w-4 h-4 text-gray-600" />
                     <span className="text-sm font-medium text-gray-700">
                       {session.user.name}
@@ -92,7 +101,7 @@ export default function EnhancedNavigation() {
                     <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">
                       {session.user.role}
                     </span>
-                  </div>
+                  </Link>
                   <button
                     onClick={() => signOut({ callbackUrl: '/' })}
                     className="px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 border border-red-200 hover:border-red-300"
@@ -136,6 +145,13 @@ export default function EnhancedNavigation() {
                   Home
                 </SidebarItem>
                 <SidebarItem
+                  icon={<ChartBarIcon />}
+                  href="/dashboard"
+                  active={pathname?.startsWith('/dashboard')}
+                >
+                  Dashboard
+                </SidebarItem>
+                <SidebarItem
                   icon={<BookOpenIcon />}
                   href="/sessions"
                   active={pathname?.startsWith('/sessions')}
@@ -151,6 +167,20 @@ export default function EnhancedNavigation() {
                     href="/sessions?create=true"
                   >
                     Create Session
+                  </SidebarItem>
+                  <SidebarItem
+                    icon={<BookOpenIcon />}
+                    href="/bible"
+                    active={pathname?.startsWith('/bible')}
+                  >
+                    Browse Bible
+                  </SidebarItem>
+                  <SidebarItem
+                    icon={<BookOpenIcon />}
+                    href="/series"
+                    active={pathname?.startsWith('/series')}
+                  >
+                    My Series
                   </SidebarItem>
                 </SidebarSection>
               )}

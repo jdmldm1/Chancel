@@ -1,0 +1,25 @@
+version: '3.8'
+
+# Development-only docker-compose (just database for local development)
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: chancel-db-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-chancel}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-chancel_dev_password}
+      POSTGRES_DB: ${DB_NAME:-chancel}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-chancel}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_dev_data:
+    driver: local

@@ -6,9 +6,12 @@ query GetMySessions {
     startDate
     endDate
     visibility
+    sessionType
+    imageUrl
     series {
       id
       title
+      imageUrl
     }
     leader {
       id
@@ -42,9 +45,12 @@ query GetAllSessions {
     startDate
     endDate
     visibility
+    sessionType
+    imageUrl
     series {
       id
       title
+      imageUrl
     }
     leader {
       id

@@ -1,0 +1,31 @@
+query BibleBooks {
+  bibleBooks {
+    name
+    number
+    chapterCount
+  }
+}
+
+query BiblePassages($book: String!, $chapter: Int!) {
+  biblePassages(book: $book, chapter: $chapter) {
+    id
+    book
+    bookNumber
+    chapter
+    verseStart
+    verseEnd
+    content
+  }
+}
+
+query SearchBible($query: String!) {
+  searchBible(query: $query) {
+    id
+    book
+    bookNumber
+    chapter
+    verseStart
+    verseEnd
+    content
+  }
+}

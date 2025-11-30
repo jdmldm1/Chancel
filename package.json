@@ -21,6 +21,8 @@
     "db:push": "turbo run db:push",
     "db:migrate": "turbo run db:migrate",
     "db:seed": "turbo run db:seed",
+    "db:seed:bible": "npm run db:seed:bible --workspace=@bibleproject/db",
+    "db:seed:bible:test": "npm run db:seed:bible:test --workspace=@bibleproject/db",
     "db:studio": "turbo run db:studio",
     "test": "turbo run test",
     "test:watch": "turbo run test:watch",

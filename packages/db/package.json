@@ -6,6 +6,8 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
+    "db:seed:bible": "tsx prisma/seed-bible-api.ts",
+    "db:seed:bible:test": "tsx prisma/seed-bible-api.ts --test",
     "db:studio": "prisma studio",
     "generate": "prisma generate"
   },
