@@ -12,6 +12,7 @@ import SessionResources from '@/components/session/SessionResources'
 import VideoCallModal from '@/components/session/VideoCallModal'
 import SessionChat from '@/components/session/SessionChat'
 import JoinCodeDisplay from '@/components/session/JoinCodeDisplay'
+import AssignGroupsToSession from '@/components/session/AssignGroupsToSession'
 import { SessionDetailSkeleton } from '@/components/session/SessionDetailSkeleton'
 import { useToast } from '@/components/ui/toast'
 
@@ -450,6 +451,13 @@ export default function SessionDetailPage() {
             sessionTitle={sessionData.title}
             onCodeRegenerated={() => refetch()}
           />
+        </div>
+      )}
+
+      {/* Assign Groups to Session (Leaders Only) */}
+      {isLeader && (
+        <div className="mt-8">
+          <AssignGroupsToSession sessionId={sessionId} isLeader={isLeader} />
         </div>
       )}
 
