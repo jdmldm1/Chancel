@@ -94,7 +94,7 @@ const REMOVE_GROUP_MEMBER = gql`
 `
 
 export default function GroupDetailPage() {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const router = useRouter()
   const params = useParams()
   const groupId = params?.id as string
@@ -134,6 +134,17 @@ export default function GroupDetailPage() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messagesData, subscriptionData])
+
+  // Wait for session to load
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="h-96 bg-white/60 backdrop-blur-sm rounded-2xl animate-pulse" />
+        </div>
+      </div>
+    )
+  }
 
   if (!session) {
     router.push('/auth/login')

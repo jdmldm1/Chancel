@@ -44,7 +44,7 @@ const PUBLIC_GROUPS_QUERY = gql`
 `
 
 export default function GroupsPage() {
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   const router = useRouter()
   const isLeader = session?.user?.role === 'LEADER'
 
@@ -55,6 +55,17 @@ export default function GroupsPage() {
   const { data: publicGroupsData, loading: publicGroupsLoading } = useQuery<any>(PUBLIC_GROUPS_QUERY, {
     skip: !session,
   })
+
+  // Wait for session to load before checking authentication
+  if (status === 'loading') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8 px-4">
+        <div className="max-w-7xl mx-auto">
+          <div className="h-96 bg-white/60 backdrop-blur-sm rounded-2xl animate-pulse" />
+        </div>
+      </div>
+    )
+  }
 
   if (!session) {
     router.push('/auth/login')
