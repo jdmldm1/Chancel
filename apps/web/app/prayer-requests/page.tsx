@@ -64,7 +64,7 @@ export default function PrayerRequestsPage() {
   const [content, setContent] = useState('')
   const [isAnonymous, setIsAnonymous] = useState(false)
 
-  const { data, loading, refetch } = useQuery(GET_PRAYER_REQUESTS)
+  const { data, loading, refetch } = useQuery<any>(GET_PRAYER_REQUESTS)
   const [createRequest, { loading: creating }] = useMutation(CREATE_PRAYER_REQUEST, {
     onCompleted: () => {
       setContent('')

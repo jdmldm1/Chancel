@@ -1,6 +1,6 @@
 import { GraphQLScalarType, Kind } from 'graphql'
 import type { PrismaClient } from '@prisma/client'
-import { UserRole, ResourceType, SessionVisibility, JoinRequestStatus, ReactionType, GroupVisibility } from '@prisma/client'
+import { UserRole, ResourceType, SessionVisibility, JoinRequestStatus, ReactionType } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 import { groupResolvers } from './groupResolvers'
 
@@ -490,7 +490,7 @@ const baseResolvers = {
       const { title, description, startDate, endDate, seriesId, visibility, videoCallUrl, imageUrl, scripturePassages } = args.input
 
       // Generate join code for all sessions
-      const { generateUniqueJoinCode } = await import('../lib/generateJoinCode')
+      const { generateUniqueJoinCode } = await import('../../lib/generateJoinCode.js')
       const joinCode = await generateUniqueJoinCode()
 
       // Create the session
@@ -967,7 +967,7 @@ const baseResolvers = {
       }
 
       // Generate new join code
-      const { generateUniqueJoinCode } = await import('../lib/generateJoinCode')
+      const { generateUniqueJoinCode } = await import('../../lib/generateJoinCode.js')
       const newCode = await generateUniqueJoinCode()
 
       // Update session with new code

@@ -1,6 +1,7 @@
 'use client'
 
-import { useQuery, gql } from '@apollo/client'
+import { gql } from '@apollo/client'
+import { useQuery } from '@apollo/client/react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { Users, Lock, Globe, Plus } from 'lucide-react'
@@ -47,11 +48,11 @@ export default function GroupsPage() {
   const router = useRouter()
   const isLeader = session?.user?.role === 'LEADER'
 
-  const { data: myGroupsData, loading: myGroupsLoading } = useQuery(MY_GROUPS_QUERY, {
+  const { data: myGroupsData, loading: myGroupsLoading } = useQuery<any>(MY_GROUPS_QUERY, {
     skip: !session,
   })
 
-  const { data: publicGroupsData, loading: publicGroupsLoading } = useQuery(PUBLIC_GROUPS_QUERY, {
+  const { data: publicGroupsData, loading: publicGroupsLoading } = useQuery<any>(PUBLIC_GROUPS_QUERY, {
     skip: !session,
   })
 

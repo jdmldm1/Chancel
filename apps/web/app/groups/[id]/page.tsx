@@ -1,6 +1,7 @@
 'use client'
 
-import { useQuery, useMutation, useSubscription, gql } from '@apollo/client'
+import { gql } from '@apollo/client'
+import { useQuery, useMutation, useSubscription } from '@apollo/client/react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useParams } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
@@ -101,12 +102,12 @@ export default function GroupDetailPage() {
   const [showMembers, setShowMembers] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const { data: groupData, loading: groupLoading, refetch: refetchGroup } = useQuery(GROUP_QUERY, {
+  const { data: groupData, loading: groupLoading, refetch: refetchGroup } = useQuery<any>(GROUP_QUERY, {
     variables: { id: groupId },
     skip: !session || !groupId,
   })
 
-  const { data: messagesData, refetch: refetchMessages } = useQuery(GROUP_CHAT_MESSAGES_QUERY, {
+  const { data: messagesData, refetch: refetchMessages } = useQuery<any>(GROUP_CHAT_MESSAGES_QUERY, {
     variables: { groupId },
     skip: !session || !groupId,
   })

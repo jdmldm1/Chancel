@@ -1,6 +1,7 @@
 'use client'
 
-import { useMutation, gql } from '@apollo/client'
+import { gql } from '@apollo/client'
+import { useMutation } from '@apollo/client/react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -31,10 +32,10 @@ export default function NewGroupPage() {
   const [errors, setErrors] = useState<Record<string, string>>({})
 
   const [createGroup, { loading }] = useMutation(CREATE_GROUP, {
-    onCompleted: (data) => {
+    onCompleted: (data: any) => {
       router.push(`/groups/${data.createGroup.id}`)
     },
-    onError: (error) => {
+    onError: (error: any) => {
       setErrors({ submit: error.message })
     },
   })

@@ -10,6 +10,7 @@ import cors from 'cors';
 import { PrismaClient } from '@prisma/client';
 import { typeDefs } from './graphql/schema/typeDefs.js';
 import { resolvers } from './graphql/resolvers/index.js';
+import { createDataLoaders } from './lib/dataloaders.js';
 import dotenv from 'dotenv';
 // Load environment variables
 dotenv.config();
@@ -49,8 +50,11 @@ async function startServer() {
         schema,
         context: async () => {
             // Extract auth from connection params if needed
+            // Create fresh DataLoaders for WebSocket context
+            const loaders = createDataLoaders(prisma);
             return {
                 prisma,
+                loaders,
             };
         },
     }, wsServer);
@@ -88,9 +92,12 @@ async function startServer() {
             if (authHeader && authHeader.startsWith('Bearer ')) {
                 userId = authHeader.replace('Bearer ', '');
             }
+            // Create fresh DataLoaders for each request
+            const loaders = createDataLoaders(prisma);
             return {
                 prisma,
                 userId,
+                loaders,
             };
         },
     }));

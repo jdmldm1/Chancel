@@ -1,6 +1,7 @@
 'use client'
 
-import { useQuery, useMutation, gql } from '@apollo/client'
+import { gql } from '@apollo/client'
+import { useQuery, useMutation } from '@apollo/client/react'
 import { useState } from 'react'
 import { Users, Plus, X } from 'lucide-react'
 
@@ -33,7 +34,7 @@ interface AssignGroupsProps {
 export default function AssignGroupsToSession({ sessionId, isLeader }: AssignGroupsProps) {
   const [showSelector, setShowSelector] = useState(false)
 
-  const { data: groupsData } = useQuery(MY_GROUPS_QUERY, {
+  const { data: groupsData } = useQuery<any>(MY_GROUPS_QUERY, {
     skip: !isLeader,
   })
 

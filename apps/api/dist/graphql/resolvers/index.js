@@ -1,6 +1,7 @@
 import { GraphQLScalarType, Kind } from 'graphql';
-import { ResourceType, SessionVisibility, JoinRequestStatus } from '@prisma/client';
+import { UserRole, ResourceType, SessionVisibility, JoinRequestStatus, ReactionType } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { groupResolvers } from './groupResolvers';
 // Custom DateTime scalar
 const dateTimeScalar = new GraphQLScalarType({
     name: 'DateTime',
@@ -24,7 +25,8 @@ const dateTimeScalar = new GraphQLScalarType({
         return null;
     },
 });
-export const resolvers = {
+// Merge all resolvers
+const baseResolvers = {
     DateTime: dateTimeScalar,
     Query: {
         me: async (_parent, _args, context) => {
@@ -202,6 +204,22 @@ export const resolvers = {
                 ],
             });
         },
+        prayerRequests: async (_parent, _args, context) => {
+            return context.prisma.prayerRequest.findMany({
+                orderBy: { createdAt: 'desc' },
+                include: {
+                    reactions: true,
+                },
+            });
+        },
+        prayerRequest: async (_parent, args, context) => {
+            return context.prisma.prayerRequest.findUnique({
+                where: { id: args.id },
+                include: {
+                    reactions: true,
+                },
+            });
+        },
     },
     Mutation: {
         signup: async (_parent, args, context) => {
@@ -273,6 +291,13 @@ export const resolvers = {
             if (!context.userId) {
                 throw new Error('Not authenticated');
             }
+            // Check if user has LEADER role
+            const user = await context.prisma.user.findUnique({
+                where: { id: context.userId },
+            });
+            if (!user || user.role !== UserRole.LEADER) {
+                throw new Error('Only leaders can create series');
+            }
             return context.prisma.series.create({
                 data: {
                     title: args.input.title,
@@ -315,8 +340,19 @@ export const resolvers = {
             if (!context.userId) {
                 throw new Error('Not authenticated');
             }
+            // Check if user has LEADER role
+            const user = await context.prisma.user.findUnique({
+                where: { id: context.userId },
+            });
+            if (!user || user.role !== UserRole.LEADER) {
+                throw new Error('Only leaders can create sessions');
+            }
             const { title, description, startDate, endDate, seriesId, visibility, videoCallUrl, imageUrl, scripturePassages } = args.input;
-            return context.prisma.session.create({
+            // Generate join code for all sessions
+            const { generateUniqueJoinCode } = await import('../../lib/generateJoinCode.js');
+            const joinCode = await generateUniqueJoinCode();
+            // Create the session
+            const session = await context.prisma.session.create({
                 data: {
                     title,
                     description,
@@ -326,6 +362,7 @@ export const resolvers = {
                     visibility: visibility || SessionVisibility.PUBLIC,
                     videoCallUrl,
                     imageUrl,
+                    joinCode,
                     leaderId: context.userId,
                     scripturePassages: {
                         create: scripturePassages.map((passage, index) => ({
@@ -335,6 +372,32 @@ export const resolvers = {
                     },
                 },
             });
+            // If this session is part of a series, auto-add all existing series participants
+            if (seriesId) {
+                // Get all unique participants from other sessions in this series
+                const seriesParticipants = await context.prisma.sessionParticipant.findMany({
+                    where: {
+                        session: {
+                            seriesId: seriesId,
+                        },
+                    },
+                    select: {
+                        userId: true,
+                    },
+                    distinct: ['userId'],
+                });
+                // Add each participant to the new session
+                if (seriesParticipants.length > 0) {
+                    await context.prisma.sessionParticipant.createMany({
+                        data: seriesParticipants.map((participant) => ({
+                            sessionId: session.id,
+                            userId: participant.userId,
+                        })),
+                        skipDuplicates: true,
+                    });
+                }
+            }
+            return session;
         },
         updateSession: async (_parent, args, context) => {
             if (!context.userId) {
@@ -347,10 +410,62 @@ export const resolvers = {
             if (!session || session.leaderId !== context.userId) {
                 throw new Error('Not authorized');
             }
-            return context.prisma.session.update({
+            // Update the session
+            const updatedSession = await context.prisma.session.update({
                 where: { id: args.id },
                 data: args.input,
             });
+            // If session is being added to a series (and wasn't in one before)
+            if (args.input.seriesId && session.seriesId !== args.input.seriesId) {
+                // Get all unique participants from other sessions in the new series
+                const seriesParticipants = await context.prisma.sessionParticipant.findMany({
+                    where: {
+                        session: {
+                            seriesId: args.input.seriesId,
+                        },
+                    },
+                    select: {
+                        userId: true,
+                    },
+                    distinct: ['userId'],
+                });
+                // Add each series participant to this session
+                if (seriesParticipants.length > 0) {
+                    await context.prisma.sessionParticipant.createMany({
+                        data: seriesParticipants.map((participant) => ({
+                            sessionId: args.id,
+                            userId: participant.userId,
+                        })),
+                        skipDuplicates: true,
+                    });
+                }
+                // Also add this session's existing participants to all other sessions in the series
+                const thisSessionParticipants = await context.prisma.sessionParticipant.findMany({
+                    where: {
+                        sessionId: args.id,
+                    },
+                });
+                if (thisSessionParticipants.length > 0) {
+                    // Get all other sessions in the series
+                    const otherSeriesSessions = await context.prisma.session.findMany({
+                        where: {
+                            seriesId: args.input.seriesId,
+                            id: { not: args.id },
+                        },
+                    });
+                    // Add this session's participants to each session in the series
+                    for (const otherSession of otherSeriesSessions) {
+                        await context.prisma.sessionParticipant.createMany({
+                            data: thisSessionParticipants.map((participant) => ({
+                                sessionId: otherSession.id,
+                                userId: participant.userId,
+                            })),
+                            skipDuplicates: true,
+                        });
+                    }
+                }
+            }
+            return updatedSession;
         },
         deleteSession: async (_parent, args, context) => {
             if (!context.userId) {
@@ -486,6 +601,102 @@ export const resolvers = {
                     sessionId: args.sessionId,
                     userId: context.userId,
                 },
+            });
+        },
+        joinSessionByCode: async (_parent, args, context) => {
+            if (!context.userId) {
+                throw new Error('Not authenticated');
+            }
+            // Find session by join code with series info
+            const session = await context.prisma.session.findUnique({
+                where: { joinCode: args.joinCode },
+                include: {
+                    series: {
+                        include: {
+                            sessions: true,
+                        },
+                    },
+                },
+            });
+            if (!session) {
+                throw new Error('Invalid join code');
+            }
+            // Check if already a participant in this session
+            const existing = await context.prisma.sessionParticipant.findUnique({
+                where: {
+                    sessionId_userId: {
+                        sessionId: session.id,
+                        userId: context.userId,
+                    },
+                },
+            });
+            if (existing) {
+                throw new Error('You are already a participant in this session');
+            }
+            // Join the main session
+            const participant = await context.prisma.sessionParticipant.create({
+                data: {
+                    sessionId: session.id,
+                    userId: context.userId,
+                },
+            });
+            const addedToSeriesSessions = [];
+            let series = null;
+            // If session is part of a series, auto-join all sessions in the series
+            if (session.seriesId && session.series) {
+                series = session.series;
+                // Get all other sessions in the series
+                const otherSessions = session.series.sessions.filter((s) => s.id !== session.id);
+                // Join each session in the series (skip if already a participant)
+                for (const seriesSession of otherSessions) {
+                    const existingParticipant = await context.prisma.sessionParticipant.findUnique({
+                        where: {
+                            sessionId_userId: {
+                                sessionId: seriesSession.id,
+                                userId: context.userId,
+                            },
+                        },
+                    });
+                    if (!existingParticipant) {
+                        await context.prisma.sessionParticipant.create({
+                            data: {
+                                sessionId: seriesSession.id,
+                                userId: context.userId,
+                            },
+                        });
+                        addedToSeriesSessions.push(seriesSession);
+                    }
+                }
+            }
+            return {
+                participant,
+                session,
+                series,
+                addedToSeriesSessions,
+                totalSessionsJoined: 1 + addedToSeriesSessions.length,
+            };
+        },
+        regenerateJoinCode: async (_parent, args, context) => {
+            if (!context.userId) {
+                throw new Error('Not authenticated');
+            }
+            // Check if user is the session leader
+            const session = await context.prisma.session.findUnique({
+                where: { id: args.sessionId },
+            });
+            if (!session) {
+                throw new Error('Session not found');
+            }
+            if (session.leaderId !== context.userId) {
+                throw new Error('Only session leaders can regenerate join codes');
+            }
+            // Generate new join code
+            const { generateUniqueJoinCode } = await import('../../lib/generateJoinCode.js');
+            const newCode = await generateUniqueJoinCode();
+            // Update session with new code
+            return context.prisma.session.update({
+                where: { id: args.sessionId },
+                data: { joinCode: newCode },
             });
         },
         sendJoinRequest: async (_parent, args, context) => {
@@ -646,6 +857,68 @@ export const resolvers = {
             pubsub.publish(`CHAT_MESSAGE_ADDED_${args.sessionId}`, chatMessage);
             return chatMessage;
         },
+        createPrayerRequest: async (_parent, args, context) => {
+            if (!context.userId) {
+                throw new Error('Not authenticated');
+            }
+            return context.prisma.prayerRequest.create({
+                data: {
+                    userId: context.userId,
+                    content: args.content,
+                    isAnonymous: args.isAnonymous,
+                },
+                include: {
+                    reactions: true,
+                },
+            });
+        },
+        deletePrayerRequest: async (_parent, args, context) => {
+            if (!context.userId) {
+                throw new Error('Not authenticated');
+            }
+            const prayerRequest = await context.prisma.prayerRequest.findUnique({
+                where: { id: args.id },
+            });
+            if (!prayerRequest || prayerRequest.userId !== context.userId) {
+                throw new Error('Not authorized to delete this prayer request');
+            }
+            await context.prisma.prayerRequest.delete({
+                where: { id: args.id },
+            });
+            return true;
+        },
+        togglePrayerReaction: async (_parent, args, context) => {
+            if (!context.userId) {
+                throw new Error('Not authenticated');
+            }
+            // Check if reaction already exists
+            const existingReaction = await context.prisma.prayerReaction.findUnique({
+                where: {
+                    prayerRequestId_userId_reactionType: {
+                        prayerRequestId: args.prayerRequestId,
+                        userId: context.userId,
+                        reactionType: args.reactionType,
+                    },
+                },
+            });
+            if (existingReaction) {
+                // Remove the reaction (toggle off)
+                await context.prisma.prayerReaction.delete({
+                    where: { id: existingReaction.id },
+                });
+                return null;
+            }
+            else {
+                // Add the reaction (toggle on)
+                return context.prisma.prayerReaction.create({
+                    data: {
+                        prayerRequestId: args.prayerRequestId,
+                        userId: context.userId,
+                        reactionType: args.reactionType,
+                    },
+                });
+            }
+        },
     },
     // Field resolvers for nested data
     User: {
@@ -662,9 +935,8 @@ export const resolvers = {
     },
     Series: {
         leader: (parent, _args, context) => {
-            return context.prisma.user.findUnique({
-                where: { id: parent.leaderId },
-            });
+            // Use DataLoader to batch user lookups
+            return context.loaders.userLoader.load(parent.leaderId);
         },
         sessions: (parent, _args, context) => {
             return context.prisma.session.findMany({
@@ -675,9 +947,8 @@ export const resolvers = {
     },
     Session: {
         leader: (parent, _args, context) => {
-            return context.prisma.user.findUnique({
-                where: { id: parent.leaderId },
-            });
+            // Use DataLoader to batch user lookups
+            return context.loaders.userLoader.load(parent.leaderId);
         },
         series: (parent, _args, context) => {
             if (!parent.seriesId)
@@ -687,10 +958,8 @@ export const resolvers = {
             });
         },
         scripturePassages: (parent, _args, context) => {
-            return context.prisma.scripturePassage.findMany({
-                where: { sessionId: parent.id },
-                orderBy: { order: 'asc' },
-            });
+            // Use DataLoader to batch passage lookups by session
+            return context.loaders.passagesBySessionLoader.load(parent.id);
         },
         comments: (parent, _args, context) => {
             return context.prisma.comment.findMany({
@@ -703,9 +972,8 @@ export const resolvers = {
             });
         },
         participants: (parent, _args, context) => {
-            return context.prisma.sessionParticipant.findMany({
-                where: { sessionId: parent.id },
-            });
+            // Use DataLoader to batch participant lookups by session
+            return context.loaders.participantsBySessionLoader.load(parent.id);
         },
         chatMessages: (parent, _args, context) => {
             return context.prisma.chatMessage.findMany({
@@ -722,108 +990,125 @@ export const resolvers = {
     },
     JoinRequest: {
         session: (parent, _args, context) => {
-            return context.prisma.session.findUnique({
-                where: { id: parent.sessionId },
-            });
+            // Use DataLoader to batch session lookups
+            return context.loaders.sessionLoader.load(parent.sessionId);
         },
         from: (parent, _args, context) => {
-            return context.prisma.user.findUnique({
-                where: { id: parent.fromId },
-            });
+            // Use DataLoader to batch user lookups
+            return context.loaders.userLoader.load(parent.fromId);
         },
         to: (parent, _args, context) => {
-            return context.prisma.user.findUnique({
-                where: { id: parent.toId },
-            });
+            // Use DataLoader to batch user lookups
+            return context.loaders.userLoader.load(parent.toId);
         },
     },
     ScripturePassage: {
         session: (parent, _args, context) => {
-            return context.prisma.session.findUnique({
-                where: { id: parent.sessionId },
-            });
+            // Use DataLoader to batch session lookups
+            return context.loaders.sessionLoader.load(parent.sessionId);
         },
         comments: (parent, _args, context) => {
-            return context.prisma.comment.findMany({
-                where: { passageId: parent.id },
-            });
+            // Use DataLoader to batch comment lookups by passage
+            return context.loaders.commentsByPassageLoader.load(parent.id);
         },
     },
     Comment: {
         passage: (parent, _args, context) => {
-            return context.prisma.scripturePassage.findUnique({
-                where: { id: parent.passageId },
-            });
+            // Use DataLoader to batch passage lookups
+            return context.loaders.scripturePassageLoader.load(parent.passageId);
         },
         session: (parent, _args, context) => {
-            return context.prisma.session.findUnique({
-                where: { id: parent.sessionId },
-            });
+            // Use DataLoader to batch session lookups
+            return context.loaders.sessionLoader.load(parent.sessionId);
         },
         user: (parent, _args, context) => {
-            return context.prisma.user.findUnique({
-                where: { id: parent.userId },
-            });
+            // Use DataLoader to batch user lookups
+            return context.loaders.userLoader.load(parent.userId);
         },
         parent: (parent, _args, context) => {
             if (!parent.parentId)
                 return null;
-            return context.prisma.comment.findUnique({
-                where: { id: parent.parentId },
-            });
+            // Use DataLoader to batch parent comment lookups
+            return context.loaders.commentLoader.load(parent.parentId);
         },
         replies: (parent, _args, context) => {
-            return context.prisma.comment.findMany({
-                where: { parentId: parent.id },
-            });
+            // Use DataLoader to batch replies lookups
+            return context.loaders.commentRepliesLoader.load(parent.id);
         },
     },
     SessionResource: {
         session: (parent, _args, context) => {
-            return context.prisma.session.findUnique({
-                where: { id: parent.sessionId },
-            });
+            // Use DataLoader to batch session lookups
+            return context.loaders.sessionLoader.load(parent.sessionId);
         },
         uploader: (parent, _args, context) => {
-            return context.prisma.user.findUnique({
-                where: { id: parent.uploadedBy },
-            });
+            // Use DataLoader to batch user lookups
+            return context.loaders.userLoader.load(parent.uploadedBy);
         },
     },
     SessionParticipant: {
         session: (parent, _args, context) => {
-            return context.prisma.session.findUnique({
-                where: { id: parent.sessionId },
-            });
+            // Use DataLoader to batch session lookups
+            return context.loaders.sessionLoader.load(parent.sessionId);
         },
         user: (parent, _args, context) => {
-            return context.prisma.user.findUnique({
-                where: { id: parent.userId },
-            });
+            // Use DataLoader to batch user lookups
+            return context.loaders.userLoader.load(parent.userId);
         },
     },
     Notification: {
         user: (parent, _args, context) => {
-            return context.prisma.user.findUnique({
-                where: { id: parent.userId },
-            });
+            // Use DataLoader to batch user lookups
+            return context.loaders.userLoader.load(parent.userId);
         },
         session: (parent, _args, context) => {
-            return context.prisma.session.findUnique({
-                where: { id: parent.sessionId },
-            });
+            // Use DataLoader to batch session lookups
+            return context.loaders.sessionLoader.load(parent.sessionId);
         },
     },
     ChatMessage: {
         session: (parent, _args, context) => {
-            return context.prisma.session.findUnique({
-                where: { id: parent.sessionId },
+            // Use DataLoader to batch session lookups
+            return context.loaders.sessionLoader.load(parent.sessionId);
+        },
+        user: (parent, _args, context) => {
+            // Use DataLoader to batch user lookups
+            return context.loaders.userLoader.load(parent.userId);
+        },
+    },
+    PrayerRequest: {
+        user: (parent, _args, context) => {
+            // Don't return user info if prayer request is anonymous
+            if (parent.isAnonymous) {
+                return null;
+            }
+            // Use DataLoader to batch user lookups
+            return context.loaders.userLoader.load(parent.userId);
+        },
+        reactions: (parent, _args, context) => {
+            return context.prisma.prayerReaction.findMany({
+                where: { prayerRequestId: parent.id },
+            });
+        },
+        reactionCounts: async (parent, _args, context) => {
+            const reactions = await context.prisma.prayerReaction.findMany({
+                where: { prayerRequestId: parent.id },
+            });
+            return {
+                hearts: reactions.filter(r => r.reactionType === ReactionType.HEART).length,
+                prayingHands: reactions.filter(r => r.reactionType === ReactionType.PRAYING_HANDS).length,
+            };
+        },
+    },
+    PrayerReaction: {
+        prayerRequest: (parent, _args, context) => {
+            return context.prisma.prayerRequest.findUnique({
+                where: { id: parent.prayerRequestId },
             });
         },
         user: (parent, _args, context) => {
-            return context.prisma.user.findUnique({
-                where: { id: parent.userId },
-            });
+            // Use DataLoader to batch user lookups
+            return context.loaders.userLoader.load(parent.userId);
         },
     },
     Subscription: {
@@ -908,5 +1193,38 @@ export const resolvers = {
             },
         },
     },
+};
+// Merge base resolvers with group resolvers
+export const resolvers = {
+    DateTime: baseResolvers.DateTime,
+    Query: {
+        ...baseResolvers.Query,
+        ...groupResolvers.Query,
+    },
+    Mutation: {
+        ...baseResolvers.Mutation,
+        ...groupResolvers.Mutation,
+    },
+    Subscription: {
+        ...baseResolvers.Subscription,
+        ...groupResolvers.Subscription,
+    },
+    User: baseResolvers.User,
+    Series: baseResolvers.Series,
+    Session: baseResolvers.Session,
+    JoinRequest: baseResolvers.JoinRequest,
+    ScripturePassage: baseResolvers.ScripturePassage,
+    Comment: baseResolvers.Comment,
+    SessionResource: baseResolvers.SessionResource,
+    SessionParticipant: baseResolvers.SessionParticipant,
+    Notification: baseResolvers.Notification,
+    ChatMessage: baseResolvers.ChatMessage,
+    PrayerRequest: baseResolvers.PrayerRequest,
+    PrayerReaction: baseResolvers.PrayerReaction,
+    Group: groupResolvers.Group,
+    GroupMember: groupResolvers.GroupMember,
+    GroupChatMessage: groupResolvers.GroupChatMessage,
+    GroupSession: groupResolvers.GroupSession,
+    GroupSeries: groupResolvers.GroupSeries,
 };
 //# sourceMappingURL=index.js.map

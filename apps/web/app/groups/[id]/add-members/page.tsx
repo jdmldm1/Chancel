@@ -1,6 +1,7 @@
 'use client'
 
-import { useQuery, useMutation, gql } from '@apollo/client'
+import { gql } from '@apollo/client'
+import { useQuery, useMutation } from '@apollo/client/react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useParams } from 'next/navigation'
 import { useState } from 'react'
@@ -51,17 +52,17 @@ export default function AddGroupMembersPage() {
   const groupId = params?.id as string
   const [addedMembers, setAddedMembers] = useState<Set<string>>(new Set())
 
-  const { data: groupData, loading: groupLoading } = useQuery(GROUP_QUERY, {
+  const { data: groupData, loading: groupLoading } = useQuery<any>(GROUP_QUERY, {
     variables: { id: groupId },
     skip: !session || !groupId,
   })
 
-  const { data: usersData, loading: usersLoading } = useQuery(USERS_QUERY, {
+  const { data: usersData, loading: usersLoading } = useQuery<any>(USERS_QUERY, {
     skip: !session,
   })
 
   const [addMember, { loading: addingMember }] = useMutation(ADD_GROUP_MEMBER, {
-    onCompleted: (data) => {
+    onCompleted: (data: any) => {
       setAddedMembers(new Set(addedMembers).add(data.addGroupMember.userId))
     },
   })

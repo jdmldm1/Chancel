@@ -4,6 +4,11 @@ export var JoinRequestStatus;
     JoinRequestStatus["Pending"] = "PENDING";
     JoinRequestStatus["Rejected"] = "REJECTED";
 })(JoinRequestStatus || (JoinRequestStatus = {}));
+export var ReactionType;
+(function (ReactionType) {
+    ReactionType["Heart"] = "HEART";
+    ReactionType["PrayingHands"] = "PRAYING_HANDS";
+})(ReactionType || (ReactionType = {}));
 export var ResourceType;
 (function (ResourceType) {
     ResourceType["File"] = "FILE";

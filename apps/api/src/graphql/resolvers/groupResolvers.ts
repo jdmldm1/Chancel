@@ -1,4 +1,3 @@
-import type { PrismaClient } from '@prisma/client'
 import { UserRole, GroupVisibility } from '@prisma/client'
 import type { Context } from './index'
 
