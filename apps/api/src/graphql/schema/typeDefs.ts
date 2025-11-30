@@ -202,6 +202,11 @@ export const typeDefs = `#graphql
     PRAYING_HANDS
   }
 
+  enum GroupVisibility {
+    PUBLIC
+    PRIVATE
+  }
+
   type PrayerRequest {
     id: ID!
     userId: String!
@@ -227,6 +232,60 @@ export const typeDefs = `#graphql
   type ReactionCounts {
     hearts: Int!
     prayingHands: Int!
+  }
+
+  type Group {
+    id: ID!
+    name: String!
+    description: String
+    imageUrl: String
+    leaderId: String!
+    visibility: GroupVisibility!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    leader: User!
+    members: [GroupMember!]!
+    chatMessages: [GroupChatMessage!]!
+    memberCount: Int!
+  }
+
+  type GroupMember {
+    id: ID!
+    groupId: String!
+    userId: String!
+    role: UserRole!
+    joinedAt: DateTime!
+    group: Group!
+    user: User!
+  }
+
+  type GroupChatMessage {
+    id: ID!
+    groupId: String!
+    userId: String!
+    message: String!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    group: Group!
+    user: User!
+  }
+
+  type GroupSession {
+    id: ID!
+    groupId: String!
+    sessionId: String!
+    addedAt: DateTime!
+    group: Group!
+    session: Session!
+  }
+
+  type GroupSeries {
+    id: ID!
+    groupId: String!
+    seriesId: String!
+    addedAt: DateTime!
+    group: Group!
+    series: Series!
   }
 
   # Input types for mutations
@@ -303,6 +362,20 @@ export const typeDefs = `#graphql
     description: String
   }
 
+  input CreateGroupInput {
+    name: String!
+    description: String
+    imageUrl: String
+    visibility: GroupVisibility
+  }
+
+  input UpdateGroupInput {
+    name: String
+    description: String
+    imageUrl: String
+    visibility: GroupVisibility
+  }
+
   type Query {
     # User queries
     me: User
@@ -345,6 +418,14 @@ export const typeDefs = `#graphql
     # Prayer request queries
     prayerRequests: [PrayerRequest!]!
     prayerRequest(id: ID!): PrayerRequest
+
+    # Group queries
+    groups: [Group!]!
+    group(id: ID!): Group
+    myGroups: [Group!]!
+    publicGroups: [Group!]!
+    groupMembers(groupId: ID!): [GroupMember!]!
+    groupChatMessages(groupId: ID!): [GroupChatMessage!]!
   }
 
   type Mutation {
@@ -396,6 +477,18 @@ export const typeDefs = `#graphql
     createPrayerRequest(content: String!, isAnonymous: Boolean!): PrayerRequest!
     deletePrayerRequest(id: ID!): Boolean!
     togglePrayerReaction(prayerRequestId: ID!, reactionType: ReactionType!): PrayerReaction
+
+    # Group mutations
+    createGroup(input: CreateGroupInput!): Group!
+    updateGroup(id: ID!, input: UpdateGroupInput!): Group!
+    deleteGroup(id: ID!): Boolean!
+    addGroupMember(groupId: ID!, userId: ID!): GroupMember!
+    removeGroupMember(groupId: ID!, userId: ID!): Boolean!
+    sendGroupChatMessage(groupId: ID!, message: String!): GroupChatMessage!
+    assignGroupToSession(groupId: ID!, sessionId: ID!): GroupSession!
+    removeGroupFromSession(groupId: ID!, sessionId: ID!): Boolean!
+    assignGroupToSeries(groupId: ID!, seriesId: ID!): GroupSeries!
+    removeGroupFromSeries(groupId: ID!, seriesId: ID!): Boolean!
   }
 
   type Subscription {
@@ -409,6 +502,9 @@ export const typeDefs = `#graphql
 
     # Chat subscriptions
     chatMessageAdded(sessionId: ID!): ChatMessage!
+
+    # Group chat subscriptions
+    groupChatMessageAdded(groupId: ID!): GroupChatMessage!
   }
 
   type TypingIndicator {

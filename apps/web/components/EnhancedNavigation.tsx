@@ -190,6 +190,13 @@ export default function EnhancedNavigation() {
               <SidebarSection title="Community">
                 <SidebarItem
                   icon={<UsersIcon />}
+                  href="/groups"
+                  active={pathname?.startsWith('/groups')}
+                >
+                  Groups
+                </SidebarItem>
+                <SidebarItem
+                  icon={<UsersIcon />}
                   href="/sessions?view=all"
                 >
                   Browse All Sessions

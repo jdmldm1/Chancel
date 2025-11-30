@@ -48,6 +48,9 @@ model User {
   receivedJoinRequests  JoinRequest[]        @relation("ReceivedRequests")
   prayerRequests        PrayerRequest[]
   prayerReactions       PrayerReaction[]
+  leadingGroups         Group[]              @relation("GroupLeader")
+  groupMemberships      GroupMember[]
+  groupChatMessages     GroupChatMessage[]
 
   @@index([email])
 }
@@ -63,6 +66,7 @@ model Series {
 
   leader   User      @relation(fields: [leaderId], references: [id])
   sessions Session[]
+  groupSeries GroupSeries[]
 
   @@index([leaderId])
 }
@@ -92,6 +96,7 @@ model Session {
   notifications        Notification[]
   chatMessages         ChatMessage[]
   joinRequests         JoinRequest[]
+  groupSessions        GroupSession[]
 
   @@index([leaderId])
   @@index([seriesId])
@@ -262,6 +267,11 @@ enum ReactionType {
   PRAYING_HANDS
 }
 
+enum GroupVisibility {
+  PUBLIC
+  PRIVATE
+}
+
 // Prayer Requests
 model PrayerRequest {
   id          String   @id @default(cuid())
@@ -291,4 +301,87 @@ model PrayerReaction {
   @@unique([prayerRequestId, userId, reactionType])
   @@index([prayerRequestId])
   @@index([userId])
+}
+
+// Groups - Collections of users with chat and session assignment capabilities
+model Group {
+  id          String           @id @default(cuid())
+  name        String
+  description String?          @db.Text
+  imageUrl    String?
+  leaderId    String
+  visibility  GroupVisibility  @default(PUBLIC)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  leader           User               @relation("GroupLeader", fields: [leaderId], references: [id])
+  members          GroupMember[]
+  chatMessages     GroupChatMessage[]
+  groupSessions    GroupSession[]     // Sessions this group is assigned to
+  groupSeries      GroupSeries[]      // Series this group is assigned to
+
+  @@index([leaderId])
+  @@index([visibility])
+  @@index([createdAt])
+}
+
+model GroupMember {
+  id        String   @id @default(cuid())
+  groupId   String
+  userId    String
+  role      UserRole @default(MEMBER)
+  joinedAt  DateTime @default(now())
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+  @@index([groupId])
+  @@index([userId])
+}
+
+model GroupChatMessage {
+  id        String   @id @default(cuid())
+  groupId   String
+  userId    String
+  message   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  group Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([groupId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// Junction table for assigning groups to sessions
+model GroupSession {
+  id        String   @id @default(cuid())
+  groupId   String
+  sessionId String
+  addedAt   DateTime @default(now())
+
+  group   Group   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  session Session @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, sessionId])
+  @@index([groupId])
+  @@index([sessionId])
+}
+
+// Junction table for assigning groups to series
+model GroupSeries {
+  id        String   @id @default(cuid())
+  groupId   String
+  seriesId  String
+  addedAt   DateTime @default(now())
+
+  group  Group  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  series Series @relation(fields: [seriesId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, seriesId])
+  @@index([groupId])
+  @@index([seriesId])
 }

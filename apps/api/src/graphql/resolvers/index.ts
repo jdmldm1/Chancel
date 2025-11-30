@@ -1,11 +1,13 @@
 import { GraphQLScalarType, Kind } from 'graphql'
 import type { PrismaClient } from '@prisma/client'
-import { UserRole, ResourceType, SessionVisibility, JoinRequestStatus, ReactionType } from '@prisma/client'
+import { UserRole, ResourceType, SessionVisibility, JoinRequestStatus, ReactionType, GroupVisibility } from '@prisma/client'
 import bcrypt from 'bcryptjs'
+import { groupResolvers } from './groupResolvers'
 
 export interface Context {
   prisma: PrismaClient
   userId?: string // Will be set by auth middleware
+  loaders: any // DataLoader instances
 }
 
 // Custom DateTime scalar
@@ -32,7 +34,8 @@ const dateTimeScalar = new GraphQLScalarType({
   },
 })
 
-export const resolvers = {
+// Merge all resolvers
+const baseResolvers = {
   DateTime: dateTimeScalar,
 
   Query: {
@@ -1582,4 +1585,38 @@ export const resolvers = {
       },
     },
   },
+}
+
+// Merge base resolvers with group resolvers
+export const resolvers = {
+  DateTime: baseResolvers.DateTime,
+  Query: {
+    ...baseResolvers.Query,
+    ...groupResolvers.Query,
+  },
+  Mutation: {
+    ...baseResolvers.Mutation,
+    ...groupResolvers.Mutation,
+  },
+  Subscription: {
+    ...baseResolvers.Subscription,
+    ...groupResolvers.Subscription,
+  },
+  User: baseResolvers.User,
+  Series: baseResolvers.Series,
+  Session: baseResolvers.Session,
+  JoinRequest: baseResolvers.JoinRequest,
+  ScripturePassage: baseResolvers.ScripturePassage,
+  Comment: baseResolvers.Comment,
+  SessionResource: baseResolvers.SessionResource,
+  SessionParticipant: baseResolvers.SessionParticipant,
+  Notification: baseResolvers.Notification,
+  ChatMessage: baseResolvers.ChatMessage,
+  PrayerRequest: baseResolvers.PrayerRequest,
+  PrayerReaction: baseResolvers.PrayerReaction,
+  Group: groupResolvers.Group,
+  GroupMember: groupResolvers.GroupMember,
+  GroupChatMessage: groupResolvers.GroupChatMessage,
+  GroupSession: groupResolvers.GroupSession,
+  GroupSeries: groupResolvers.GroupSeries,
 }
