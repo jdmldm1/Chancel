@@ -10,6 +10,7 @@ import cors from 'cors'
 import { PrismaClient } from '@prisma/client'
 import { typeDefs } from './graphql/schema/typeDefs.js'
 import { resolvers, type Context } from './graphql/resolvers/index.js'
+import { createDataLoaders, type DataLoaders } from './lib/dataloaders.js'
 import dotenv from 'dotenv'
 
 // Load environment variables
@@ -45,6 +46,7 @@ export const pubsub = new PubSub()
 interface MyContext extends Context {
   prisma: PrismaClient
   userId?: string
+  loaders: DataLoaders
 }
 
 async function startServer() {
@@ -66,8 +68,12 @@ async function startServer() {
       schema,
       context: async () => {
         // Extract auth from connection params if needed
+        // Create fresh DataLoaders for WebSocket context
+        const loaders = createDataLoaders(prisma)
+
         return {
           prisma,
+          loaders,
         }
       },
     },
@@ -116,9 +122,13 @@ async function startServer() {
           userId = authHeader.replace('Bearer ', '')
         }
 
+        // Create fresh DataLoaders for each request
+        const loaders = createDataLoaders(prisma)
+
         return {
           prisma,
           userId,
+          loaders,
         }
       },
     })

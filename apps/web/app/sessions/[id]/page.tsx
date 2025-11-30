@@ -11,6 +11,7 @@ import ScripturePassageCard from '@/components/session/ScripturePassageCard'
 import SessionResources from '@/components/session/SessionResources'
 import VideoCallModal from '@/components/session/VideoCallModal'
 import SessionChat from '@/components/session/SessionChat'
+import JoinCodeDisplay from '@/components/session/JoinCodeDisplay'
 import { SessionDetailSkeleton } from '@/components/session/SessionDetailSkeleton'
 import { useToast } from '@/components/ui/toast'
 
@@ -26,6 +27,7 @@ const GET_SESSION = gql`
       visibility
       sessionType
       videoCallUrl
+      joinCode
       series {
         id
         title
@@ -438,6 +440,18 @@ export default function SessionDetailPage() {
           sessionLeaderId={sessionData.leader.id}
         />
       </div>
+
+      {/* Join Code (Leaders Only) */}
+      {isLeader && sessionData.joinCode && (
+        <div className="mt-8">
+          <JoinCodeDisplay
+            sessionId={sessionId}
+            joinCode={sessionData.joinCode}
+            sessionTitle={sessionData.title}
+            onCodeRegenerated={() => refetch()}
+          />
+        </div>
+      )}
 
       {/* Participants */}
       <div className="mt-8">

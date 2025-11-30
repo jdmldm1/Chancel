@@ -104,9 +104,10 @@ type Session = GetMySessionsQuery['mySessions'][0]
 
 interface SessionListProps {
   viewMode: 'my' | 'all'
+  timeFilter?: 'current' | 'past' | 'future'
 }
 
-export default function SessionList({ viewMode }: SessionListProps) {
+export default function SessionList({ viewMode, timeFilter = 'current' }: SessionListProps) {
   const { data: authSession } = useSession()
   const [sessionTypeFilter, setSessionTypeFilter] = useState<'all' | 'SCRIPTURE_BASED' | 'TOPIC_BASED'>('all')
   const [searchQuery, setSearchQuery] = useState('')
@@ -126,10 +127,29 @@ export default function SessionList({ viewMode }: SessionListProps) {
   const error = viewMode === 'my' ? myError : allError
   const allSessions = viewMode === 'my' ? (myData?.mySessions || []) : (allData?.publicSessions || [])
 
+  // Filter by time (current, past, future)
+  const now = new Date()
+  const timeFilteredSessions = allSessions.filter(s => {
+    const startDate = new Date(s.startDate)
+    const endDate = new Date(s.endDate)
+
+    if (timeFilter === 'current') {
+      // Session is current if now is between start and end date
+      return startDate <= now && endDate >= now
+    } else if (timeFilter === 'past') {
+      // Session is past if end date is before now
+      return endDate < now
+    } else if (timeFilter === 'future') {
+      // Session is future if start date is after now
+      return startDate > now
+    }
+    return true
+  })
+
   // Filter, search, and sort sessions
   let sessions = sessionTypeFilter === 'all'
-    ? allSessions
-    : allSessions.filter(s => s.sessionType === sessionTypeFilter)
+    ? timeFilteredSessions
+    : timeFilteredSessions.filter(s => s.sessionType === sessionTypeFilter)
 
   // Apply search filter
   if (searchQuery.trim()) {

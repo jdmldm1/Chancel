@@ -158,6 +158,15 @@ export default function EnhancedNavigation() {
                 >
                   Study Sessions
                 </SidebarItem>
+                {session.user.role === 'LEADER' && (
+                  <SidebarItem
+                    icon={<BookOpenIcon />}
+                    href="/series"
+                    active={pathname?.startsWith('/series')}
+                  >
+                    Study Session Series
+                  </SidebarItem>
+                )}
               </SidebarSection>
 
               {session.user.role === 'LEADER' && (
@@ -175,13 +184,6 @@ export default function EnhancedNavigation() {
                   >
                     Browse Bible
                   </SidebarItem>
-                  <SidebarItem
-                    icon={<BookOpenIcon />}
-                    href="/series"
-                    active={pathname?.startsWith('/series')}
-                  >
-                    My Series
-                  </SidebarItem>
                 </SidebarSection>
               )}
 
@@ -191,6 +193,17 @@ export default function EnhancedNavigation() {
                   href="/sessions?view=all"
                 >
                   Browse All Sessions
+                </SidebarItem>
+                <SidebarItem
+                  icon={
+                    <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                    </svg>
+                  }
+                  href="/prayer-requests"
+                  active={pathname?.startsWith('/prayer-requests')}
+                >
+                  Prayer Requests
                 </SidebarItem>
               </SidebarSection>
 

@@ -64,6 +64,7 @@ export const typeDefs = `#graphql
     sessionType: SessionType!
     videoCallUrl: String
     imageUrl: String
+    joinCode: String
     leader: User!
     series: Series
     scripturePassages: [ScripturePassage!]!
@@ -148,6 +149,14 @@ export const typeDefs = `#graphql
     user: User!
   }
 
+  type JoinSessionResult {
+    participant: SessionParticipant!
+    session: Session!
+    series: Series
+    addedToSeriesSessions: [Session!]!
+    totalSessionsJoined: Int!
+  }
+
   type Notification {
     id: ID!
     userId: String!
@@ -186,6 +195,38 @@ export const typeDefs = `#graphql
     name: String!
     number: Int!
     chapterCount: Int!
+  }
+
+  enum ReactionType {
+    HEART
+    PRAYING_HANDS
+  }
+
+  type PrayerRequest {
+    id: ID!
+    userId: String!
+    content: String!
+    isAnonymous: Boolean!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+    user: User!
+    reactions: [PrayerReaction!]!
+    reactionCounts: ReactionCounts!
+  }
+
+  type PrayerReaction {
+    id: ID!
+    prayerRequestId: String!
+    userId: String!
+    reactionType: ReactionType!
+    createdAt: DateTime!
+    prayerRequest: PrayerRequest!
+    user: User!
+  }
+
+  type ReactionCounts {
+    hearts: Int!
+    prayingHands: Int!
   }
 
   # Input types for mutations
@@ -300,6 +341,10 @@ export const typeDefs = `#graphql
     bibleBooks: [BibleBook!]!
     biblePassages(book: String!, chapter: Int!): [ScriptureLibrary!]!
     searchBible(query: String!): [ScriptureLibrary!]!
+
+    # Prayer request queries
+    prayerRequests: [PrayerRequest!]!
+    prayerRequest(id: ID!): PrayerRequest
   }
 
   type Mutation {
@@ -331,6 +376,8 @@ export const typeDefs = `#graphql
 
     # Participant mutations
     joinSession(sessionId: ID!): SessionParticipant!
+    joinSessionByCode(joinCode: String!): JoinSessionResult!
+    regenerateJoinCode(sessionId: ID!): Session!
     leaveSession(sessionId: ID!): Boolean!
 
     # Resource mutations
@@ -344,6 +391,11 @@ export const typeDefs = `#graphql
     sendJoinRequest(sessionId: ID!, toUserId: ID!): JoinRequest!
     acceptJoinRequest(id: ID!): JoinRequest!
     rejectJoinRequest(id: ID!): JoinRequest!
+
+    # Prayer request mutations
+    createPrayerRequest(content: String!, isAnonymous: Boolean!): PrayerRequest!
+    deletePrayerRequest(id: ID!): Boolean!
+    togglePrayerReaction(prayerRequestId: ID!, reactionType: ReactionType!): PrayerReaction
   }
 
   type Subscription {

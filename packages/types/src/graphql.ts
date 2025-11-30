@@ -118,26 +118,40 @@ export enum JoinRequestStatus {
   Rejected = 'REJECTED'
 }
 
+export type JoinSessionResult = {
+  __typename?: 'JoinSessionResult';
+  addedToSeriesSessions: Array<Session>;
+  participant: SessionParticipant;
+  series?: Maybe<Series>;
+  session: Session;
+  totalSessionsJoined: Scalars['Int']['output'];
+};
+
 export type Mutation = {
   __typename?: 'Mutation';
   acceptJoinRequest: JoinRequest;
   changePassword: Scalars['Boolean']['output'];
   createComment: Comment;
+  createPrayerRequest: PrayerRequest;
   createScripturePassage: ScripturePassage;
   createSeries: Series;
   createSession: Session;
   createSessionResource: SessionResource;
   deleteComment: Scalars['Boolean']['output'];
+  deletePrayerRequest: Scalars['Boolean']['output'];
   deleteScripturePassage: Scalars['Boolean']['output'];
   deleteSeries: Series;
   deleteSession: Session;
   deleteSessionResource: Scalars['Boolean']['output'];
   joinSession: SessionParticipant;
+  joinSessionByCode: JoinSessionResult;
   leaveSession: Scalars['Boolean']['output'];
+  regenerateJoinCode: Session;
   rejectJoinRequest: JoinRequest;
   sendChatMessage: ChatMessage;
   sendJoinRequest: JoinRequest;
   signup: User;
+  togglePrayerReaction?: Maybe<PrayerReaction>;
   updateComment: Comment;
   updateSeries: Series;
   updateSession: Session;
@@ -158,6 +172,12 @@ export type MutationChangePasswordArgs = {
 
 export type MutationCreateCommentArgs = {
   input: CreateCommentInput;
+};
+
+
+export type MutationCreatePrayerRequestArgs = {
+  content: Scalars['String']['input'];
+  isAnonymous: Scalars['Boolean']['input'];
 };
 
 
@@ -182,6 +202,11 @@ export type MutationCreateSessionResourceArgs = {
 
 
 export type MutationDeleteCommentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeletePrayerRequestArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -211,7 +236,17 @@ export type MutationJoinSessionArgs = {
 };
 
 
+export type MutationJoinSessionByCodeArgs = {
+  joinCode: Scalars['String']['input'];
+};
+
+
 export type MutationLeaveSessionArgs = {
+  sessionId: Scalars['ID']['input'];
+};
+
+
+export type MutationRegenerateJoinCodeArgs = {
   sessionId: Scalars['ID']['input'];
 };
 
@@ -238,6 +273,12 @@ export type MutationSignupArgs = {
   name: Scalars['String']['input'];
   password: Scalars['String']['input'];
   role: UserRole;
+};
+
+
+export type MutationTogglePrayerReactionArgs = {
+  prayerRequestId: Scalars['ID']['input'];
+  reactionType: ReactionType;
 };
 
 
@@ -276,6 +317,30 @@ export type Notification = {
   userId: Scalars['String']['output'];
 };
 
+export type PrayerReaction = {
+  __typename?: 'PrayerReaction';
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  prayerRequest: PrayerRequest;
+  prayerRequestId: Scalars['String']['output'];
+  reactionType: ReactionType;
+  user: User;
+  userId: Scalars['String']['output'];
+};
+
+export type PrayerRequest = {
+  __typename?: 'PrayerRequest';
+  content: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  isAnonymous: Scalars['Boolean']['output'];
+  reactionCounts: ReactionCounts;
+  reactions: Array<PrayerReaction>;
+  updatedAt: Scalars['DateTime']['output'];
+  user: User;
+  userId: Scalars['String']['output'];
+};
+
 export type Query = {
   __typename?: 'Query';
   allSeries: Array<Series>;
@@ -288,6 +353,8 @@ export type Query = {
   myJoinRequests: Array<JoinRequest>;
   mySeries: Array<Series>;
   mySessions: Array<Session>;
+  prayerRequest?: Maybe<PrayerRequest>;
+  prayerRequests: Array<PrayerRequest>;
   publicSessions: Array<Session>;
   scripturePassages: Array<ScripturePassage>;
   searchBible: Array<ScriptureLibrary>;
@@ -319,6 +386,11 @@ export type QueryCommentsArgs = {
 
 export type QueryCommentsByPassageArgs = {
   passageId: Scalars['ID']['input'];
+};
+
+
+export type QueryPrayerRequestArgs = {
+  id: Scalars['ID']['input'];
 };
 
 
@@ -355,6 +427,17 @@ export type QuerySessionResourcesArgs = {
 export type QueryUserArgs = {
   id: Scalars['ID']['input'];
 };
+
+export type ReactionCounts = {
+  __typename?: 'ReactionCounts';
+  hearts: Scalars['Int']['output'];
+  prayingHands: Scalars['Int']['output'];
+};
+
+export enum ReactionType {
+  Heart = 'HEART',
+  PrayingHands = 'PRAYING_HANDS'
+}
 
 export enum ResourceType {
   File = 'FILE',
@@ -414,6 +497,7 @@ export type Session = {
   endDate: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];
   imageUrl?: Maybe<Scalars['String']['output']>;
+  joinCode?: Maybe<Scalars['String']['output']>;
   joinRequests: Array<JoinRequest>;
   leader: User;
   leaderId: Scalars['String']['output'];
