@@ -2,6 +2,7 @@ export const typeDefs = `#graphql
   scalar DateTime
 
   enum UserRole {
+    ADMIN
     LEADER
     MEMBER
   }
@@ -426,6 +427,22 @@ export const typeDefs = `#graphql
     publicGroups: [Group!]!
     groupMembers(groupId: ID!): [GroupMember!]!
     groupChatMessages(groupId: ID!): [GroupChatMessage!]!
+
+    # Admin queries
+    allUsers: [User!]!
+    allSessions: [Session!]!
+    allGroups: [Group!]!
+    adminStats: AdminStats!
+  }
+
+  type AdminStats {
+    totalUsers: Int!
+    totalLeaders: Int!
+    totalMembers: Int!
+    totalSessions: Int!
+    totalGroups: Int!
+    totalComments: Int!
+    totalPrayerRequests: Int!
   }
 
   type Mutation {
@@ -489,6 +506,13 @@ export const typeDefs = `#graphql
     removeGroupFromSession(groupId: ID!, sessionId: ID!): Boolean!
     assignGroupToSeries(groupId: ID!, seriesId: ID!): GroupSeries!
     removeGroupFromSeries(groupId: ID!, seriesId: ID!): Boolean!
+
+    # Admin mutations
+    adminDeleteUser(userId: ID!): Boolean!
+    adminUpdateUserRole(userId: ID!, role: UserRole!): User!
+    adminDeleteSession(sessionId: ID!): Boolean!
+    adminDeleteGroup(groupId: ID!): Boolean!
+    adminDeleteSeries(seriesId: ID!): Boolean!
   }
 
   type Subscription {

@@ -3,6 +3,7 @@ import type { PrismaClient } from '@prisma/client'
 import { UserRole, ResourceType, SessionVisibility, JoinRequestStatus, ReactionType } from '@prisma/client'
 import bcrypt from 'bcryptjs'
 import { groupResolvers } from './groupResolvers'
+import { adminResolvers } from './adminResolvers'
 
 export interface Context {
   prisma: PrismaClient
@@ -1587,16 +1588,18 @@ const baseResolvers = {
   },
 }
 
-// Merge base resolvers with group resolvers
+// Merge all resolvers
 export const resolvers = {
   DateTime: baseResolvers.DateTime,
   Query: {
     ...baseResolvers.Query,
     ...groupResolvers.Query,
+    ...adminResolvers.Query,
   },
   Mutation: {
     ...baseResolvers.Mutation,
     ...groupResolvers.Mutation,
+    ...adminResolvers.Mutation,
   },
   Subscription: {
     ...baseResolvers.Subscription,
