@@ -97,8 +97,22 @@ const baseResolvers = {
             if (!context.userId) {
                 throw new Error('Not authenticated');
             }
+            // Return series where user is leader OR participant in any session
             return context.prisma.series.findMany({
-                where: { leaderId: context.userId },
+                where: {
+                    OR: [
+                        { leaderId: context.userId },
+                        {
+                            sessions: {
+                                some: {
+                                    participants: {
+                                        some: { userId: context.userId }
+                                    }
+                                }
+                            }
+                        }
+                    ]
+                },
                 orderBy: { createdAt: 'desc' },
             });
         },

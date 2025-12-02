@@ -158,15 +158,13 @@ export default function EnhancedNavigation() {
                 >
                   Study Sessions
                 </SidebarItem>
-                {session.user.role === 'LEADER' && (
-                  <SidebarItem
-                    icon={<BookOpenIcon />}
-                    href="/series"
-                    active={pathname?.startsWith('/series')}
-                  >
-                    Study Session Series
-                  </SidebarItem>
-                )}
+                <SidebarItem
+                  icon={<BookOpenIcon />}
+                  href="/series"
+                  active={pathname?.startsWith('/series')}
+                >
+                  Study Session Series
+                </SidebarItem>
               </SidebarSection>
 
               {session.user.role === 'LEADER' && (

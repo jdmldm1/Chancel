@@ -15,6 +15,7 @@ import JoinCodeDisplay from '@/components/session/JoinCodeDisplay'
 import AssignGroupsToSession from '@/components/session/AssignGroupsToSession'
 import { SessionDetailSkeleton } from '@/components/session/SessionDetailSkeleton'
 import { useToast } from '@/components/ui/toast'
+import { MessageCircle, X } from 'lucide-react'
 
 const GET_SESSION = gql`
   query GetSession($id: ID!) {
@@ -146,6 +147,7 @@ export default function SessionDetailPage() {
   const sessionId = params.id as string
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false)
   const [participantsCollapsed, setParticipantsCollapsed] = useState(false)
+  const [isChatOpen, setIsChatOpen] = useState(false)
 
   const { data, loading, error, refetch } = useQuery<GetSessionQuery>(GET_SESSION, {
     variables: { id: sessionId },
@@ -566,10 +568,39 @@ export default function SessionDetailPage() {
         </div>
       </div>
 
-      {/* Session Chat */}
-      {(isParticipant || isLeader) && (
-        <div className="mt-8">
-          <SessionChat sessionId={sessionId} />
+      {/* Floating Chat Button */}
+      {(isParticipant || isLeader) && !isChatOpen && (
+        <button
+          onClick={() => setIsChatOpen(true)}
+          className="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 flex items-center justify-center z-40"
+          title="Open Chat"
+        >
+          <MessageCircle size={24} />
+        </button>
+      )}
+
+      {/* Floating Chat Panel */}
+      {(isParticipant || isLeader) && isChatOpen && (
+        <div className="fixed bottom-6 right-6 w-96 h-[600px] bg-white rounded-lg shadow-2xl z-50 flex flex-col overflow-hidden border border-gray-200">
+          {/* Chat Header */}
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-3 flex items-center justify-between flex-shrink-0">
+            <h3 className="text-white font-semibold flex items-center gap-2">
+              <MessageCircle size={20} />
+              Session Chat
+            </h3>
+            <button
+              onClick={() => setIsChatOpen(false)}
+              className="text-white hover:bg-white/20 rounded-lg p-1 transition-colors"
+              title="Close Chat"
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          {/* Chat Content */}
+          <div className="flex-1 overflow-hidden">
+            <SessionChat sessionId={sessionId} />
+          </div>
         </div>
       )}
 

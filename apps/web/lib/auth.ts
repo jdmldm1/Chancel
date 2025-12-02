@@ -83,9 +83,9 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   ],
   callbacks: {
     async redirect({ url, baseUrl }) {
-      // After sign in, redirect to sessions page
+      // After sign in, redirect to dashboard
       if (url === baseUrl || url === `${baseUrl}/` || url === `${baseUrl}/auth/login`) {
-        return `${baseUrl}/sessions`
+        return `${baseUrl}/dashboard`
       }
       // Allow callback URLs on the same origin
       if (url.startsWith(baseUrl)) {

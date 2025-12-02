@@ -86,10 +86,12 @@ export default function SeriesPage() {
     )
   }
 
-  if (!session || session.user.role !== 'LEADER') {
-    router.push('/dashboard')
+  if (!session) {
+    router.push('/auth/login')
     return null
   }
+
+  const isLeader = session.user.role === 'LEADER'
 
   const allSeries = data?.mySeries || []
 
@@ -168,18 +170,20 @@ export default function SeriesPage() {
                 Study Session Series
               </h1>
               <p className="text-gray-600">
-                Organize your study sessions into series
+                {isLeader ? 'Organize your study sessions into series' : 'View series you are participating in'}
               </p>
             </div>
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
-            >
-              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-              </svg>
-              Create Series
-            </button>
+            {isLeader && (
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium flex items-center gap-2"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                </svg>
+                Create Series
+              </button>
+            )}
           </div>
 
           {/* Time Filter */}
@@ -238,17 +242,23 @@ export default function SeriesPage() {
             </h3>
             <p className="text-gray-600 mb-4">
               {timeFilter === 'active'
-                ? 'You have no series with active sessions. Create a series or try a different filter.'
+                ? isLeader
+                  ? 'You have no series with active sessions. Create a series or try a different filter.'
+                  : 'No active series found. Try a different filter.'
                 : timeFilter === 'past'
                 ? 'You have no series with completed sessions. Try a different filter.'
-                : 'You have no planned series. Create a series to get started.'}
+                : isLeader
+                ? 'You have no planned series. Create a series to get started.'
+                : 'No future series found. Try a different filter.'}
             </p>
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Create Your First Series
-            </button>
+            {isLeader && (
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              >
+                Create Your First Series
+              </button>
+            )}
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -282,16 +292,18 @@ export default function SeriesPage() {
                   <div className="flex gap-2">
                     <Link
                       href={`/series/${s.id}`}
-                      className="flex-1 px-4 py-2 bg-blue-600 text-white text-center rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                      className={`${isLeader ? 'flex-1' : 'w-full'} px-4 py-2 bg-blue-600 text-white text-center rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium`}
                     >
                       View Details
                     </Link>
-                    <button
-                      onClick={() => handleDelete(s.id, s.title)}
-                      className="px-4 py-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors text-sm font-medium"
-                    >
-                      Delete
-                    </button>
+                    {isLeader && (
+                      <button
+                        onClick={() => handleDelete(s.id, s.title)}
+                        className="px-4 py-2 border border-red-200 text-red-600 rounded-lg hover:bg-red-50 transition-colors text-sm font-medium"
+                      >
+                        Delete
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>

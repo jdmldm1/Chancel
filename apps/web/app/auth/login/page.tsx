@@ -36,7 +36,7 @@ export default function LoginPage() {
     setSocialLoading(provider)
     setError(null)
     try {
-      await signIn(provider, { callbackUrl: '/sessions' })
+      await signIn(provider, { callbackUrl: '/dashboard' })
     } catch (err) {
       console.error('Social sign in error:', err)
       setError(`Failed to sign in with ${provider}`)
@@ -75,7 +75,7 @@ export default function LoginPage() {
           description: 'You have successfully signed in.',
         })
         // Force immediate redirect
-        window.location.href = '/sessions'
+        window.location.href = '/dashboard'
       } else {
         setError('An unexpected error occurred')
         addToast({
