@@ -15,6 +15,17 @@ export type Scalars = {
   DateTime: { input: any; output: any; }
 };
 
+export type AdminStats = {
+  __typename?: 'AdminStats';
+  totalComments: Scalars['Int']['output'];
+  totalGroups: Scalars['Int']['output'];
+  totalLeaders: Scalars['Int']['output'];
+  totalMembers: Scalars['Int']['output'];
+  totalPrayerRequests: Scalars['Int']['output'];
+  totalSessions: Scalars['Int']['output'];
+  totalUsers: Scalars['Int']['output'];
+};
+
 export type BibleBook = {
   __typename?: 'BibleBook';
   chapterCount: Scalars['Int']['output'];
@@ -60,6 +71,13 @@ export type CreateCommentInput = {
   verseNumber?: InputMaybe<Scalars['Int']['input']>;
 };
 
+export type CreateGroupInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  imageUrl?: InputMaybe<Scalars['String']['input']>;
+  name: Scalars['String']['input'];
+  visibility?: InputMaybe<GroupVisibility>;
+};
+
 export type CreateScripturePassageInput = {
   book: Scalars['String']['input'];
   chapter: Scalars['Int']['input'];
@@ -98,6 +116,70 @@ export type CreateSessionResourceInput = {
   videoId?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type Group = {
+  __typename?: 'Group';
+  chatMessages: Array<GroupChatMessage>;
+  createdAt: Scalars['DateTime']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  imageUrl?: Maybe<Scalars['String']['output']>;
+  leader: User;
+  leaderId: Scalars['String']['output'];
+  memberCount: Scalars['Int']['output'];
+  members: Array<GroupMember>;
+  name: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  visibility: GroupVisibility;
+};
+
+export type GroupChatMessage = {
+  __typename?: 'GroupChatMessage';
+  createdAt: Scalars['DateTime']['output'];
+  group: Group;
+  groupId: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  message: Scalars['String']['output'];
+  updatedAt: Scalars['DateTime']['output'];
+  user: User;
+  userId: Scalars['String']['output'];
+};
+
+export type GroupMember = {
+  __typename?: 'GroupMember';
+  group: Group;
+  groupId: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  joinedAt: Scalars['DateTime']['output'];
+  role: UserRole;
+  user: User;
+  userId: Scalars['String']['output'];
+};
+
+export type GroupSeries = {
+  __typename?: 'GroupSeries';
+  addedAt: Scalars['DateTime']['output'];
+  group: Group;
+  groupId: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  series: Series;
+  seriesId: Scalars['String']['output'];
+};
+
+export type GroupSession = {
+  __typename?: 'GroupSession';
+  addedAt: Scalars['DateTime']['output'];
+  group: Group;
+  groupId: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  session: Session;
+  sessionId: Scalars['String']['output'];
+};
+
+export enum GroupVisibility {
+  Private = 'PRIVATE',
+  Public = 'PUBLIC'
+}
+
 export type JoinRequest = {
   __typename?: 'JoinRequest';
   createdAt: Scalars['DateTime']['output'];
@@ -130,14 +212,24 @@ export type JoinSessionResult = {
 export type Mutation = {
   __typename?: 'Mutation';
   acceptJoinRequest: JoinRequest;
+  addGroupMember: GroupMember;
+  adminDeleteGroup: Scalars['Boolean']['output'];
+  adminDeleteSeries: Scalars['Boolean']['output'];
+  adminDeleteSession: Scalars['Boolean']['output'];
+  adminDeleteUser: Scalars['Boolean']['output'];
+  adminUpdateUserRole: User;
+  assignGroupToSeries: GroupSeries;
+  assignGroupToSession: GroupSession;
   changePassword: Scalars['Boolean']['output'];
   createComment: Comment;
+  createGroup: Group;
   createPrayerRequest: PrayerRequest;
   createScripturePassage: ScripturePassage;
   createSeries: Series;
   createSession: Session;
   createSessionResource: SessionResource;
   deleteComment: Scalars['Boolean']['output'];
+  deleteGroup: Scalars['Boolean']['output'];
   deletePrayerRequest: Scalars['Boolean']['output'];
   deleteScripturePassage: Scalars['Boolean']['output'];
   deleteSeries: Series;
@@ -148,11 +240,16 @@ export type Mutation = {
   leaveSession: Scalars['Boolean']['output'];
   regenerateJoinCode: Session;
   rejectJoinRequest: JoinRequest;
+  removeGroupFromSeries: Scalars['Boolean']['output'];
+  removeGroupFromSession: Scalars['Boolean']['output'];
+  removeGroupMember: Scalars['Boolean']['output'];
   sendChatMessage: ChatMessage;
+  sendGroupChatMessage: GroupChatMessage;
   sendJoinRequest: JoinRequest;
   signup: User;
   togglePrayerReaction?: Maybe<PrayerReaction>;
   updateComment: Comment;
+  updateGroup: Group;
   updateSeries: Series;
   updateSession: Session;
   updateUser: User;
@@ -164,6 +261,50 @@ export type MutationAcceptJoinRequestArgs = {
 };
 
 
+export type MutationAddGroupMemberArgs = {
+  groupId: Scalars['ID']['input'];
+  userId: Scalars['ID']['input'];
+};
+
+
+export type MutationAdminDeleteGroupArgs = {
+  groupId: Scalars['ID']['input'];
+};
+
+
+export type MutationAdminDeleteSeriesArgs = {
+  seriesId: Scalars['ID']['input'];
+};
+
+
+export type MutationAdminDeleteSessionArgs = {
+  sessionId: Scalars['ID']['input'];
+};
+
+
+export type MutationAdminDeleteUserArgs = {
+  userId: Scalars['ID']['input'];
+};
+
+
+export type MutationAdminUpdateUserRoleArgs = {
+  role: UserRole;
+  userId: Scalars['ID']['input'];
+};
+
+
+export type MutationAssignGroupToSeriesArgs = {
+  groupId: Scalars['ID']['input'];
+  seriesId: Scalars['ID']['input'];
+};
+
+
+export type MutationAssignGroupToSessionArgs = {
+  groupId: Scalars['ID']['input'];
+  sessionId: Scalars['ID']['input'];
+};
+
+
 export type MutationChangePasswordArgs = {
   currentPassword: Scalars['String']['input'];
   newPassword: Scalars['String']['input'];
@@ -172,6 +313,11 @@ export type MutationChangePasswordArgs = {
 
 export type MutationCreateCommentArgs = {
   input: CreateCommentInput;
+};
+
+
+export type MutationCreateGroupArgs = {
+  input: CreateGroupInput;
 };
 
 
@@ -202,6 +348,11 @@ export type MutationCreateSessionResourceArgs = {
 
 
 export type MutationDeleteCommentArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type MutationDeleteGroupArgs = {
   id: Scalars['ID']['input'];
 };
 
@@ -256,9 +407,33 @@ export type MutationRejectJoinRequestArgs = {
 };
 
 
+export type MutationRemoveGroupFromSeriesArgs = {
+  groupId: Scalars['ID']['input'];
+  seriesId: Scalars['ID']['input'];
+};
+
+
+export type MutationRemoveGroupFromSessionArgs = {
+  groupId: Scalars['ID']['input'];
+  sessionId: Scalars['ID']['input'];
+};
+
+
+export type MutationRemoveGroupMemberArgs = {
+  groupId: Scalars['ID']['input'];
+  userId: Scalars['ID']['input'];
+};
+
+
 export type MutationSendChatMessageArgs = {
   message: Scalars['String']['input'];
   sessionId: Scalars['ID']['input'];
+};
+
+
+export type MutationSendGroupChatMessageArgs = {
+  groupId: Scalars['ID']['input'];
+  message: Scalars['String']['input'];
 };
 
 
@@ -285,6 +460,12 @@ export type MutationTogglePrayerReactionArgs = {
 export type MutationUpdateCommentArgs = {
   id: Scalars['ID']['input'];
   input: UpdateCommentInput;
+};
+
+
+export type MutationUpdateGroupArgs = {
+  id: Scalars['ID']['input'];
+  input: UpdateGroupInput;
 };
 
 
@@ -343,18 +524,28 @@ export type PrayerRequest = {
 
 export type Query = {
   __typename?: 'Query';
+  adminStats: AdminStats;
+  allGroups: Array<Group>;
   allSeries: Array<Series>;
+  allSessions: Array<Session>;
+  allUsers: Array<User>;
   bibleBooks: Array<BibleBook>;
   biblePassages: Array<ScriptureLibrary>;
   chatMessages: Array<ChatMessage>;
   comments: Array<Comment>;
   commentsByPassage: Array<Comment>;
+  group?: Maybe<Group>;
+  groupChatMessages: Array<GroupChatMessage>;
+  groupMembers: Array<GroupMember>;
+  groups: Array<Group>;
   me?: Maybe<User>;
+  myGroups: Array<Group>;
   myJoinRequests: Array<JoinRequest>;
   mySeries: Array<Series>;
   mySessions: Array<Session>;
   prayerRequest?: Maybe<PrayerRequest>;
   prayerRequests: Array<PrayerRequest>;
+  publicGroups: Array<Group>;
   publicSessions: Array<Session>;
   scripturePassages: Array<ScripturePassage>;
   searchBible: Array<ScriptureLibrary>;
@@ -389,8 +580,35 @@ export type QueryCommentsByPassageArgs = {
 };
 
 
+export type QueryGroupArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryGroupChatMessagesArgs = {
+  groupId: Scalars['ID']['input'];
+};
+
+
+export type QueryGroupMembersArgs = {
+  groupId: Scalars['ID']['input'];
+};
+
+
+export type QueryMySessionsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
 export type QueryPrayerRequestArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type QueryPublicSessionsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -421,6 +639,12 @@ export type QuerySessionJoinRequestsArgs = {
 
 export type QuerySessionResourcesArgs = {
   sessionId: Scalars['ID']['input'];
+};
+
+
+export type QuerySessionsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -558,6 +782,7 @@ export type Subscription = {
   commentAdded: Comment;
   commentDeleted: Scalars['ID']['output'];
   commentUpdated: Comment;
+  groupChatMessageAdded: GroupChatMessage;
   userTyping: TypingIndicator;
 };
 
@@ -582,6 +807,11 @@ export type SubscriptionCommentUpdatedArgs = {
 };
 
 
+export type SubscriptionGroupChatMessageAddedArgs = {
+  groupId: Scalars['ID']['input'];
+};
+
+
 export type SubscriptionUserTypingArgs = {
   sessionId: Scalars['ID']['input'];
 };
@@ -596,6 +826,13 @@ export type TypingIndicator = {
 
 export type UpdateCommentInput = {
   content: Scalars['String']['input'];
+};
+
+export type UpdateGroupInput = {
+  description?: InputMaybe<Scalars['String']['input']>;
+  imageUrl?: InputMaybe<Scalars['String']['input']>;
+  name?: InputMaybe<Scalars['String']['input']>;
+  visibility?: InputMaybe<GroupVisibility>;
 };
 
 export type UpdateSeriesInput = {
@@ -617,23 +854,40 @@ export type UpdateSessionInput = {
 };
 
 export type UpdateUserInput = {
+  bibleTranslation?: InputMaybe<Scalars['String']['input']>;
+  bio?: InputMaybe<Scalars['String']['input']>;
+  commentNotifications?: InputMaybe<Scalars['Boolean']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
+  emailNotifications?: InputMaybe<Scalars['Boolean']['input']>;
+  location?: InputMaybe<Scalars['String']['input']>;
   name?: InputMaybe<Scalars['String']['input']>;
+  phoneNumber?: InputMaybe<Scalars['String']['input']>;
+  prayerNotifications?: InputMaybe<Scalars['Boolean']['input']>;
+  profilePicture?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type User = {
   __typename?: 'User';
+  bibleTranslation: Scalars['String']['output'];
+  bio?: Maybe<Scalars['String']['output']>;
+  commentNotifications: Scalars['Boolean']['output'];
   comments: Array<Comment>;
   createdAt: Scalars['DateTime']['output'];
   email: Scalars['String']['output'];
+  emailNotifications: Scalars['Boolean']['output'];
   id: Scalars['ID']['output'];
+  location?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
+  phoneNumber?: Maybe<Scalars['String']['output']>;
+  prayerNotifications: Scalars['Boolean']['output'];
+  profilePicture?: Maybe<Scalars['String']['output']>;
   role: UserRole;
   sessions: Array<Session>;
   updatedAt: Scalars['DateTime']['output'];
 };
 
 export enum UserRole {
+  Admin = 'ADMIN',
   Leader = 'LEADER',
   Member = 'MEMBER'
 }

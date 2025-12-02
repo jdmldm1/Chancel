@@ -68,16 +68,6 @@ const GET_SESSION = gql`
               id
               name
             }
-            replies {
-              id
-              content
-              verseNumber
-              createdAt
-              user {
-                id
-                name
-              }
-            }
           }
         }
       }
@@ -185,10 +175,59 @@ export default function SessionDetailPage() {
   // Subscribe to new comments
   useSubscription<CommentAddedSubscription>(COMMENT_ADDED, {
     variables: { sessionId },
-    onData: ({ data: subscriptionData }) => {
+    onData: ({ data: subscriptionData, client }) => {
       if (subscriptionData.data?.commentAdded) {
-        // Refetch the session to get updated comments
-        refetch()
+        // Optimized: Update Apollo cache directly instead of full refetch
+        const newComment = subscriptionData.data.commentAdded
+        const existingData = client.cache.readQuery<GetSessionQuery>({
+          query: GET_SESSION,
+          variables: { id: sessionId },
+        })
+
+        if (existingData?.session) {
+          // Find the passage this comment belongs to and update only that passage
+          const updatedPassages = existingData.session.scripturePassages.map(passage => {
+            if (passage.id === newComment.passageId) {
+              // Add the new comment to the passage
+              const updatedComments = [...passage.comments]
+
+              // If it's a reply, add it to the parent's replies
+              if (newComment.parentId) {
+                const parentIndex = updatedComments.findIndex(c => c.id === newComment.parentId)
+                if (parentIndex !== -1 && updatedComments[parentIndex].replies) {
+                  updatedComments[parentIndex] = {
+                    ...updatedComments[parentIndex],
+                    replies: [...updatedComments[parentIndex].replies, {
+                      ...newComment,
+                      replies: [] // Initialize empty replies array for the new comment
+                    }]
+                  }
+                }
+              } else {
+                // It's a top-level comment
+                updatedComments.push({
+                  ...newComment,
+                  replies: [] // Initialize empty replies array for new top-level comments
+                })
+              }
+
+              return { ...passage, comments: updatedComments }
+            }
+            return passage
+          })
+
+          // Write the updated data back to cache
+          client.cache.writeQuery({
+            query: GET_SESSION,
+            variables: { id: sessionId },
+            data: {
+              session: {
+                ...existingData.session,
+                scripturePassages: updatedPassages,
+              },
+            },
+          })
+        }
       }
     },
   })
@@ -443,11 +482,11 @@ export default function SessionDetailPage() {
       </div>
 
       {/* Join Code (Leaders Only) */}
-      {isLeader && sessionData.joinCode && (
+      {isLeader && (sessionData as any).joinCode && (
         <div className="mt-8">
           <JoinCodeDisplay
             sessionId={sessionId}
-            joinCode={sessionData.joinCode}
+            joinCode={(sessionData as any).joinCode}
             sessionTitle={sessionData.title}
             onCodeRegenerated={() => refetch()}
           />

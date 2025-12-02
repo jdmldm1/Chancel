@@ -35,6 +35,14 @@ export const typeDefs = `#graphql
     email: String!
     name: String
     role: UserRole!
+    bio: String
+    profilePicture: String
+    location: String
+    phoneNumber: String
+    emailNotifications: Boolean!
+    prayerNotifications: Boolean!
+    commentNotifications: Boolean!
+    bibleTranslation: String!
     createdAt: DateTime!
     updatedAt: DateTime!
     sessions: [Session!]!
@@ -293,6 +301,14 @@ export const typeDefs = `#graphql
   input UpdateUserInput {
     name: String
     email: String
+    bio: String
+    profilePicture: String
+    location: String
+    phoneNumber: String
+    emailNotifications: Boolean
+    prayerNotifications: Boolean
+    commentNotifications: Boolean
+    bibleTranslation: String
   }
 
   input CreateSeriesInput {
@@ -390,9 +406,9 @@ export const typeDefs = `#graphql
 
     # Session queries
     session(id: ID!): Session
-    sessions: [Session!]!
-    mySessions: [Session!]!
-    publicSessions: [Session!]!
+    sessions(limit: Int, offset: Int): [Session!]!
+    mySessions(limit: Int, offset: Int): [Session!]!
+    publicSessions(limit: Int, offset: Int): [Session!]!
 
     # Comment queries
     comments(sessionId: ID!): [Comment!]!

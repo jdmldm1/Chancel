@@ -87,7 +87,7 @@ cp .env.example .env
 
 Edit `.env` with your database credentials:
 ```env
-DATABASE_URL="postgresql://postgres:password123@localhost:5432/bibleproject?schema=public"
+DATABASE_URL="postgresql://postgres:password123@shiloh:5431/bibleproject?schema=public"
 NEXTAUTH_SECRET="your-secret-key-change-in-production"
 NEXTAUTH_URL="http://localhost:3000"
 JWT_SECRET="your-jwt-secret-change-in-production"

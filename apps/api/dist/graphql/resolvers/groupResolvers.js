@@ -100,8 +100,11 @@ export const groupResolvers = {
             const user = await context.prisma.user.findUnique({
                 where: { id: context.userId },
             });
+            console.log('Create Group - User ID:', context.userId);
+            console.log('Create Group - User found:', user);
+            console.log('Create Group - User role:', user?.role);
             if (!user || user.role !== UserRole.LEADER) {
-                throw new Error('Only leaders can create groups');
+                throw new Error(`Only leaders can create groups. Your role: ${user?.role || 'user not found'}`);
             }
             const group = await context.prisma.group.create({
                 data: {

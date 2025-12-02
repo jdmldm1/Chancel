@@ -1,19 +1,27 @@
 'use client'
 
-import { useQuery, useMutation } from '@apollo/client/react'
 import { gql } from '@apollo/client'
+import { useMutation, useQuery } from '@apollo/client/react'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import { ArrowLeft, Save, User, Mail, MapPin, Phone, FileText, Bell, Book } from 'lucide-react'
 import Link from 'next/link'
 
 const ME_QUERY = gql`
   query Me {
     me {
       id
-      name
       email
-      role
+      name
+      bio
+      profilePicture
+      location
+      phoneNumber
+      emailNotifications
+      prayerNotifications
+      commentNotifications
+      bibleTranslation
     }
   }
 `
@@ -22,53 +30,71 @@ const UPDATE_USER_MUTATION = gql`
   mutation UpdateUser($input: UpdateUserInput!) {
     updateUser(input: $input) {
       id
-      name
       email
+      name
+      bio
+      profilePicture
+      location
+      phoneNumber
+      emailNotifications
+      prayerNotifications
+      commentNotifications
+      bibleTranslation
     }
-  }
-`
-
-const CHANGE_PASSWORD_MUTATION = gql`
-  mutation ChangePassword($currentPassword: String!, $newPassword: String!) {
-    changePassword(currentPassword: $currentPassword, newPassword: $newPassword)
   }
 `
 
 export default function EditProfilePage() {
+  const { data: session, status, update } = useSession()
   const router = useRouter()
-  const { data: session, status } = useSession()
-  const { data, loading } = useQuery<{ me: { id: string; name: string; email: string; role: string } }>(ME_QUERY)
+  const [success, setSuccess] = useState(false)
 
-  const [updateUser, { loading: updateLoading }] = useMutation(UPDATE_USER_MUTATION)
-  const [changePassword, { loading: passwordLoading }] = useMutation(CHANGE_PASSWORD_MUTATION)
+  const { data, loading } = useQuery(ME_QUERY, {
+    skip: !session,
+  })
 
-  // Profile form state
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [profileError, setProfileError] = useState('')
-  const [profileSuccess, setProfileSuccess] = useState('')
+  const [formData, setFormData] = useState({
+    name: '',
+    bio: '',
+    location: '',
+    phoneNumber: '',
+    emailNotifications: true,
+    prayerNotifications: true,
+    commentNotifications: true,
+    bibleTranslation: 'ESV',
+  })
 
-  // Password form state
-  const [currentPassword, setCurrentPassword] = useState('')
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [passwordError, setPasswordError] = useState('')
-  const [passwordSuccess, setPasswordSuccess] = useState('')
+  const [dataLoaded, setDataLoaded] = useState(false)
 
-  // Initialize form with user data
-  useEffect(() => {
-    if (data?.me) {
-      setName(data.me.name || '')
-      setEmail(data.me.email || '')
-    }
-  }, [data])
+  // Load user data when available
+  if (data?.me && !dataLoaded) {
+    setFormData({
+      name: data.me.name || '',
+      bio: data.me.bio || '',
+      location: data.me.location || '',
+      phoneNumber: data.me.phoneNumber || '',
+      emailNotifications: data.me.emailNotifications ?? true,
+      prayerNotifications: data.me.prayerNotifications ?? true,
+      commentNotifications: data.me.commentNotifications ?? true,
+      bibleTranslation: data.me.bibleTranslation || 'ESV',
+    })
+    setDataLoaded(true)
+  }
+
+  const [updateUser, { loading: updating }] = useMutation(UPDATE_USER_MUTATION, {
+    onCompleted: async (data) => {
+      setSuccess(true)
+      // Update session with new name
+      await update({ name: data.updateUser.name })
+      setTimeout(() => setSuccess(false), 3000)
+    },
+  })
 
   if (status === 'loading' || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-gray-600">Loading profile...</p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8 px-4">
+        <div className="max-w-3xl mx-auto">
+          <div className="h-96 bg-white/60 backdrop-blur-sm rounded-2xl animate-pulse" />
         </div>
       </div>
     )
@@ -79,226 +105,231 @@ export default function EditProfilePage() {
     return null
   }
 
-  const user = data?.me
-
-  const handleProfileSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setProfileError('')
-    setProfileSuccess('')
-
     try {
       await updateUser({
         variables: {
-          input: { name, email },
+          input: formData,
         },
       })
-      setProfileSuccess('Profile updated successfully!')
-      setTimeout(() => setProfileSuccess(''), 3000)
-    } catch (error: any) {
-      setProfileError(error.message || 'Failed to update profile')
+    } catch (err) {
+      alert('Error updating profile: ' + (err as Error).message)
     }
   }
 
-  const handlePasswordSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setPasswordError('')
-    setPasswordSuccess('')
-
-    // Validate passwords
-    if (newPassword.length < 6) {
-      setPasswordError('New password must be at least 6 characters')
-      return
-    }
-
-    if (newPassword !== confirmPassword) {
-      setPasswordError('New passwords do not match')
-      return
-    }
-
-    try {
-      await changePassword({
-        variables: {
-          currentPassword,
-          newPassword,
-        },
-      })
-      setPasswordSuccess('Password changed successfully!')
-      setCurrentPassword('')
-      setNewPassword('')
-      setConfirmPassword('')
-      setTimeout(() => setPasswordSuccess(''), 3000)
-    } catch (error: any) {
-      setPasswordError(error.message || 'Failed to change password')
-    }
+  const handleChange = (field: string, value: any) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20 py-8">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 py-8 px-4">
+      <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="mb-8">
           <Link
-            href="/profile"
-            className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900 mb-4"
+            href="/sessions"
+            className="inline-flex items-center gap-2 text-slate-600 hover:text-slate-800 mb-4"
           >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            Back to Profile
+            <ArrowLeft size={20} />
+            Back to Sessions
           </Link>
-          <h1 className="text-3xl font-bold text-gray-900">Edit Profile</h1>
-          <p className="text-gray-600 mt-1">Update your personal information and password</p>
+
+          <div className="flex items-center gap-3 mb-2">
+            <User className="text-blue-600" size={36} />
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+              Edit Profile
+            </h1>
+          </div>
+          <p className="text-slate-600">Manage your personal information and preferences</p>
         </div>
 
-        {/* Profile Information */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Profile Information</h2>
-          <form onSubmit={handleProfileSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-                Name
-              </label>
-              <input
-                type="text"
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              />
-            </div>
+        {success && (
+          <div className="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
+            ✓ Profile updated successfully!
+          </div>
+        )}
 
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-                Email
-              </label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              />
-            </div>
+        {/* Profile Form */}
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Basic Information */}
+          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-slate-200/50">
+            <h2 className="text-xl font-semibold text-slate-800 mb-4">Basic Information</h2>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Role
-              </label>
-              <input
-                type="text"
-                value={user?.role}
-                disabled
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-600 cursor-not-allowed"
-              />
-              <p className="text-xs text-gray-500 mt-1">Role cannot be changed</p>
-            </div>
-
-            {profileError && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                {profileError}
+            <div className="space-y-4">
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-1">
+                  <User size={16} />
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) => handleChange('name', e.target.value)}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Enter your full name"
+                />
               </div>
-            )}
 
-            {profileSuccess && (
-              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
-                {profileSuccess}
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-1">
+                  <Mail size={16} />
+                  Email
+                </label>
+                <input
+                  type="email"
+                  value={data?.me?.email || ''}
+                  disabled
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg bg-slate-50 text-slate-500 cursor-not-allowed"
+                />
+                <p className="text-xs text-slate-500 mt-1">Email cannot be changed</p>
               </div>
-            )}
 
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-1">
+                  <FileText size={16} />
+                  Bio
+                </label>
+                <textarea
+                  value={formData.bio}
+                  onChange={(e) => handleChange('bio', e.target.value)}
+                  rows={4}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="Tell us about yourself..."
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Contact Information */}
+          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-slate-200/50">
+            <h2 className="text-xl font-semibold text-slate-800 mb-4">Contact Information</h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-1">
+                  <MapPin size={16} />
+                  Location
+                </label>
+                <input
+                  type="text"
+                  value={formData.location}
+                  onChange={(e) => handleChange('location', e.target.value)}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="City, State"
+                />
+              </div>
+
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-1">
+                  <Phone size={16} />
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  value={formData.phoneNumber}
+                  onChange={(e) => handleChange('phoneNumber', e.target.value)}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  placeholder="(555) 123-4567"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Preferences */}
+          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-slate-200/50">
+            <h2 className="text-xl font-semibold text-slate-800 mb-4">Preferences</h2>
+
+            <div className="space-y-4">
+              <div>
+                <label className="flex items-center gap-2 text-sm font-medium text-slate-700 mb-1">
+                  <Book size={16} />
+                  Preferred Bible Translation
+                </label>
+                <select
+                  value={formData.bibleTranslation}
+                  onChange={(e) => handleChange('bibleTranslation', e.target.value)}
+                  className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="ESV">ESV - English Standard Version</option>
+                  <option value="NIV">NIV - New International Version</option>
+                  <option value="NASB">NASB - New American Standard Bible</option>
+                  <option value="KJV">KJV - King James Version</option>
+                  <option value="NKJV">NKJV - New King James Version</option>
+                  <option value="NLT">NLT - New Living Translation</option>
+                  <option value="CSB">CSB - Christian Standard Bible</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Notification Settings */}
+          <div className="bg-white/60 backdrop-blur-sm rounded-2xl p-6 border border-slate-200/50">
+            <h2 className="flex items-center gap-2 text-xl font-semibold text-slate-800 mb-4">
+              <Bell size={20} />
+              Notification Settings
+            </h2>
+
+            <div className="space-y-3">
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.emailNotifications}
+                  onChange={(e) => handleChange('emailNotifications', e.target.checked)}
+                  className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                />
+                <div>
+                  <div className="font-medium text-slate-700">Email Notifications</div>
+                  <div className="text-sm text-slate-500">Receive general updates via email</div>
+                </div>
+              </label>
+
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.prayerNotifications}
+                  onChange={(e) => handleChange('prayerNotifications', e.target.checked)}
+                  className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                />
+                <div>
+                  <div className="font-medium text-slate-700">Prayer Request Notifications</div>
+                  <div className="text-sm text-slate-500">Get notified about new prayer requests</div>
+                </div>
+              </label>
+
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.commentNotifications}
+                  onChange={(e) => handleChange('commentNotifications', e.target.checked)}
+                  className="w-4 h-4 text-blue-600 border-slate-300 rounded focus:ring-blue-500"
+                />
+                <div>
+                  <div className="font-medium text-slate-700">Comment Notifications</div>
+                  <div className="text-sm text-slate-500">Get notified when someone replies to your comments</div>
+                </div>
+              </label>
+            </div>
+          </div>
+
+          {/* Save Button */}
+          <div className="flex justify-end gap-4">
+            <Link
+              href="/sessions"
+              className="px-6 py-2 border border-slate-300 rounded-lg text-slate-700 hover:bg-slate-50 transition-colors"
+            >
+              Cancel
+            </Link>
             <button
               type="submit"
-              disabled={updateLoading}
-              className="w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={updating}
+              className="inline-flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:from-blue-700 hover:to-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {updateLoading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Updating...
-                </span>
-              ) : (
-                'Update Profile'
-              )}
+              <Save size={18} />
+              {updating ? 'Saving...' : 'Save Changes'}
             </button>
-          </form>
-        </div>
-
-        {/* Change Password */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-900 mb-4">Change Password</h2>
-          <form onSubmit={handlePasswordSubmit} className="space-y-4">
-            <div>
-              <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                Current Password
-              </label>
-              <input
-                type="password"
-                id="currentPassword"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              />
-            </div>
-
-            <div>
-              <label htmlFor="newPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                New Password
-              </label>
-              <input
-                type="password"
-                id="newPassword"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              />
-              <p className="text-xs text-gray-500 mt-1">At least 6 characters</p>
-            </div>
-
-            <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
-                Confirm New Password
-              </label>
-              <input
-                type="password"
-                id="confirmPassword"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              />
-            </div>
-
-            {passwordError && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
-                {passwordError}
-              </div>
-            )}
-
-            {passwordSuccess && (
-              <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg">
-                {passwordSuccess}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={passwordLoading}
-              className="w-full px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {passwordLoading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Changing...
-                </span>
-              ) : (
-                'Change Password'
-              )}
-            </button>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
     </div>
   )

@@ -127,12 +127,25 @@ export const groupResolvers = {
       }
 
       // Check if user has LEADER role
+      console.log('=== CREATE GROUP DEBUG ===')
+      console.log('Context User ID:', context.userId)
+      console.log('Context User ID type:', typeof context.userId)
+      console.log('Context User ID length:', context.userId?.length)
+
       const user = await context.prisma.user.findUnique({
         where: { id: context.userId },
       })
 
+      console.log('User found:', user)
+      console.log('User role:', user?.role)
+
+      // Additional check: try to find ANY user to verify DB connection
+      const anyUser = await context.prisma.user.findFirst()
+      console.log('Any user in DB (sanity check):', anyUser?.email)
+      console.log('===========================')
+
       if (!user || user.role !== UserRole.LEADER) {
-        throw new Error('Only leaders can create groups')
+        throw new Error(`Only leaders can create groups. Your role: ${user?.role || 'user not found'}`)
       }
 
       const group = await context.prisma.group.create({

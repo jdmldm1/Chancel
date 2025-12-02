@@ -11,7 +11,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD:-chancel_dev_password}
       POSTGRES_DB: ${DB_NAME:-chancel}
     ports:
-      - "5432:5432"
+      - "5431:5432"
     volumes:
       - postgres_dev_data:/var/lib/postgresql/data
     healthcheck:

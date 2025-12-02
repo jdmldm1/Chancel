@@ -28,7 +28,7 @@ docker-compose exec api npx tsx packages/db/prisma/seed-bible-api.ts --test
 Access the application at:
 - Web: http://localhost:3000
 - API: http://localhost:4000/graphql
-- Database: localhost:5432
+- Database: localhost:5431
 
 ### Option 2: Database Only (Development)
 

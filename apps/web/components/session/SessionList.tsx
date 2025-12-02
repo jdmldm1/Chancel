@@ -10,8 +10,8 @@ import { SessionListSkeleton } from './SessionListSkeleton'
 import EmptyState from '../ui/EmptyState'
 
 const GET_MY_SESSIONS = gql`
-  query GetMySessions {
-    mySessions {
+  query GetMySessions($limit: Int, $offset: Int) {
+    mySessions(limit: $limit, offset: $offset) {
       id
       title
       description
@@ -29,15 +29,6 @@ const GET_MY_SESSIONS = gql`
         id
         name
         email
-      }
-      scripturePassages {
-        id
-        book
-        chapter
-        verseStart
-        verseEnd
-        content
-        order
       }
       participants {
         id
@@ -51,8 +42,8 @@ const GET_MY_SESSIONS = gql`
 `
 
 const GET_ALL_SESSIONS = gql`
-  query GetAllSessions {
-    publicSessions {
+  query GetAllSessions($limit: Int, $offset: Int) {
+    publicSessions(limit: $limit, offset: $offset) {
       id
       title
       description
@@ -70,15 +61,6 @@ const GET_ALL_SESSIONS = gql`
         id
         name
         email
-      }
-      scripturePassages {
-        id
-        book
-        chapter
-        verseStart
-        verseEnd
-        content
-        order
       }
       participants {
         id
@@ -115,9 +97,11 @@ export default function SessionList({ viewMode, timeFilter = 'current' }: Sessio
 
   const { data: myData, loading: myLoading, error: myError } = useQuery<GetMySessionsQuery>(GET_MY_SESSIONS, {
     skip: viewMode !== 'my',
+    variables: { limit: 100, offset: 0 },
   })
   const { data: allData, loading: allLoading, error: allError } = useQuery<GetAllSessionsQuery>(GET_ALL_SESSIONS, {
     skip: viewMode !== 'all',
+    variables: { limit: 100, offset: 0 },
   })
   const [deleteSession] = useMutation<DeleteSessionMutation, DeleteSessionMutationVariables>(DELETE_SESSION, {
     refetchQueries: [{ query: GET_MY_SESSIONS }, { query: GET_ALL_SESSIONS }],

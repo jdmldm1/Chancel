@@ -30,13 +30,26 @@ enum JoinRequestStatus {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  password  String
-  role      UserRole @default(MEMBER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id              String   @id @default(cuid())
+  email           String   @unique
+  name            String?
+  password        String
+  role            UserRole @default(MEMBER)
+
+  // Profile fields
+  bio             String?  @db.Text
+  profilePicture  String?  // URL to profile image
+  location        String?
+  phoneNumber     String?
+
+  // Preferences (stored as JSON)
+  emailNotifications     Boolean @default(true)
+  prayerNotifications    Boolean @default(true)
+  commentNotifications   Boolean @default(true)
+  bibleTranslation       String  @default("ESV")  // Preferred Bible translation
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   sessions              Session[]
   leadingSeries         Series[]
@@ -170,6 +183,8 @@ model Comment {
   @@index([userId])
   @@index([parentId])
   @@index([passageId, verseNumber])
+  @@index([createdAt])
+  @@index([passageId, parentId])
 }
 
 enum ResourceType {
@@ -212,6 +227,8 @@ model SessionParticipant {
   @@unique([sessionId, userId])
   @@index([sessionId])
   @@index([userId])
+  @@index([sessionId, userId])
+  @@index([joinedAt])
 }
 
 model Notification {

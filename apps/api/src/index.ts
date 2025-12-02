@@ -12,11 +12,24 @@ import { typeDefs } from './graphql/schema/typeDefs.js'
 import { resolvers, type Context } from './graphql/resolvers/index.js'
 import { createDataLoaders, type DataLoaders } from './lib/dataloaders.js'
 import dotenv from 'dotenv'
+import {
+  getComplexity,
+  simpleEstimator,
+  fieldExtensionsEstimator,
+} from 'graphql-query-complexity'
 
 // Load environment variables
 dotenv.config()
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient({
+  log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+  // Connection pool configuration for better performance
+  datasources: {
+    db: {
+      url: process.env.DATABASE_URL,
+    },
+  },
+})
 
 // Simple in-memory PubSub for subscriptions
 class PubSub {
@@ -94,6 +107,35 @@ async function startServer() {
           }
         },
       },
+      // Query complexity plugin to prevent overly expensive queries
+      {
+        async requestDidStart() {
+          return {
+            async didResolveOperation({ request, document }) {
+              const complexity = getComplexity({
+                schema,
+                operationName: request.operationName,
+                query: document,
+                variables: request.variables,
+                estimators: [
+                  fieldExtensionsEstimator(),
+                  simpleEstimator({ defaultComplexity: 1 }),
+                ],
+              })
+
+              // Max complexity of 1000 (adjust based on your needs)
+              const maxComplexity = 1000
+              if (complexity > maxComplexity) {
+                throw new Error(
+                  `Query is too complex: ${complexity}. Maximum allowed complexity: ${maxComplexity}`
+                )
+              }
+
+              console.log(`Query complexity: ${complexity}`)
+            },
+          }
+        },
+      },
     ],
     introspection: process.env.NODE_ENV !== 'production',
   })
@@ -120,6 +162,11 @@ async function startServer() {
 
         if (authHeader && authHeader.startsWith('Bearer ')) {
           userId = authHeader.replace('Bearer ', '')
+        }
+
+        // Debug logging
+        if (userId) {
+          console.log('🔐 Auth Context - User ID:', userId)
         }
 
         // Create fresh DataLoaders for each request

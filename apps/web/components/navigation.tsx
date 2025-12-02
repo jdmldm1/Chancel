@@ -18,12 +18,32 @@ export default function Navigation() {
             </Link>
             {session && (
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
-<Link
+                <Link
                   href="/sessions"
                   className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 hover:text-blue-600"
                 >
                   Study Sessions
                 </Link>
+                <Link
+                  href="/groups"
+                  className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 hover:text-blue-600"
+                >
+                  Groups
+                </Link>
+                <Link
+                  href="/prayer-requests"
+                  className="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900 hover:text-blue-600"
+                >
+                  Prayer
+                </Link>
+                {session.user.role === 'ADMIN' && (
+                  <Link
+                    href="/admin"
+                    className="inline-flex items-center px-1 pt-1 text-sm font-medium text-purple-600 hover:text-purple-700"
+                  >
+                    Admin
+                  </Link>
+                )}
               </div>
             )}
           </div>
@@ -33,9 +53,12 @@ export default function Navigation() {
               <div className="text-sm text-gray-500">Loading...</div>
             ) : session ? (
               <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-700">
-                  {session.user.name} ({session.user.role})
-                </span>
+                <Link
+                  href="/profile/edit"
+                  className="text-sm font-medium text-gray-700 hover:text-blue-600"
+                >
+                  {session.user.name || session.user.email} ({session.user.role})
+                </Link>
                 <button
                   onClick={() => signOut({ callbackUrl: '/' })}
                   className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700"

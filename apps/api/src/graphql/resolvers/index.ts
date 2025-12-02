@@ -65,48 +65,40 @@ const baseResolvers = {
       })
     },
 
-    sessions: async (_parent: unknown, _args: unknown, context: Context) => {
+    sessions: async (_parent: unknown, args: { limit?: number; offset?: number }, context: Context) => {
       return context.prisma.session.findMany({
+        take: args.limit || 100,
+        skip: args.offset || 0,
         orderBy: { startDate: 'desc' },
       })
     },
 
-    publicSessions: async (_parent: unknown, _args: unknown, context: Context) => {
+    publicSessions: async (_parent: unknown, args: { limit?: number; offset?: number }, context: Context) => {
       return context.prisma.session.findMany({
         where: { visibility: SessionVisibility.PUBLIC },
+        take: args.limit || 100,
+        skip: args.offset || 0,
         orderBy: { startDate: 'desc' },
       })
     },
 
-    mySessions: async (_parent: unknown, _args: unknown, context: Context) => {
+    mySessions: async (_parent: unknown, args: { limit?: number; offset?: number }, context: Context) => {
       if (!context.userId) {
         throw new Error('Not authenticated')
       }
 
-      // Get sessions where user is either the leader or a participant
-      const participantSessions = await context.prisma.sessionParticipant.findMany({
-        where: { userId: context.userId },
-        include: { session: true },
+      // Optimized: Single query using OR clause instead of 2 queries + in-memory merge
+      return context.prisma.session.findMany({
+        where: {
+          OR: [
+            { leaderId: context.userId },
+            { participants: { some: { userId: context.userId } } }
+          ]
+        },
+        take: args.limit || 100,
+        skip: args.offset || 0,
+        orderBy: { startDate: 'desc' },
       })
-
-      const leaderSessions = await context.prisma.session.findMany({
-        where: { leaderId: context.userId },
-      })
-
-      // Combine and deduplicate
-      const allSessions = [
-        ...leaderSessions,
-        ...participantSessions.map(p => p.session),
-      ]
-
-      // Remove duplicates based on id
-      const uniqueSessions = Array.from(
-        new Map(allSessions.map(s => [s.id, s])).values()
-      )
-
-      return uniqueSessions.sort(
-        (a, b) => b.startDate.getTime() - a.startDate.getTime()
-      )
     },
 
     series: async (_parent: unknown, args: { id: string }, context: Context) => {
