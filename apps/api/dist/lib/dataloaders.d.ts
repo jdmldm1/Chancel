@@ -12,6 +12,14 @@ export declare const createUserLoader: (prisma: PrismaClient) => DataLoader<stri
     role: import(".prisma/client").$Enums.UserRole;
     email: string;
     password: string;
+    bio: string | null;
+    profilePicture: string | null;
+    location: string | null;
+    phoneNumber: string | null;
+    emailNotifications: boolean;
+    prayerNotifications: boolean;
+    commentNotifications: boolean;
+    bibleTranslation: string;
 } | null, string>;
 export declare const createSessionLoader: (prisma: PrismaClient) => DataLoader<string, {
     id: string;
@@ -108,6 +116,14 @@ export declare const createDataLoaders: (prisma: PrismaClient) => {
         role: import(".prisma/client").$Enums.UserRole;
         email: string;
         password: string;
+        bio: string | null;
+        profilePicture: string | null;
+        location: string | null;
+        phoneNumber: string | null;
+        emailNotifications: boolean;
+        prayerNotifications: boolean;
+        commentNotifications: boolean;
+        bibleTranslation: string;
     } | null, string>;
     sessionLoader: DataLoader<string, {
         id: string;

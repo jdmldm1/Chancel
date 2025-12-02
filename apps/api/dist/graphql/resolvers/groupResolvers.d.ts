@@ -111,6 +111,15 @@ export declare const groupResolvers: {
         deleteGroup: (_parent: unknown, args: {
             id: string;
         }, context: Context) => Promise<boolean>;
+        joinGroup: (_parent: unknown, args: {
+            groupId: string;
+        }, context: Context) => Promise<{
+            id: string;
+            userId: string;
+            groupId: string;
+            role: import(".prisma/client").$Enums.UserRole;
+            joinedAt: Date;
+        }>;
         addGroupMember: (_parent: unknown, args: {
             groupId: string;
             userId: string;
@@ -137,6 +146,14 @@ export declare const groupResolvers: {
                 role: import(".prisma/client").$Enums.UserRole;
                 email: string;
                 password: string;
+                bio: string | null;
+                profilePicture: string | null;
+                location: string | null;
+                phoneNumber: string | null;
+                emailNotifications: boolean;
+                prayerNotifications: boolean;
+                commentNotifications: boolean;
+                bibleTranslation: string;
             };
         } & {
             id: string;

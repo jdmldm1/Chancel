@@ -35,6 +35,14 @@ export const typeDefs = `#graphql
     email: String!
     name: String
     role: UserRole!
+    bio: String
+    profilePicture: String
+    location: String
+    phoneNumber: String
+    emailNotifications: Boolean!
+    prayerNotifications: Boolean!
+    commentNotifications: Boolean!
+    bibleTranslation: String!
     createdAt: DateTime!
     updatedAt: DateTime!
     sessions: [Session!]!
@@ -293,6 +301,14 @@ export const typeDefs = `#graphql
   input UpdateUserInput {
     name: String
     email: String
+    bio: String
+    profilePicture: String
+    location: String
+    phoneNumber: String
+    emailNotifications: Boolean
+    prayerNotifications: Boolean
+    commentNotifications: Boolean
+    bibleTranslation: String
   }
 
   input CreateSeriesInput {
@@ -499,6 +515,7 @@ export const typeDefs = `#graphql
     createGroup(input: CreateGroupInput!): Group!
     updateGroup(id: ID!, input: UpdateGroupInput!): Group!
     deleteGroup(id: ID!): Boolean!
+    joinGroup(groupId: ID!): GroupMember!
     addGroupMember(groupId: ID!, userId: ID!): GroupMember!
     removeGroupMember(groupId: ID!, userId: ID!): Boolean!
     sendGroupChatMessage(groupId: ID!, message: String!): GroupChatMessage!

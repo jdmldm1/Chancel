@@ -17,6 +17,14 @@ export declare const resolvers: {
             role: import(".prisma/client").$Enums.UserRole;
             email: string;
             password: string;
+            bio: string | null;
+            profilePicture: string | null;
+            location: string | null;
+            phoneNumber: string | null;
+            emailNotifications: boolean;
+            prayerNotifications: boolean;
+            commentNotifications: boolean;
+            bibleTranslation: string;
         }[]>;
         allSessions: (_parent: unknown, _args: unknown, context: Context) => Promise<{
             id: string;
@@ -130,6 +138,14 @@ export declare const resolvers: {
             role: import(".prisma/client").$Enums.UserRole;
             email: string;
             password: string;
+            bio: string | null;
+            profilePicture: string | null;
+            location: string | null;
+            phoneNumber: string | null;
+            emailNotifications: boolean;
+            prayerNotifications: boolean;
+            commentNotifications: boolean;
+            bibleTranslation: string;
         } | null>;
         user: (_parent: unknown, args: {
             id: string;
@@ -141,6 +157,14 @@ export declare const resolvers: {
             role: import(".prisma/client").$Enums.UserRole;
             email: string;
             password: string;
+            bio: string | null;
+            profilePicture: string | null;
+            location: string | null;
+            phoneNumber: string | null;
+            emailNotifications: boolean;
+            prayerNotifications: boolean;
+            commentNotifications: boolean;
+            bibleTranslation: string;
         } | null>;
         users: (_parent: unknown, _args: unknown, context: Context) => Promise<{
             id: string;
@@ -150,6 +174,14 @@ export declare const resolvers: {
             role: import(".prisma/client").$Enums.UserRole;
             email: string;
             password: string;
+            bio: string | null;
+            profilePicture: string | null;
+            location: string | null;
+            phoneNumber: string | null;
+            emailNotifications: boolean;
+            prayerNotifications: boolean;
+            commentNotifications: boolean;
+            bibleTranslation: string;
         }[]>;
         session: (_parent: unknown, args: {
             id: string;
@@ -421,6 +453,14 @@ export declare const resolvers: {
             role: import(".prisma/client").$Enums.UserRole;
             email: string;
             password: string;
+            bio: string | null;
+            profilePicture: string | null;
+            location: string | null;
+            phoneNumber: string | null;
+            emailNotifications: boolean;
+            prayerNotifications: boolean;
+            commentNotifications: boolean;
+            bibleTranslation: string;
         }>;
         adminDeleteSession: (_parent: unknown, args: {
             sessionId: string;
@@ -469,6 +509,15 @@ export declare const resolvers: {
         deleteGroup: (_parent: unknown, args: {
             id: string;
         }, context: Context) => Promise<boolean>;
+        joinGroup: (_parent: unknown, args: {
+            groupId: string;
+        }, context: Context) => Promise<{
+            id: string;
+            userId: string;
+            groupId: string;
+            role: import(".prisma/client").$Enums.UserRole;
+            joinedAt: Date;
+        }>;
         addGroupMember: (_parent: unknown, args: {
             groupId: string;
             userId: string;
@@ -495,6 +544,14 @@ export declare const resolvers: {
                 role: import(".prisma/client").$Enums.UserRole;
                 email: string;
                 password: string;
+                bio: string | null;
+                profilePicture: string | null;
+                location: string | null;
+                phoneNumber: string | null;
+                emailNotifications: boolean;
+                prayerNotifications: boolean;
+                commentNotifications: boolean;
+                bibleTranslation: string;
             };
         } & {
             id: string;
@@ -543,6 +600,14 @@ export declare const resolvers: {
             role: import(".prisma/client").$Enums.UserRole;
             email: string;
             password: string;
+            bio: string | null;
+            profilePicture: string | null;
+            location: string | null;
+            phoneNumber: string | null;
+            emailNotifications: boolean;
+            prayerNotifications: boolean;
+            commentNotifications: boolean;
+            bibleTranslation: string;
         }>;
         updateUser: (_parent: unknown, args: {
             input: {
@@ -557,6 +622,14 @@ export declare const resolvers: {
             role: import(".prisma/client").$Enums.UserRole;
             email: string;
             password: string;
+            bio: string | null;
+            profilePicture: string | null;
+            location: string | null;
+            phoneNumber: string | null;
+            emailNotifications: boolean;
+            prayerNotifications: boolean;
+            commentNotifications: boolean;
+            bibleTranslation: string;
         }>;
         changePassword: (_parent: unknown, args: {
             currentPassword: string;
@@ -702,6 +775,14 @@ export declare const resolvers: {
                 role: import(".prisma/client").$Enums.UserRole;
                 email: string;
                 password: string;
+                bio: string | null;
+                profilePicture: string | null;
+                location: string | null;
+                phoneNumber: string | null;
+                emailNotifications: boolean;
+                prayerNotifications: boolean;
+                commentNotifications: boolean;
+                bibleTranslation: string;
             };
             replies: {
                 id: string;
@@ -954,6 +1035,14 @@ export declare const resolvers: {
                 role: import(".prisma/client").$Enums.UserRole;
                 email: string;
                 password: string;
+                bio: string | null;
+                profilePicture: string | null;
+                location: string | null;
+                phoneNumber: string | null;
+                emailNotifications: boolean;
+                prayerNotifications: boolean;
+                commentNotifications: boolean;
+                bibleTranslation: string;
             };
         } & {
             id: string;

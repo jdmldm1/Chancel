@@ -235,6 +235,7 @@ export type Mutation = {
   deleteSeries: Series;
   deleteSession: Session;
   deleteSessionResource: Scalars['Boolean']['output'];
+  joinGroup: GroupMember;
   joinSession: SessionParticipant;
   joinSessionByCode: JoinSessionResult;
   leaveSession: Scalars['Boolean']['output'];
@@ -379,6 +380,11 @@ export type MutationDeleteSessionArgs = {
 
 export type MutationDeleteSessionResourceArgs = {
   id: Scalars['ID']['input'];
+};
+
+
+export type MutationJoinGroupArgs = {
+  groupId: Scalars['ID']['input'];
 };
 
 

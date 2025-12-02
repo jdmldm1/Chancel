@@ -10,6 +10,14 @@ export declare const adminResolvers: {
             role: import(".prisma/client").$Enums.UserRole;
             email: string;
             password: string;
+            bio: string | null;
+            profilePicture: string | null;
+            location: string | null;
+            phoneNumber: string | null;
+            emailNotifications: boolean;
+            prayerNotifications: boolean;
+            commentNotifications: boolean;
+            bibleTranslation: string;
         }[]>;
         allSessions: (_parent: unknown, _args: unknown, context: Context) => Promise<{
             id: string;
@@ -62,6 +70,14 @@ export declare const adminResolvers: {
             role: import(".prisma/client").$Enums.UserRole;
             email: string;
             password: string;
+            bio: string | null;
+            profilePicture: string | null;
+            location: string | null;
+            phoneNumber: string | null;
+            emailNotifications: boolean;
+            prayerNotifications: boolean;
+            commentNotifications: boolean;
+            bibleTranslation: string;
         }>;
         adminDeleteSession: (_parent: unknown, args: {
             sessionId: string;

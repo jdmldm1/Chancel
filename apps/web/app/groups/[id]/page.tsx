@@ -93,6 +93,17 @@ const REMOVE_GROUP_MEMBER = gql`
   }
 `
 
+const JOIN_GROUP = gql`
+  mutation JoinGroup($groupId: ID!) {
+    joinGroup(groupId: $groupId) {
+      id
+      userId
+      role
+      joinedAt
+    }
+  }
+`
+
 export default function GroupDetailPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -113,8 +124,26 @@ export default function GroupDetailPage() {
   })
 
   const [sendMessage] = useMutation(SEND_GROUP_CHAT_MESSAGE, {
-    onCompleted: () => {
+    onCompleted: (data) => {
       setMessage('')
+    },
+    update: (cache, { data }) => {
+      if (data?.sendGroupChatMessage) {
+        const existingMessages: any = cache.readQuery({
+          query: GROUP_CHAT_MESSAGES_QUERY,
+          variables: { groupId },
+        })
+
+        if (existingMessages) {
+          cache.writeQuery({
+            query: GROUP_CHAT_MESSAGES_QUERY,
+            variables: { groupId },
+            data: {
+              groupChatMessages: [...existingMessages.groupChatMessages, data.sendGroupChatMessage],
+            },
+          })
+        }
+      }
     },
   })
 
@@ -124,10 +153,44 @@ export default function GroupDetailPage() {
     },
   })
 
+  const [joinGroup] = useMutation(JOIN_GROUP, {
+    onCompleted: () => {
+      refetchGroup()
+    },
+  })
+
   // Subscribe to new messages
   const { data: subscriptionData } = useSubscription(GROUP_CHAT_MESSAGE_SUBSCRIPTION, {
     variables: { groupId },
     skip: !groupId,
+    onData: ({ client, data }) => {
+      if (data.data?.groupChatMessageAdded) {
+        const newMessage = data.data.groupChatMessageAdded
+
+        // Update the cache with the new message
+        const existingMessages: any = client.readQuery({
+          query: GROUP_CHAT_MESSAGES_QUERY,
+          variables: { groupId },
+        })
+
+        if (existingMessages) {
+          // Check if message already exists to avoid duplicates
+          const messageExists = existingMessages.groupChatMessages.some(
+            (msg: any) => msg.id === newMessage.id
+          )
+
+          if (!messageExists) {
+            client.writeQuery({
+              query: GROUP_CHAT_MESSAGES_QUERY,
+              variables: { groupId },
+              data: {
+                groupChatMessages: [...existingMessages.groupChatMessages, newMessage],
+              },
+            })
+          }
+        }
+      }
+    },
   })
 
   // Scroll to bottom when new messages arrive
@@ -176,7 +239,7 @@ export default function GroupDetailPage() {
   }
 
   const isLeader = group.leaderId === session.user?.id
-  const isMember = group.members.some((m: any) => m.userId === session.user?.id)
+  const isMember = isLeader || group.members.some((m: any) => m.userId === session.user?.id)
   const messages = messagesData?.groupChatMessages || []
 
   const handleSendMessage = async (e: React.FormEvent) => {
@@ -200,6 +263,18 @@ export default function GroupDetailPage() {
         userId,
       },
     })
+  }
+
+  const handleJoinGroup = async () => {
+    try {
+      await joinGroup({
+        variables: {
+          groupId,
+        },
+      })
+    } catch (error: any) {
+      alert(error.message || 'Failed to join group')
+    }
   }
 
   return (
@@ -255,6 +330,15 @@ export default function GroupDetailPage() {
                   <Users size={18} />
                   {group.memberCount} Members
                 </button>
+                {!isMember && group.visibility === 'PUBLIC' && (
+                  <button
+                    onClick={handleJoinGroup}
+                    className="flex items-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg transition-all duration-200"
+                  >
+                    <Users size={18} />
+                    Join Group
+                  </button>
+                )}
                 {isLeader && (
                   <Link
                     href={`/groups/${groupId}/settings`}
@@ -322,7 +406,7 @@ export default function GroupDetailPage() {
               </div>
 
               {/* Message Input */}
-              {isMember && (
+              {isMember ? (
                 <form onSubmit={handleSendMessage} className="p-4 border-t border-slate-200">
                   <div className="flex gap-2">
                     <input
@@ -341,6 +425,14 @@ export default function GroupDetailPage() {
                     </button>
                   </div>
                 </form>
+              ) : group.visibility === 'PUBLIC' ? (
+                <div className="p-4 border-t border-slate-200 bg-blue-50 text-center">
+                  <p className="text-slate-700">Join this group to participate in the chat</p>
+                </div>
+              ) : (
+                <div className="p-4 border-t border-slate-200 bg-slate-50 text-center">
+                  <p className="text-slate-700">This is a private group</p>
+                </div>
               )}
             </div>
           </div>

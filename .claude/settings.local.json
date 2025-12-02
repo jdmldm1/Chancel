@@ -28,7 +28,8 @@
       "Bash(lsof:*)",
       "Bash(node test_session.js:*)",
       "Bash(node:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(docker ps:*)"
     ],
     "deny": [],
     "ask": []

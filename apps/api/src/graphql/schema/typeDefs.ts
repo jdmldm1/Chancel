@@ -515,6 +515,7 @@ export const typeDefs = `#graphql
     createGroup(input: CreateGroupInput!): Group!
     updateGroup(id: ID!, input: UpdateGroupInput!): Group!
     deleteGroup(id: ID!): Boolean!
+    joinGroup(groupId: ID!): GroupMember!
     addGroupMember(groupId: ID!, userId: ID!): GroupMember!
     removeGroupMember(groupId: ID!, userId: ID!): Boolean!
     sendGroupChatMessage(groupId: ID!, message: String!): GroupChatMessage!

@@ -97,12 +97,19 @@ export const groupResolvers = {
                 throw new Error('Not authenticated');
             }
             // Check if user has LEADER role
+            console.log('=== CREATE GROUP DEBUG ===');
+            console.log('Context User ID:', context.userId);
+            console.log('Context User ID type:', typeof context.userId);
+            console.log('Context User ID length:', context.userId?.length);
             const user = await context.prisma.user.findUnique({
                 where: { id: context.userId },
             });
-            console.log('Create Group - User ID:', context.userId);
-            console.log('Create Group - User found:', user);
-            console.log('Create Group - User role:', user?.role);
+            console.log('User found:', user);
+            console.log('User role:', user?.role);
+            // Additional check: try to find ANY user to verify DB connection
+            const anyUser = await context.prisma.user.findFirst();
+            console.log('Any user in DB (sanity check):', anyUser?.email);
+            console.log('===========================');
             if (!user || user.role !== UserRole.LEADER) {
                 throw new Error(`Only leaders can create groups. Your role: ${user?.role || 'user not found'}`);
             }
@@ -154,6 +161,40 @@ export const groupResolvers = {
                 where: { id: args.id },
             });
             return true;
+        },
+        joinGroup: async (_parent, args, context) => {
+            if (!context.userId) {
+                throw new Error('Not authenticated');
+            }
+            const group = await context.prisma.group.findUnique({
+                where: { id: args.groupId },
+            });
+            if (!group) {
+                throw new Error('Group not found');
+            }
+            // Only public groups can be joined directly
+            if (group.visibility !== GroupVisibility.PUBLIC) {
+                throw new Error('Only public groups can be joined directly');
+            }
+            // Check if user is already a member
+            const existing = await context.prisma.groupMember.findUnique({
+                where: {
+                    groupId_userId: {
+                        groupId: args.groupId,
+                        userId: context.userId,
+                    },
+                },
+            });
+            if (existing) {
+                throw new Error('You are already a member of this group');
+            }
+            return context.prisma.groupMember.create({
+                data: {
+                    groupId: args.groupId,
+                    userId: context.userId,
+                    role: UserRole.MEMBER,
+                },
+            });
         },
         addGroupMember: async (_parent, args, context) => {
             if (!context.userId) {

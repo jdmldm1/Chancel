@@ -225,6 +225,51 @@ export const groupResolvers = {
       return true
     },
 
+    joinGroup: async (
+      _parent: unknown,
+      args: { groupId: string },
+      context: Context
+    ) => {
+      if (!context.userId) {
+        throw new Error('Not authenticated')
+      }
+
+      const group = await context.prisma.group.findUnique({
+        where: { id: args.groupId },
+      })
+
+      if (!group) {
+        throw new Error('Group not found')
+      }
+
+      // Only public groups can be joined directly
+      if (group.visibility !== GroupVisibility.PUBLIC) {
+        throw new Error('Only public groups can be joined directly')
+      }
+
+      // Check if user is already a member
+      const existing = await context.prisma.groupMember.findUnique({
+        where: {
+          groupId_userId: {
+            groupId: args.groupId,
+            userId: context.userId,
+          },
+        },
+      })
+
+      if (existing) {
+        throw new Error('You are already a member of this group')
+      }
+
+      return context.prisma.groupMember.create({
+        data: {
+          groupId: args.groupId,
+          userId: context.userId,
+          role: UserRole.MEMBER,
+        },
+      })
+    },
+
     addGroupMember: async (
       _parent: unknown,
       args: { groupId: string; userId: string },
