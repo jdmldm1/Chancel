@@ -12,6 +12,8 @@ import {
 import CommentItem from './CommentItem'
 import { fetchBiblePassage, BibleTranslationId } from '@/src/lib/bible-api'
 import BibleVersionSelector from '../scripture/BibleVersionSelector'
+import AIInsightsModal from '../scripture/AIInsightsModal'
+import { Sparkles } from 'lucide-react'
 
 const CREATE_COMMENT = gql`
   mutation CreateComment($input: CreateCommentInput!) {
@@ -61,6 +63,7 @@ export default function VerseByVersePassage({
   const [verses, setVerses] = useState<VerseData[]>([])
   const [loadingVerses, setLoadingVerses] = useState(true)
   const [versesError, setVersesError] = useState<string | null>(null)
+  const [showAIModal, setShowAIModal] = useState(false)
 
   // Fetch verses from Bible API
   useEffect(() => {
@@ -133,6 +136,9 @@ export default function VerseByVersePassage({
 
   const reference = `${passage.book} ${passage.chapter}`
 
+  // Get full passage text for AI
+  const fullPassageText = verses.map(v => `${v.number}. ${v.text}`).join(' ')
+
   if (loadingVerses) {
     return (
       <div className="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-100 transition-smooth hover:shadow-xl">
@@ -161,10 +167,20 @@ export default function VerseByVersePassage({
       {/* Scripture Header */}
       <div className="bg-blue-50 px-6 py-4 border-b border-blue-100 flex items-center justify-between">
         <h3 className="text-xl font-semibold text-blue-900">{reference}</h3>
-        <BibleVersionSelector
-          selectedVersion={bibleTranslation}
-          onVersionChange={setBibleTranslation}
-        />
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowAIModal(true)}
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-lg hover:from-purple-700 hover:to-indigo-700 transition-all duration-200 shadow-md hover:shadow-lg font-medium text-sm"
+            title="Get AI insights on this passage"
+          >
+            <Sparkles className="w-4 h-4" />
+            AI Insights
+          </button>
+          <BibleVersionSelector
+            selectedVersion={bibleTranslation}
+            onVersionChange={setBibleTranslation}
+          />
+        </div>
       </div>
 
       {/* Leader's Note */}
@@ -288,6 +304,14 @@ export default function VerseByVersePassage({
           </div>
         ))}
       </div>
+
+      {/* AI Insights Modal */}
+      <AIInsightsModal
+        isOpen={showAIModal}
+        onClose={() => setShowAIModal(false)}
+        scriptureText={fullPassageText}
+        scriptureReference={reference}
+      />
     </div>
   )
 }
