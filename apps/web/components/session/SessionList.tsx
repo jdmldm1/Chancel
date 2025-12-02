@@ -28,13 +28,11 @@ const GET_MY_SESSIONS = gql`
       leader {
         id
         name
-        email
       }
       participants {
         id
         user {
           id
-          name
         }
       }
     }
@@ -60,13 +58,11 @@ const GET_ALL_SESSIONS = gql`
       leader {
         id
         name
-        email
       }
       participants {
         id
         user {
           id
-          name
         }
       }
     }
@@ -98,10 +94,14 @@ export default function SessionList({ viewMode, timeFilter = 'current' }: Sessio
   const { data: myData, loading: myLoading, error: myError } = useQuery<GetMySessionsQuery>(GET_MY_SESSIONS, {
     skip: viewMode !== 'my',
     variables: { limit: 100, offset: 0 },
+    fetchPolicy: 'cache-and-network',
+    nextFetchPolicy: 'cache-first',
   })
   const { data: allData, loading: allLoading, error: allError } = useQuery<GetAllSessionsQuery>(GET_ALL_SESSIONS, {
     skip: viewMode !== 'all',
     variables: { limit: 100, offset: 0 },
+    fetchPolicy: 'cache-and-network',
+    nextFetchPolicy: 'cache-first',
   })
   const [deleteSession] = useMutation<DeleteSessionMutation, DeleteSessionMutationVariables>(DELETE_SESSION, {
     refetchQueries: [{ query: GET_MY_SESSIONS }, { query: GET_ALL_SESSIONS }],

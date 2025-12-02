@@ -5,7 +5,6 @@ import { gql } from '@apollo/client'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { useState } from 'react'
 import { Users, BookOpen, Calendar } from 'lucide-react'
 
 const MY_SESSIONS_QUERY = gql`
@@ -46,6 +45,8 @@ const MY_SERIES_QUERY = gql`
       }
       sessions {
         id
+        startDate
+        endDate
       }
     }
   }
@@ -94,7 +95,11 @@ interface Series {
     id: string
     name: string
   }
-  sessions: Array<{ id: string }>
+  sessions: Array<{
+    id: string
+    startDate: string
+    endDate: string
+  }>
 }
 
 interface Group {
@@ -113,7 +118,6 @@ interface Group {
 export default function DashboardPage() {
   const router = useRouter()
   const { data: session, status } = useSession()
-  const [activeTab, setActiveTab] = useState<'upcoming' | 'past' | 'all'>('all')
 
   const { data: sessionsData, loading: sessionsLoading } = useQuery<{
     mySessions: Session[]
@@ -150,16 +154,24 @@ export default function DashboardPage() {
   const isLeader = session.user.role === 'LEADER'
   const now = new Date()
 
-  // Filter sessions based on active tab
-  const filteredSessions = sessions.filter(s => {
+  // Filter to show only active/current sessions (current date between start and end)
+  const activeSessions = sessions.filter(s => {
     const startDate = new Date(s.startDate)
-    if (activeTab === 'upcoming') return startDate >= now
-    if (activeTab === 'past') return startDate < now
-    return true
+    const endDate = new Date(s.endDate)
+    return startDate <= now && endDate >= now
   }).sort((a, b) => {
     const dateA = new Date(a.startDate).getTime()
     const dateB = new Date(b.startDate).getTime()
-    return activeTab === 'past' ? dateB - dateA : dateA - dateB
+    return dateA - dateB
+  })
+
+  // Filter to show only active series (series with at least one active session)
+  const activeSeries = series.filter(s => {
+    return s.sessions.some(session => {
+      const startDate = new Date(session.startDate)
+      const endDate = new Date(session.endDate)
+      return startDate <= now && endDate >= now
+    })
   })
 
   // Calculate stats
@@ -247,14 +259,14 @@ export default function DashboardPage() {
             </div>
 
             <div className="p-4">
-              {filteredSessions.length === 0 ? (
+              {activeSessions.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <Calendar className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                  <p className="text-sm">No sessions yet</p>
+                  <p className="text-sm">No active sessions</p>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {filteredSessions.slice(0, 5).map((sessionItem) => {
+                  {activeSessions.slice(0, 5).map((sessionItem) => {
                     const isSessionLeader = sessionItem.leader.id === session?.user?.id
                     const startDate = new Date(sessionItem.startDate)
 
@@ -316,14 +328,14 @@ export default function DashboardPage() {
             </div>
 
             <div className="p-4">
-              {series.length === 0 ? (
+              {activeSeries.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <BookOpen className="w-12 h-12 mx-auto mb-3 text-gray-300" />
-                  <p className="text-sm">No series yet</p>
+                  <p className="text-sm">No active series</p>
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {series.slice(0, 5).map((seriesItem) => {
+                  {activeSeries.slice(0, 5).map((seriesItem) => {
                     const isSeriesLeader = seriesItem.leader.id === session?.user?.id
 
                     return (
