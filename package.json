@@ -1,58 +1,19 @@
 {
-  "name": "chancel",
-  "version": "0.1.0",
-  "private": true,
-  "description": "Chancel - Sacred space. Shared study. Online Bible study platform for collaborative group sessions",
-  "workspaces": [
-    "apps/web",
-    "apps/api",
-    "packages/db",
-    "packages/types",
-    "packages/auth"
-  ],
+  "name": "BibleProject",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "dev": "turbo run dev --parallel",
-    "build": "turbo run build",
-    "lint": "turbo run lint",
-    "lint:fix": "turbo run lint -- --fix && prettier --write \"**/*.{js,jsx,ts,tsx,md}\"",
-    "type-check": "turbo run type-check",
-    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,md}\"",
-    "codegen": "graphql-codegen --config codegen.ts",
-    "db:push": "turbo run db:push",
-    "db:migrate": "turbo run db:migrate",
-    "db:seed": "turbo run db:seed",
-    "db:seed:bible": "npm run db:seed:bible --workspace=@bibleproject/db",
-    "db:seed:bible:test": "npm run db:seed:bible:test --workspace=@bibleproject/db",
-    "db:studio": "turbo run db:studio",
-    "test": "turbo run test",
-    "test:watch": "turbo run test:watch",
-    "test:coverage": "turbo run test:coverage",
-    "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui",
-    "test:e2e:debug": "playwright test --debug",
-    "security:check": "npm audit && snyk test",
-    "sonar:scan": "sonar-scanner"
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "graphql-ws": "^5.1.2"
   },
   "devDependencies": {
-    "@graphql-codegen/cli": "^6.1.0",
-    "@graphql-codegen/typescript": "^5.0.5",
-    "@graphql-codegen/typescript-operations": "^5.0.5",
-    "@graphql-codegen/typescript-react-apollo": "^4.3.3",
-    "@playwright/test": "^1.40.0",
-    "@types/node": "^20",
-    "@types/react": "^18",
-    "@types/react-dom": "^18",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
-    "eslint": "^8.0.0",
-    "eslint-config-prettier": "^9.0.0",
-    "eslint-import-resolver-typescript": "^3.6.0",
-    "eslint-plugin-import": "^2.29.0",
-    "eslint-plugin-security": "^2.1.0",
-    "graphql": "^16.12.0",
-    "prettier": "^3.0.0",
-    "snyk": "^1.1266.0",
-    "turbo": "^1.10.0",
-    "typescript": "^5"
+    "@types/graphql-ws": "^5.1.0",
+    typescript": "^4.9.3"
   }
 }
