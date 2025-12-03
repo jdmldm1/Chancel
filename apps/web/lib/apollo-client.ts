@@ -1,8 +1,5 @@
-import { ApolloClient, InMemoryCache, HttpLink, from, split } from '@apollo/client'
+import { ApolloClient, InMemoryCache, HttpLink, from } from '@apollo/client'
 import { setContext } from '@apollo/client/link/context'
-import { GraphQLWsLink } from '@apollo/client/link/subscriptions'
-import { getMainDefinition } from '@apollo/client/utilities'
-import { createClient } from 'graphql-ws'
 
 const httpLink = new HttpLink({
   uri: process.env.NEXT_PUBLIC_GRAPHQL_URL || 'http://localhost:4000/graphql',
@@ -25,29 +22,12 @@ const authLink = setContext(async (_, { headers }) => {
   return { headers }
 })
 
-// WebSocket link for subscriptions
-const wsLink = typeof window !== 'undefined'
-  ? new GraphQLWsLink(
-      createClient({
-        url: process.env.NEXT_PUBLIC_GRAPHQL_WS_URL || 'ws://localhost:4000/graphql',
-      }) as any
-    )
-  : null
+// Note: WebSocket subscriptions are disabled for now due to connection issues
+// They will be re-enabled once the underlying ws server is properly configured
+// For now, queries and mutations will work fine via HTTP
 
-// Split between HTTP and WebSocket links
-const splitLink = typeof window !== 'undefined' && wsLink
-  ? split(
-      ({ query }) => {
-        const definition = getMainDefinition(query)
-        return (
-          definition.kind === 'OperationDefinition' &&
-          definition.operation === 'subscription'
-        )
-      },
-      wsLink,
-      from([authLink, httpLink])
-    )
-  : from([authLink, httpLink])
+// Use HTTP link for all operations (queries, mutations, and subscriptions as polling)
+const link = from([authLink, httpLink])
 
 const cache = new InMemoryCache({
   typePolicies: {
@@ -69,7 +49,7 @@ const cache = new InMemoryCache({
 })
 
 const apolloClient = new ApolloClient({
-  link: splitLink,
+  link,
   cache,
   defaultOptions: {
     watchQuery: {

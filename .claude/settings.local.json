@@ -45,7 +45,8 @@
       "Bash(./deploy.sh:*)",
       "Bash(npm view:*)",
       "WebFetch(domain:www.npmjs.com)",
-      "Bash(docker-compose:*)"
+      "Bash(docker-compose:*)",
+      "Bash(timeout 3 curl:*)"
     ],
     "deny": [],
     "ask": []

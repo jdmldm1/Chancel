@@ -79,15 +79,30 @@ async function startServer() {
   const serverCleanup = useServer(
     {
       schema,
-      context: async () => {
-        // Extract auth from connection params if needed
+      context: async (ctx) => {
+        // Extract auth from connection params
+        const authHeader = ctx.connectionParams?.authorization as string | undefined
+        let userId: string | undefined
+
+        if (authHeader && authHeader.startsWith('Bearer ')) {
+          userId = authHeader.replace('Bearer ', '')
+        }
+
         // Create fresh DataLoaders for WebSocket context
         const loaders = createDataLoaders(prisma)
 
         return {
           prisma,
+          userId,
           loaders,
         }
+      },
+      onConnect: async () => {
+        console.log('📡 WebSocket client connected')
+        return true
+      },
+      onDisconnect: () => {
+        console.log('📡 WebSocket client disconnected')
       },
     },
     wsServer
