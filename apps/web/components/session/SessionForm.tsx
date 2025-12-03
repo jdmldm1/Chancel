@@ -215,6 +215,22 @@ export default function SessionForm({ session, onSuccess }: SessionFormProps) {
   })
 
   const watchedPassages = watch('scripturePassages')
+  const watchedTitle = watch('title')
+
+  // Auto-fill video call URL based on title (only for new sessions)
+  useEffect(() => {
+    if (!session && watchedTitle) {
+      // Create a URL-friendly version of the title
+      const urlFriendlyTitle = watchedTitle
+        .replace(/[^a-zA-Z0-9\s]/g, '') // Remove special characters
+        .replace(/\s+/g, '') // Remove spaces
+        .substring(0, 30) // Limit length
+
+      if (urlFriendlyTitle) {
+        setValue('videoCallUrl', urlFriendlyTitle)
+      }
+    }
+  }, [watchedTitle, session, setValue])
 
   const onSubmit = async (data: FormData) => {
     try {
@@ -726,12 +742,13 @@ function ScripturePassageField({ index, register, setValue, watch, errors, onRem
       const chapterArray = Array.from({ length: chapterCount }, (_, i) => i + 1)
       setChapters(chapterArray)
 
-      // Reset to chapter 1 and auto-set end verse
+      // Reset to chapter 1 and auto-set verse ranges
       setValue(`scripturePassages.${index}.chapter`, 1)
       setValue(`scripturePassages.${index}.verseStart`, 1)
 
-      const lastVerse = getLastVerseInBook(watchedBook)
-      setValue(`scripturePassages.${index}.verseEnd`, lastVerse)
+      // Set end verse to last verse in chapter 1
+      const verseCountChapter1 = getVerseCount(watchedBook, 1)
+      setValue(`scripturePassages.${index}.verseEnd`, verseCountChapter1)
     }
   }, [watchedBook, setValue, index])
 
@@ -741,8 +758,12 @@ function ScripturePassageField({ index, register, setValue, watch, errors, onRem
       const verseCount = getVerseCount(watchedBook, watchedChapter)
       const verseArray = Array.from({ length: verseCount }, (_, i) => i + 1)
       setVerses(verseArray)
+
+      // Auto-default start verse to 1 and end verse to last verse in chapter
+      setValue(`scripturePassages.${index}.verseStart`, 1)
+      setValue(`scripturePassages.${index}.verseEnd`, verseCount)
     }
-  }, [watchedBook, watchedChapter])
+  }, [watchedBook, watchedChapter, setValue, index])
 
   return (
     <div className="mb-6 p-4 border border-gray-200 rounded-md bg-gray-50">

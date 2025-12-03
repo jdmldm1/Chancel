@@ -1,3 +1,8 @@
+export var GroupVisibility;
+(function (GroupVisibility) {
+    GroupVisibility["Private"] = "PRIVATE";
+    GroupVisibility["Public"] = "PUBLIC";
+})(GroupVisibility || (GroupVisibility = {}));
 export var JoinRequestStatus;
 (function (JoinRequestStatus) {
     JoinRequestStatus["Accepted"] = "ACCEPTED";
@@ -28,6 +33,7 @@ export var SessionVisibility;
 })(SessionVisibility || (SessionVisibility = {}));
 export var UserRole;
 (function (UserRole) {
+    UserRole["Admin"] = "ADMIN";
     UserRole["Leader"] = "LEADER";
     UserRole["Member"] = "MEMBER";
 })(UserRole || (UserRole = {}));

@@ -123,7 +123,7 @@ export default function GroupDetailPage() {
     skip: !session || !groupId,
   })
 
-  const [sendMessage] = useMutation(SEND_GROUP_CHAT_MESSAGE, {
+  const [sendMessage] = useMutation<any>(SEND_GROUP_CHAT_MESSAGE, {
     onCompleted: (data) => {
       setMessage('')
     },
@@ -160,7 +160,7 @@ export default function GroupDetailPage() {
   })
 
   // Subscribe to new messages
-  const { data: subscriptionData } = useSubscription(GROUP_CHAT_MESSAGE_SUBSCRIPTION, {
+  const { data: subscriptionData } = useSubscription<any>(GROUP_CHAT_MESSAGE_SUBSCRIPTION, {
     variables: { groupId },
     skip: !groupId,
     onData: ({ client, data }) => {

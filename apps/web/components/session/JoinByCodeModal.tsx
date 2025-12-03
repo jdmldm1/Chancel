@@ -38,7 +38,7 @@ interface JoinByCodeModalProps {
 
 export default function JoinByCodeModal({ isOpen, onClose }: JoinByCodeModalProps) {
   const [joinCode, setJoinCode] = useState('')
-  const [joinByCode, { loading }] = useMutation(JOIN_BY_CODE_MUTATION)
+  const [joinByCode, { loading }] = useMutation<any>(JOIN_BY_CODE_MUTATION)
   const { addToast } = useToast()
   const router = useRouter()
 

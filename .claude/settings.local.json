@@ -31,7 +31,17 @@
       "Bash(cat:*)",
       "Bash(docker ps:*)",
       "Bash(ping:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(chmod:*)",
+      "Bash(./generate-secrets.sh:*)",
+      "Bash(./deploy-to-shiloh.sh:*)",
+      "Bash(ssh-keyscan:*)",
+      "Bash(~/.ssh/known_hosts)",
+      "Bash(ssh:*)",
+      "Bash(nc:*)",
+      "Bash(ssh-copy-id:*)",
+      "Bash(python3:*)",
+      "Bash(pip install:*)"
     ],
     "deny": [],
     "ask": []

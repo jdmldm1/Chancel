@@ -49,7 +49,7 @@ export default function EditProfilePage() {
   const router = useRouter()
   const [success, setSuccess] = useState(false)
 
-  const { data, loading } = useQuery(ME_QUERY, {
+  const { data, loading } = useQuery<any>(ME_QUERY, {
     skip: !session,
   })
 
@@ -81,7 +81,7 @@ export default function EditProfilePage() {
     setDataLoaded(true)
   }
 
-  const [updateUser, { loading: updating }] = useMutation(UPDATE_USER_MUTATION, {
+  const [updateUser, { loading: updating }] = useMutation<any>(UPDATE_USER_MUTATION, {
     onCompleted: async (data) => {
       setSuccess(true)
       // Update session with new name

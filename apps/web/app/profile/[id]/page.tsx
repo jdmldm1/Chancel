@@ -30,7 +30,7 @@ export default function ProfileViewPage() {
   const params = useParams()
   const userId = params?.id as string
 
-  const { data, loading, error } = useQuery(USER_QUERY, {
+  const { data, loading, error } = useQuery<any>(USER_QUERY, {
     variables: { id: userId },
     skip: !userId || !session,
   })

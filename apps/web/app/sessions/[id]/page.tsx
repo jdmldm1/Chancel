@@ -148,6 +148,7 @@ export default function SessionDetailPage() {
   const [isVideoCallOpen, setIsVideoCallOpen] = useState(false)
   const [participantsCollapsed, setParticipantsCollapsed] = useState(false)
   const [isChatOpen, setIsChatOpen] = useState(false)
+  const [isJoinCodeModalOpen, setIsJoinCodeModalOpen] = useState(false)
 
   const { data, loading, error, refetch } = useQuery<GetSessionQuery>(GET_SESSION, {
     variables: { id: sessionId },
@@ -483,17 +484,6 @@ export default function SessionDetailPage() {
         />
       </div>
 
-      {/* Join Code (Leaders Only) */}
-      {isLeader && (sessionData as any).joinCode && (
-        <div className="mt-8">
-          <JoinCodeDisplay
-            sessionId={sessionId}
-            joinCode={(sessionData as any).joinCode}
-            sessionTitle={sessionData.title}
-            onCodeRegenerated={() => refetch()}
-          />
-        </div>
-      )}
 
       {/* Assign Groups to Session (Leaders Only) */}
       {isLeader && (
@@ -530,40 +520,57 @@ export default function SessionDetailPage() {
           </div>
 
           {!participantsCollapsed && (
-            <ul className="divide-y divide-gray-100">
-              {sessionData.participants.map((participant, index) => (
-                <li
-                  key={participant.id}
-                  className="px-6 py-4 hover:bg-gray-50 transition-colors animate-fade-in"
-                  style={{ animationDelay: `${index * 0.05}s` }}
-                >
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-3 flex-1">
-                      {/* Avatar */}
-                      <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-md">
-                        {participant.user.name?.charAt(0).toUpperCase() || '?'}
+            <>
+              {/* Invite by Code Link (Leaders Only) */}
+              {isLeader && (sessionData as any).joinCode && (
+                <div className="px-6 py-3 bg-blue-50 border-b border-blue-100">
+                  <button
+                    onClick={() => setIsJoinCodeModalOpen(true)}
+                    className="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-2 transition-colors"
+                  >
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                    </svg>
+                    Invite by Code
+                  </button>
+                </div>
+              )}
+
+              <ul className="divide-y divide-gray-100">
+                {sessionData.participants.map((participant, index) => (
+                  <li
+                    key={participant.id}
+                    className="px-6 py-4 hover:bg-gray-50 transition-colors animate-fade-in"
+                    style={{ animationDelay: `${index * 0.05}s` }}
+                  >
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3 flex-1">
+                        {/* Avatar */}
+                        <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-md">
+                          {participant.user.name?.charAt(0).toUpperCase() || '?'}
+                        </div>
+
+                        {/* User info */}
+                        <div className="flex-1">
+                          <p className="text-sm font-semibold text-gray-900">{participant.user.name || 'Unknown'}</p>
+                          <p className="text-xs text-gray-500 flex items-center gap-1">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                            Joined {new Date(participant.joinedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          </p>
+                        </div>
                       </div>
 
-                      {/* User info */}
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold text-gray-900">{participant.user.name || 'Unknown'}</p>
-                        <p className="text-xs text-gray-500 flex items-center gap-1">
-                          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                          </svg>
-                          Joined {new Date(participant.joinedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                        </p>
-                      </div>
+                      {/* Role badge */}
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200 shadow-sm">
+                        {participant.role}
+                      </span>
                     </div>
-
-                    {/* Role badge */}
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200 shadow-sm">
-                      {participant.role}
-                    </span>
-                  </div>
-                </li>
-              ))}
-            </ul>
+                  </li>
+                ))}
+              </ul>
+            </>
           )}
         </div>
       </div>
@@ -612,6 +619,36 @@ export default function SessionDetailPage() {
           roomName={sessionData.videoCallUrl}
           displayName={session?.user?.name || 'Guest'}
         />
+      )}
+
+      {/* Join Code Modal */}
+      {isLeader && (sessionData as any).joinCode && isJoinCodeModalOpen && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full animate-fade-in">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+              <h2 className="text-xl font-semibold text-gray-900">Invite by Code</h2>
+              <button
+                onClick={() => setIsJoinCodeModalOpen(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-6">
+              <JoinCodeDisplay
+                sessionId={sessionId}
+                joinCode={(sessionData as any).joinCode}
+                sessionTitle={sessionData.title}
+                onCodeRegenerated={() => refetch()}
+              />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

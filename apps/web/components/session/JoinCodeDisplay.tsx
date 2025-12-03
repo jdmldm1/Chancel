@@ -29,7 +29,7 @@ export default function JoinCodeDisplay({
 }: JoinCodeDisplayProps) {
   const [copied, setCopied] = useState(false)
   const { addToast } = useToast()
-  const [regenerateCode, { loading }] = useMutation(REGENERATE_JOIN_CODE, {
+  const [regenerateCode, { loading }] = useMutation<any>(REGENERATE_JOIN_CODE, {
     onCompleted: (data) => {
       const newCode = data?.regenerateJoinCode?.joinCode
       if (newCode && onCodeRegenerated) {
