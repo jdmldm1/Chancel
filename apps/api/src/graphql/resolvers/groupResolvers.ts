@@ -1,5 +1,5 @@
 import { UserRole, GroupVisibility } from '@prisma/client'
-import type { Context } from './index'
+import type { Context } from './index.js'
 
 export const groupResolvers = {
   Query: {

@@ -47,3 +47,4 @@ Thumbs.db
 
 # Prisma
 prisma/.env
+.aider*

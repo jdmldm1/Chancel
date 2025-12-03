@@ -11,11 +11,14 @@ COPY packages/db/package*.json ./packages/db/
 COPY packages/types/package*.json ./packages/types/
 COPY packages/auth/package*.json ./packages/auth/
 
-RUN npm ci
+RUN npm ci --workspaces
 
 # Stage 2: Builder
 FROM node:20-alpine AS builder
 WORKDIR /app
+
+# Install OpenSSL for Prisma generation
+RUN apk add --no-cache openssl libc6-compat
 
 # Copy dependencies
 COPY --from=deps /app/node_modules ./node_modules
@@ -24,7 +27,7 @@ COPY --from=deps /app/apps/api/node_modules ./apps/api/node_modules
 # Copy source code
 COPY . .
 
-# Generate Prisma client
+# Generate Prisma client (will auto-detect Alpine and download correct engines)
 RUN npx prisma generate --schema=./packages/db/prisma/schema.prisma
 
 # Build TypeScript
@@ -36,15 +39,18 @@ WORKDIR /app
 
 ENV NODE_ENV production
 
-# Create non-root user
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 apiuser
+# Install OpenSSL for Prisma
+RUN apk add --no-cache openssl libc6-compat
 
-# Copy built files
-COPY --from=builder /app/apps/api/dist ./apps/api/dist
-COPY --from=builder /app/apps/api/package*.json ./apps/api/
-COPY --from=builder /app/packages ./packages
-COPY --from=builder /app/node_modules ./node_modules
+# Create non-root user first
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 apiuser
+
+# Copy built files with correct ownership
+COPY --from=builder --chown=apiuser:nodejs /app/apps/api/dist ./apps/api/dist
+COPY --from=builder --chown=apiuser:nodejs /app/apps/api/package*.json ./apps/api/
+COPY --from=builder --chown=apiuser:nodejs /app/packages ./packages
+COPY --from=builder --chown=apiuser:nodejs /app/node_modules ./node_modules
 
 USER apiuser
 

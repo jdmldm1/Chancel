@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  # GraphQL API Server
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: chancel-api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 4000
+      # Use host.docker.internal to reach the database on the host machine
+      DATABASE_URL: postgresql://${DB_USER:-postgres}:${DB_PASSWORD}@host.docker.internal:${DB_PORT:-5431}/${DB_NAME:-bibleproject}?schema=public
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
+    ports:
+      - "${API_PORT:-4000}:4000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - chancel-network
+    command: sh -c "npx prisma migrate deploy --schema=./packages/db/prisma/schema.prisma || true && node apps/api/dist/index.js"
+
+  # Next.js Web Application
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    container_name: chancel-web
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      # Use host.docker.internal to reach the database on the host machine
+      DATABASE_URL: postgresql://${DB_USER:-postgres}:${DB_PASSWORD}@host.docker.internal:${DB_PORT:-5431}/${DB_NAME:-bibleproject}?schema=public
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
+      AUTH_TRUST_HOST: "true"
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:4000/graphql}
+    ports:
+      - "${WEB_PORT:-3000}:3000"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - api
+    networks:
+      - chancel-network
+
+networks:
+  chancel-network:
+    driver: bridge

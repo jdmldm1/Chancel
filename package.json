@@ -9,11 +9,14 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "dependencies": {
-    "graphql-ws": "^5.1.2"
+    "graphql-ws": "^5.16.0"
   },
   "devDependencies": {
-    "@types/graphql-ws": "^5.1.0",
-    "typescript": "^4.9.3"
+    "typescript": "^5.9.3"
   }
 }

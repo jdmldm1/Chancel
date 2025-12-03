@@ -2,8 +2,8 @@ import { GraphQLScalarType, Kind } from 'graphql'
 import type { PrismaClient } from '@prisma/client'
 import { UserRole, ResourceType, SessionVisibility, JoinRequestStatus, ReactionType } from '@prisma/client'
 import bcrypt from 'bcryptjs'
-import { groupResolvers } from './groupResolvers'
-import { adminResolvers } from './adminResolvers'
+import { groupResolvers } from './groupResolvers.js'
+import { adminResolvers } from './adminResolvers.js'
 
 export interface Context {
   prisma: PrismaClient

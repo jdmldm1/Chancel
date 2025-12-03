@@ -41,7 +41,11 @@
       "Bash(nc:*)",
       "Bash(ssh-copy-id:*)",
       "Bash(python3:*)",
-      "Bash(pip install:*)"
+      "Bash(pip install:*)",
+      "Bash(./deploy.sh:*)",
+      "Bash(npm view:*)",
+      "WebFetch(domain:www.npmjs.com)",
+      "Bash(docker-compose:*)"
     ],
     "deny": [],
     "ask": []

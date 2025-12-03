@@ -26,6 +26,8 @@ coverage
 .DS_Store
 *.pem
 .turbo
+.claude
+.aider*
 
 # Documentation
 README.md

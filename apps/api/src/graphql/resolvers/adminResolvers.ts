@@ -1,5 +1,5 @@
 import { UserRole } from '@prisma/client'
-import type { Context } from './index'
+import type { Context } from './index.js'
 
 // Helper function to check if user is admin
 const requireAdmin = (context: Context) => {
