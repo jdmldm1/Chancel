@@ -121,15 +121,21 @@ export default function DashboardPage() {
 
   const { data: sessionsData, loading: sessionsLoading } = useQuery<{
     mySessions: Session[]
-  }>(MY_SESSIONS_QUERY)
+  }>(MY_SESSIONS_QUERY, {
+    skip: !session || status === 'loading',
+  })
 
   const { data: seriesData, loading: seriesLoading } = useQuery<{
     mySeries: Series[]
-  }>(MY_SERIES_QUERY)
+  }>(MY_SERIES_QUERY, {
+    skip: !session || status === 'loading',
+  })
 
   const { data: groupsData, loading: groupsLoading } = useQuery<{
     myGroups: Group[]
-  }>(MY_GROUPS_QUERY)
+  }>(MY_GROUPS_QUERY, {
+    skip: !session || status === 'loading',
+  })
 
   if (status === 'loading' || sessionsLoading || seriesLoading || groupsLoading) {
     return (
