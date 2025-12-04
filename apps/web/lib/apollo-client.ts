@@ -9,13 +9,27 @@ const httpLink = new HttpLink({
 const authLink = setContext(async (_, { headers }) => {
   // Get the authentication token from next-auth session
   if (typeof window !== 'undefined') {
-    const session = await fetch('/api/auth/session').then((res) => res.json())
+    try {
+      const response = await Promise.race<Response>([
+        fetch('/api/auth/session'),
+        new Promise<Response>((_, reject) => setTimeout(() => reject(new Error('Auth fetch timeout')), 3000))
+      ])
 
-    return {
-      headers: {
-        ...headers,
-        authorization: session?.user ? `Bearer ${session.user.id}` : '',
-      },
+      if (!response.ok) {
+        return { headers }
+      }
+
+      const session = await response.json()
+      return {
+        headers: {
+          ...headers,
+          authorization: session?.user ? `Bearer ${session.user.id}` : '',
+        },
+      }
+    } catch (error) {
+      // If auth fetch fails, just continue without auth header
+      console.warn('Auth fetch failed, continuing without auth:', error)
+      return { headers }
     }
   }
 
@@ -54,7 +68,10 @@ const apolloClient = new ApolloClient({
   cache,
   defaultOptions: {
     watchQuery: {
-      fetchPolicy: 'cache-and-network',
+      fetchPolicy: 'cache-first',
+    },
+    query: {
+      fetchPolicy: 'cache-first',
     },
   },
 })
