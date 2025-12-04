@@ -122,19 +122,19 @@ export default function DashboardPage() {
   const { data: sessionsData, loading: sessionsLoading } = useQuery<{
     mySessions: Session[]
   }>(MY_SESSIONS_QUERY, {
-    skip: !session || status === 'loading',
+    skip: !session,
   })
 
   const { data: seriesData, loading: seriesLoading } = useQuery<{
     mySeries: Series[]
   }>(MY_SERIES_QUERY, {
-    skip: !session || status === 'loading',
+    skip: !session,
   })
 
   const { data: groupsData, loading: groupsLoading } = useQuery<{
     myGroups: Group[]
   }>(MY_GROUPS_QUERY, {
-    skip: !session || status === 'loading',
+    skip: !session,
   })
 
   if (status === 'loading' || sessionsLoading || seriesLoading || groupsLoading) {
