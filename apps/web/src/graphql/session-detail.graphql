@@ -178,27 +178,28 @@ mutation DeleteSessionResource($id: ID!) {
   deleteSessionResource(id: $id)
 }
 
-subscription CommentAdded($sessionId: ID!) {
-  commentAdded(sessionId: $sessionId) {
-    id
-    content
-    createdAt
-    verseNumber
-    parentId
-    passageId
-    user {
-      id
-      name
-    }
-    replies {
-      id
-      content
-      createdAt
-      verseNumber
-      user {
-        id
-        name
-      }
-    }
-  }
-}
+# Subscription disabled - using HTTP polling via cache-and-network fetch policy
+# subscription CommentAdded($sessionId: ID!) {
+#   commentAdded(sessionId: $sessionId) {
+#     id
+#     content
+#     createdAt
+#     verseNumber
+#     parentId
+#     passageId
+#     user {
+#       id
+#       name
+#     }
+#     replies {
+#       id
+#       content
+#       createdAt
+#       verseNumber
+#       user {
+#         id
+#         name
+#       }
+#     }
+#   }
+# }

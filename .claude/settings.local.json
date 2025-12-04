@@ -46,7 +46,17 @@
       "Bash(npm view:*)",
       "WebFetch(domain:www.npmjs.com)",
       "Bash(docker-compose:*)",
-      "Bash(timeout 3 curl:*)"
+      "Bash(timeout 3 curl:*)",
+      "Bash(docker logs:*)",
+      "Bash(docker exec:*)",
+      "Bash(npx graphql-codegen:*)",
+      "Bash(npx:*)",
+      "Bash(find:*)",
+      "Bash(xargs cat:*)",
+      "Bash(docker system prune:*)",
+      "Bash(docker build:*)",
+      "Bash(docker image:*)",
+      "Bash(docker run:*)"
     ],
     "deny": [],
     "ask": []

@@ -1,4 +1,4 @@
-import { ApolloClient, InMemoryCache, HttpLink, from } from '@apollo/client'
+import { ApolloClient, InMemoryCache, HttpLink, from, ApolloLink } from '@apollo/client'
 import { setContext } from '@apollo/client/link/context'
 
 const httpLink = new HttpLink({
@@ -24,7 +24,8 @@ const authLink = setContext(async (_, { headers }) => {
 
 // Note: WebSocket subscriptions are disabled for now due to connection issues
 // They will be re-enabled once the underlying ws server is properly configured
-// For now, queries and mutations will work fine via HTTP
+// All subscription hooks have been commented out in the application
+// For now, queries and mutations work fine via HTTP
 
 // Use HTTP link for all operations (queries, mutations, and subscriptions as polling)
 const link = from([authLink, httpLink])

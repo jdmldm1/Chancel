@@ -1,7 +1,7 @@
 'use client'
 
 import { gql } from '@apollo/client'
-import { useQuery, useMutation, useSubscription } from '@apollo/client/react'
+import { useQuery, useMutation } from '@apollo/client/react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useParams } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
@@ -159,44 +159,44 @@ export default function GroupDetailPage() {
     },
   })
 
-  // Subscribe to new messages
-  const { data: subscriptionData } = useSubscription<any>(GROUP_CHAT_MESSAGE_SUBSCRIPTION, {
-    variables: { groupId },
-    skip: !groupId,
-    onData: ({ client, data }) => {
-      if (data.data?.groupChatMessageAdded) {
-        const newMessage = data.data.groupChatMessageAdded
+  // TODO: Re-enable subscriptions once WebSocket is properly configured
+  // const { data: subscriptionData } = useSubscription<any>(GROUP_CHAT_MESSAGE_SUBSCRIPTION, {
+  //   variables: { groupId },
+  //   skip: !groupId,
+  //   onData: ({ client, data }) => {
+  //     if (data.data?.groupChatMessageAdded) {
+  //       const newMessage = data.data.groupChatMessageAdded
 
-        // Update the cache with the new message
-        const existingMessages: any = client.readQuery({
-          query: GROUP_CHAT_MESSAGES_QUERY,
-          variables: { groupId },
-        })
+  //       // Update the cache with the new message
+  //       const existingMessages: any = client.readQuery({
+  //         query: GROUP_CHAT_MESSAGES_QUERY,
+  //         variables: { groupId },
+  //       })
 
-        if (existingMessages) {
-          // Check if message already exists to avoid duplicates
-          const messageExists = existingMessages.groupChatMessages.some(
-            (msg: any) => msg.id === newMessage.id
-          )
+  //       if (existingMessages) {
+  //         // Check if message already exists to avoid duplicates
+  //         const messageExists = existingMessages.groupChatMessages.some(
+  //           (msg: any) => msg.id === newMessage.id
+  //         )
 
-          if (!messageExists) {
-            client.writeQuery({
-              query: GROUP_CHAT_MESSAGES_QUERY,
-              variables: { groupId },
-              data: {
-                groupChatMessages: [...existingMessages.groupChatMessages, newMessage],
-              },
-            })
-          }
-        }
-      }
-    },
-  })
+  //         if (!messageExists) {
+  //           client.writeQuery({
+  //             query: GROUP_CHAT_MESSAGES_QUERY,
+  //             variables: { groupId },
+  //             data: {
+  //               groupChatMessages: [...existingMessages.groupChatMessages, newMessage],
+  //             },
+  //           })
+  //         }
+  //       }
+  //     }
+  //   },
+  // })
 
   // Scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messagesData, subscriptionData])
+  }, [messagesData])
 
   // Wait for session to load
   if (status === 'loading') {

@@ -2,13 +2,12 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import { gql } from '@apollo/client'
-import { useQuery, useMutation, useSubscription } from '@apollo/client/react'
+import { useQuery, useMutation } from '@apollo/client/react'
 import { useSession } from 'next-auth/react'
 import {
   GetChatMessagesQuery,
   SendChatMessageMutation,
   SendChatMessageMutationVariables,
-  ChatMessageAddedSubscription
 } from '@bibleproject/types/src/graphql'
 
 const GET_CHAT_MESSAGES = gql`
@@ -77,15 +76,16 @@ export default function SessionChat({ sessionId }: SessionChatProps) {
     },
   })
 
+  // TODO: Re-enable subscriptions once WebSocket is properly configured
   // Subscribe to new messages
-  useSubscription<ChatMessageAddedSubscription>(CHAT_MESSAGE_ADDED, {
-    variables: { sessionId },
-    onData: ({ data: subscriptionData }) => {
-      if (subscriptionData.data?.chatMessageAdded) {
-        refetch()
-      }
-    },
-  })
+  // useSubscription<ChatMessageAddedSubscription>(CHAT_MESSAGE_ADDED, {
+  //   variables: { sessionId },
+  //   onData: ({ data: subscriptionData }) => {
+  //     if (subscriptionData.data?.chatMessageAdded) {
+  //       refetch()
+  //     }
+  //   },
+  // })
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {

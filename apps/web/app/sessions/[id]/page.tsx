@@ -4,9 +4,9 @@ import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { gql } from '@apollo/client'
-import { useQuery, useMutation, useSubscription } from '@apollo/client/react'
+import { useQuery, useMutation } from '@apollo/client/react'
 import { useSession } from 'next-auth/react'
-import { GetSessionQuery, JoinSessionMutation, JoinSessionMutationVariables, CommentAddedSubscription } from '@bibleproject/types/src/graphql'
+import { GetSessionQuery, JoinSessionMutation, JoinSessionMutationVariables } from '@bibleproject/types/src/graphql'
 import ScripturePassageCard from '@/components/session/ScripturePassageCard'
 import SessionResources from '@/components/session/SessionResources'
 import VideoCallModal from '@/components/session/VideoCallModal'
@@ -114,30 +114,31 @@ const JOIN_SESSION = gql`
   }
 `
 
-const COMMENT_ADDED = gql`
-  subscription CommentAdded($sessionId: ID!) {
-    commentAdded(sessionId: $sessionId) {
-      id
-      content
-      createdAt
-      parentId
-      passageId
-      user {
-        id
-        name
-      }
-      replies {
-        id
-        content
-        createdAt
-        user {
-          id
-          name
-        }
-      }
-    }
-  }
-`
+// TODO: Re-enable subscriptions once WebSocket is properly configured
+// const COMMENT_ADDED = gql`
+//   subscription CommentAdded($sessionId: ID!) {
+//     commentAdded(sessionId: $sessionId) {
+//       id
+//       content
+//       createdAt
+//       parentId
+//       passageId
+//       user {
+//         id
+//         name
+//       }
+//       replies {
+//         id
+//         content
+//         createdAt
+//         user {
+//           id
+//           name
+//         }
+//       }
+//     }
+//   }
+// `
 
 export default function SessionDetailPage() {
   const params = useParams()
@@ -175,65 +176,66 @@ export default function SessionDetailPage() {
     }
   )
 
-  // Subscribe to new comments
-  useSubscription<CommentAddedSubscription>(COMMENT_ADDED, {
-    variables: { sessionId },
-    onData: ({ data: subscriptionData, client }) => {
-      if (subscriptionData.data?.commentAdded) {
-        // Optimized: Update Apollo cache directly instead of full refetch
-        const newComment = subscriptionData.data.commentAdded
-        const existingData = client.cache.readQuery<GetSessionQuery>({
-          query: GET_SESSION,
-          variables: { id: sessionId },
-        })
+  // TODO: Re-enable subscriptions once WebSocket is properly configured
+  // For now, real-time comments will use polling via cache-and-network fetchPolicy
+  // useSubscription<CommentAddedSubscription>(COMMENT_ADDED, {
+  //   variables: { sessionId },
+  //   onData: ({ data: subscriptionData, client }) => {
+  //     if (subscriptionData.data?.commentAdded) {
+  //       // Optimized: Update Apollo cache directly instead of full refetch
+  //       const newComment = subscriptionData.data.commentAdded
+  //       const existingData = client.cache.readQuery<GetSessionQuery>({
+  //         query: GET_SESSION,
+  //         variables: { id: sessionId },
+  //       })
 
-        if (existingData?.session) {
-          // Find the passage this comment belongs to and update only that passage
-          const updatedPassages = existingData.session.scripturePassages.map(passage => {
-            if (passage.id === newComment.passageId) {
-              // Add the new comment to the passage
-              const updatedComments = [...passage.comments]
+  //       if (existingData?.session) {
+  //         // Find the passage this comment belongs to and update only that passage
+  //         const updatedPassages = existingData.session.scripturePassages.map(passage => {
+  //           if (passage.id === newComment.passageId) {
+  //             // Add the new comment to the passage
+  //             const updatedComments = [...passage.comments]
 
-              // If it's a reply, add it to the parent's replies
-              if (newComment.parentId) {
-                const parentIndex = updatedComments.findIndex(c => c.id === newComment.parentId)
-                if (parentIndex !== -1 && updatedComments[parentIndex].replies) {
-                  updatedComments[parentIndex] = {
-                    ...updatedComments[parentIndex],
-                    replies: [...updatedComments[parentIndex].replies, {
-                      ...newComment,
-                      replies: [] // Initialize empty replies array for the new comment
-                    }]
-                  }
-                }
-              } else {
-                // It's a top-level comment
-                updatedComments.push({
-                  ...newComment,
-                  replies: [] // Initialize empty replies array for new top-level comments
-                })
-              }
+  //             // If it's a reply, add it to the parent's replies
+  //             if (newComment.parentId) {
+  //               const parentIndex = updatedComments.findIndex(c => c.id === newComment.parentId)
+  //               if (parentIndex !== -1 && updatedComments[parentIndex].replies) {
+  //                 updatedComments[parentIndex] = {
+  //                   ...updatedComments[parentIndex],
+  //                   replies: [...updatedComments[parentIndex].replies, {
+  //                     ...newComment,
+  //                     replies: [] // Initialize empty replies array for the new comment
+  //                   }]
+  //                 }
+  //               }
+  //             } else {
+  //               // It's a top-level comment
+  //               updatedComments.push({
+  //                 ...newComment,
+  //                 replies: [] // Initialize empty replies array for new top-level comments
+  //               })
+  //             }
 
-              return { ...passage, comments: updatedComments }
-            }
-            return passage
-          })
+  //             return { ...passage, comments: updatedComments }
+  //           }
+  //           return passage
+  //         })
 
-          // Write the updated data back to cache
-          client.cache.writeQuery({
-            query: GET_SESSION,
-            variables: { id: sessionId },
-            data: {
-              session: {
-                ...existingData.session,
-                scripturePassages: updatedPassages,
-              },
-            },
-          })
-        }
-      }
-    },
-  })
+  //         // Write the updated data back to cache
+  //         client.cache.writeQuery({
+  //           query: GET_SESSION,
+  //           variables: { id: sessionId },
+  //           data: {
+  //             session: {
+  //               ...existingData.session,
+  //               scripturePassages: updatedPassages,
+  //             },
+  //           },
+  //         })
+  //       }
+  //     }
+  //   },
+  // })
 
   if (loading) {
     return <SessionDetailSkeleton />

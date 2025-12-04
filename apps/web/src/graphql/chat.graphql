@@ -22,14 +22,15 @@ mutation SendChatMessage($sessionId: ID!, $message: String!) {
   }
 }
 
-subscription ChatMessageAdded($sessionId: ID!) {
-  chatMessageAdded(sessionId: $sessionId) {
-    id
-    message
-    createdAt
-    user {
-      id
-      name
-    }
-  }
-}
+# Subscription disabled - using HTTP polling via cache-and-network fetch policy
+# subscription ChatMessageAdded($sessionId: ID!) {
+#   chatMessageAdded(sessionId: $sessionId) {
+#     id
+#     message
+#     createdAt
+#     user {
+#       id
+#       name
+#     }
+#   }
+# }
