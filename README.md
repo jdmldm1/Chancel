@@ -13,6 +13,7 @@ Chancel enables Bible study leaders to organize study sessions with scripture pa
 - **User Authentication** - Role-based access (Leader/Member) with NextAuth.js
 - **Session Management** - Leaders create and schedule study sessions
 - **Scripture Display** - Verse-level commenting and annotations
+- **AI Insights** - Optional Ollama integration for scripture analysis
 - **Real-time Discussions** - GraphQL subscriptions for live updates
 - **File Sharing** - Share study materials and resources
 - **Threaded Comments** - Nested discussions on scripture passages
@@ -87,10 +88,14 @@ cp .env.example .env
 
 Edit `.env` with your database credentials:
 ```env
-DATABASE_URL="postgresql://postgres:password123@shiloh:5431/bibleproject?schema=public"
+DATABASE_URL="postgresql://postgres:password123@localhost:5432/bibleproject?schema=public"
 NEXTAUTH_SECRET="your-secret-key-change-in-production"
 NEXTAUTH_URL="http://localhost:3000"
 JWT_SECRET="your-jwt-secret-change-in-production"
+
+# Optional: AI Insights (requires Ollama)
+OLLAMA_HOST="localhost"
+OLLAMA_PORT="11434"
 ```
 
 ### 4. Initialize Database
