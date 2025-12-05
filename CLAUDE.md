@@ -27,8 +27,8 @@ BibleProject is a collaborative web application for group Bible study sessions. 
 ### Frontend
 - **Framework:** Next.js 14+ (App Router)
 - **Styling:** Tailwind CSS + shadcn/ui components
-- **GraphQL Client:** Apollo Client (caching, real-time subscriptions)
-- **State Management:** Apollo Client cache + Zustand (for non-GraphQL state)
+- **GraphQL Client:** graphql-request (lightweight GraphQL client)
+- **State Management:** React state + Zustand (for complex state)
 - **Forms:** React Hook Form + Zod validation
 
 ### Backend
@@ -66,11 +66,11 @@ BibleProject is a collaborative web application for group Bible study sessions. 
 ```
 BibleProject/
 ├── apps/
-│   ├── web/                 # Next.js frontend + Apollo Client
+│   ├── web/                 # Next.js frontend + graphql-request
 │   │   ├── app/             # Next.js App Router
 │   │   ├── components/      # React components (organized by feature)
 │   │   ├── lib/             # Utilities, helpers, constants
-│   │   │   └── apollo/      # Apollo Client configuration
+│   │   │   └── graphql-client-new.ts  # GraphQL client configuration
 │   │   ├── public/          # Static assets
 │   │   ├── __tests__/       # E2E tests (Playwright)
 │   │   └── middleware.ts    # Auth middleware
@@ -238,8 +238,8 @@ kubectl logs -f <pod-name> -n bibleproject
 ## GraphQL Implementation
 
 **Schema Design:**
-- Code-first approach using TypeGraphQL or Pothos (type-safe schema generation)
-- Automatically generate TypeScript types from GraphQL schema
+- Schema-first approach using GraphQL SDL (Schema Definition Language)
+- Automatically generate TypeScript types from GraphQL schema using GraphQL Code Generator
 - Co-locate resolvers with business logic in services layer
 
 **Query Optimization:**
@@ -251,7 +251,7 @@ kubectl logs -f <pod-name> -n bibleproject
 **Code Generation:**
 - GraphQL Code Generator for client-side type safety
 - Shared types package for frontend/backend consistency
-- Auto-generate React hooks from GraphQL operations
+- Auto-generate TypeScript types from GraphQL schema
 
 ## Real-time Features
 
@@ -280,7 +280,7 @@ kubectl logs -f <pod-name> -n bibleproject
 1. **Monorepo:** Easier to manage shared code (types, database schemas, GraphQL types) across frontend and backend
 2. **GraphQL over REST:** Flexible querying reduces over-fetching, strongly typed schema, excellent tooling for complex data relationships
 3. **PostgreSQL:** Reliable ACID compliance, excellent JSON support for flexible data, proven at scale
-4. **Apollo Client + Server:** Industry-standard GraphQL implementation with excellent caching, subscriptions, and developer tools
+4. **graphql-request over Apollo Client:** Lightweight GraphQL client (smaller bundle size, simpler implementation) for frontend, Apollo Server for backend
 5. **Prisma:** Type-safe database access, automatic migrations, intuitive API, integrates well with GraphQL
 6. **Vitest over Jest:** Faster test execution, native ESM support, better Vite integration
 7. **Playwright for E2E:** Modern, reliable cross-browser testing with better selector strategies than Selenium
@@ -314,7 +314,7 @@ kubectl logs -f <pod-name> -n bibleproject
 **GraphQL:**
 - [GraphQL Spec](https://graphql.org/learn/)
 - [Apollo Server Documentation](https://www.apollographql.com/docs/apollo-server/)
-- [Apollo Client Documentation](https://www.apollographql.com/docs/react/)
+- [graphql-request Documentation](https://github.com/jasonkuhrt/graphql-request)
 - [GraphQL Code Generator](https://the-guild.dev/graphql/codegen)
 - [Pothos GraphQL](https://pothos-graphql.dev/) (code-first schema)
 
