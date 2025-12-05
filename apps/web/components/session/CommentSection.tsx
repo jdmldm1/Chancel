@@ -1,13 +1,12 @@
 'use client'
 
 import { useState } from 'react'
-import { gql } from '@apollo/client'
-import { useMutation } from '@apollo/client/react'
+import { useGraphQLMutation } from '@/lib/graphql-client-new'
 import { useSession } from 'next-auth/react'
 import { CreateCommentMutation, CreateCommentMutationVariables, GetSessionQuery } from '@bibleproject/types/src/graphql'
 import CommentItem from './CommentItem'
 
-const CREATE_COMMENT = gql`
+const CREATE_COMMENT = `
   mutation CreateComment($input: CreateCommentInput!) {
     createComment(input: $input) {
       id
@@ -31,6 +30,7 @@ interface CommentSectionProps {
   passageId: string
   sessionId: string
   canComment: boolean
+  onCommentChange?: () => void
 }
 
 export default function CommentSection({
@@ -38,18 +38,19 @@ export default function CommentSection({
   passageId,
   sessionId,
   canComment,
+  onCommentChange,
 }: CommentSectionProps) {
   const { data: session } = useSession()
   const [newComment, setNewComment] = useState('')
   const [replyingTo, setReplyingTo] = useState<string | null>(null)
 
-  const [createComment, { loading }] = useMutation<CreateCommentMutation, CreateCommentMutationVariables>(
+  const [createComment, { loading }] = useGraphQLMutation<CreateCommentMutation, CreateCommentMutationVariables>(
     CREATE_COMMENT,
     {
-      refetchQueries: ['GetSession'],
       onCompleted: () => {
         setNewComment('')
         setReplyingTo(null)
+        onCommentChange?.()
       },
     }
   )
@@ -59,13 +60,11 @@ export default function CommentSection({
     if (!newComment.trim() || !session) return
 
     await createComment({
-      variables: {
-        input: {
-          content: newComment.trim(),
-          passageId,
-          sessionId,
-          parentId: parentId || null,
-        },
+      input: {
+        content: newComment.trim(),
+        passageId,
+        sessionId,
+        parentId: parentId || null,
       },
     })
   }

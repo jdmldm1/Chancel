@@ -1,22 +1,18 @@
 import { ApolloServer } from '@apollo/server'
 import { expressMiddleware } from '@apollo/server/express4'
 import { ApolloServerPluginDrainHttpServer } from '@apollo/server/plugin/drainHttpServer'
-import { makeExecutableSchema } from '@graphql-tools/schema'
 import { WebSocketServer } from 'ws'
 import { useServer } from 'graphql-ws/lib/use/ws'
 import express from 'express'
 import http from 'http'
 import cors from 'cors'
 import { PrismaClient } from '@prisma/client'
+import { buildSchema } from 'graphql'
+import { addResolversToSchema } from '@graphql-tools/schema'
 import { typeDefs } from './graphql/schema/typeDefs.js'
 import { resolvers, type Context } from './graphql/resolvers/index.js'
 import { createDataLoaders, type DataLoaders } from './lib/dataloaders.js'
 import dotenv from 'dotenv'
-import {
-  getComplexity,
-  simpleEstimator,
-  fieldExtensionsEstimator,
-} from 'graphql-query-complexity'
 
 // Load environment variables
 dotenv.config()
@@ -66,8 +62,12 @@ async function startServer() {
   const app = express()
   const httpServer = http.createServer(app)
 
-  // Create executable schema
-  const schema = makeExecutableSchema({ typeDefs, resolvers })
+  // Build schema from typeDefs and add resolvers
+  const builtSchema = buildSchema(typeDefs)
+  const schema = addResolversToSchema({
+    schema: builtSchema,
+    resolvers
+  })
 
   // Create WebSocket server
   const wsServer = new WebSocketServer({
@@ -118,35 +118,6 @@ async function startServer() {
           return {
             async drainServer() {
               await serverCleanup.dispose()
-            },
-          }
-        },
-      },
-      // Query complexity plugin to prevent overly expensive queries
-      {
-        async requestDidStart() {
-          return {
-            async didResolveOperation({ request, document }) {
-              const complexity = getComplexity({
-                schema,
-                operationName: request.operationName,
-                query: document,
-                variables: request.variables,
-                estimators: [
-                  fieldExtensionsEstimator(),
-                  simpleEstimator({ defaultComplexity: 1 }),
-                ],
-              })
-
-              // Max complexity of 1000 (adjust based on your needs)
-              const maxComplexity = 1000
-              if (complexity > maxComplexity) {
-                throw new Error(
-                  `Query is too complex: ${complexity}. Maximum allowed complexity: ${maxComplexity}`
-                )
-              }
-
-              console.log(`Query complexity: ${complexity}`)
             },
           }
         },

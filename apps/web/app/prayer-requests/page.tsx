@@ -1,12 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { gql } from '@apollo/client'
-import { useQuery, useMutation } from '@apollo/client/react'
+import { useGraphQLQuery, useGraphQLMutation } from '@/lib/graphql-client-new'
 import { useSession } from 'next-auth/react'
 import { useToast } from '@/components/ui/toast'
 
-const GET_PRAYER_REQUESTS = gql`
+const GET_PRAYER_REQUESTS = `
   query GetPrayerRequests {
     prayerRequests {
       id
@@ -31,7 +30,7 @@ const GET_PRAYER_REQUESTS = gql`
   }
 `
 
-const CREATE_PRAYER_REQUEST = gql`
+const CREATE_PRAYER_REQUEST = `
   mutation CreatePrayerRequest($content: String!, $isAnonymous: Boolean!) {
     createPrayerRequest(content: $content, isAnonymous: $isAnonymous) {
       id
@@ -42,13 +41,13 @@ const CREATE_PRAYER_REQUEST = gql`
   }
 `
 
-const DELETE_PRAYER_REQUEST = gql`
+const DELETE_PRAYER_REQUEST = `
   mutation DeletePrayerRequest($id: ID!) {
     deletePrayerRequest(id: $id)
   }
 `
 
-const TOGGLE_PRAYER_REACTION = gql`
+const TOGGLE_PRAYER_REACTION = `
   mutation TogglePrayerReaction($prayerRequestId: ID!, $reactionType: ReactionType!) {
     togglePrayerReaction(prayerRequestId: $prayerRequestId, reactionType: $reactionType) {
       id
@@ -64,8 +63,8 @@ export default function PrayerRequestsPage() {
   const [content, setContent] = useState('')
   const [isAnonymous, setIsAnonymous] = useState(false)
 
-  const { data, loading, refetch } = useQuery<any>(GET_PRAYER_REQUESTS)
-  const [createRequest, { loading: creating }] = useMutation(CREATE_PRAYER_REQUEST, {
+  const { data, loading, refetch } = useGraphQLQuery<any>(GET_PRAYER_REQUESTS)
+  const [createRequest, { loading: creating }] = useGraphQLMutation(CREATE_PRAYER_REQUEST, {
     onCompleted: () => {
       setContent('')
       setIsAnonymous(false)
@@ -78,14 +77,14 @@ export default function PrayerRequestsPage() {
     },
   })
 
-  const [deleteRequest] = useMutation(DELETE_PRAYER_REQUEST, {
+  const [deleteRequest] = useGraphQLMutation(DELETE_PRAYER_REQUEST, {
     onCompleted: () => {
       refetch()
       addToast({ type: 'success', message: 'Prayer request deleted' })
     },
   })
 
-  const [toggleReaction] = useMutation(TOGGLE_PRAYER_REACTION, {
+  const [toggleReaction] = useGraphQLMutation(TOGGLE_PRAYER_REACTION, {
     onCompleted: () => {
       refetch()
     },
@@ -94,17 +93,17 @@ export default function PrayerRequestsPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (!content.trim()) return
-    createRequest({ variables: { content, isAnonymous } })
+    createRequest({ content, isAnonymous })
   }
 
   const handleDelete = (id: string) => {
     if (confirm('Are you sure you want to delete this prayer request?')) {
-      deleteRequest({ variables: { id } })
+      deleteRequest({ id })
     }
   }
 
   const handleReaction = (prayerRequestId: string, reactionType: 'HEART' | 'PRAYING_HANDS') => {
-    toggleReaction({ variables: { prayerRequestId, reactionType } })
+    toggleReaction({ prayerRequestId, reactionType })
   }
 
   const userHasReacted = (request: any, reactionType: string) => {

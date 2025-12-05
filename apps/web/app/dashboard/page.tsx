@@ -1,13 +1,12 @@
 'use client'
 
-import { useQuery } from '@apollo/client/react'
-import { gql } from '@apollo/client'
+import { useGraphQLQuery } from '@/lib/graphql-client-new'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Users, BookOpen, Calendar } from 'lucide-react'
 
-const MY_SESSIONS_QUERY = gql`
+const MY_SESSIONS_QUERY = `
   query MySessions {
     mySessions {
       id
@@ -32,7 +31,7 @@ const MY_SESSIONS_QUERY = gql`
   }
 `
 
-const MY_SERIES_QUERY = gql`
+const MY_SERIES_QUERY = `
   query MySeries {
     mySeries {
       id
@@ -52,7 +51,7 @@ const MY_SERIES_QUERY = gql`
   }
 `
 
-const MY_GROUPS_QUERY = gql`
+const MY_GROUPS_QUERY = `
   query MyGroups {
     myGroups {
       id
@@ -119,22 +118,23 @@ export default function DashboardPage() {
   const router = useRouter()
   const { data: session, status } = useSession()
 
-  const { data: sessionsData, loading: sessionsLoading } = useQuery<{
+  // Using new graphql-request client (no more Apollo Client!)
+  const { data: sessionsData, loading: sessionsLoading } = useGraphQLQuery<{
     mySessions: Session[]
   }>(MY_SESSIONS_QUERY, {
-    skip: !session,
+    skip: status === 'loading' || status === 'unauthenticated',
   })
 
-  const { data: seriesData, loading: seriesLoading } = useQuery<{
+  const { data: seriesData, loading: seriesLoading } = useGraphQLQuery<{
     mySeries: Series[]
   }>(MY_SERIES_QUERY, {
-    skip: !session,
+    skip: status === 'loading' || status === 'unauthenticated',
   })
 
-  const { data: groupsData, loading: groupsLoading } = useQuery<{
+  const { data: groupsData, loading: groupsLoading } = useGraphQLQuery<{
     myGroups: Group[]
   }>(MY_GROUPS_QUERY, {
-    skip: !session,
+    skip: status === 'loading' || status === 'unauthenticated',
   })
 
   if (status === 'loading' || sessionsLoading || seriesLoading || groupsLoading) {

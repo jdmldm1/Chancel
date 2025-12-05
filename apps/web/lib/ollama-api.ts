@@ -18,7 +18,7 @@ export interface OllamaResponse {
 /**
  * Send a prompt to Ollama and get a response
  */
-export async function queryOllama(prompt: string, model: string = 'llama3'): Promise<string> {
+export async function queryOllama(prompt: string, model: string = 'llama3.2'): Promise<string> {
   try {
     const response = await fetch('/api/ollama', {
       method: 'POST',

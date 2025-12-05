@@ -1,14 +1,13 @@
 'use client'
 
-import { gql } from '@apollo/client'
-import { useQuery, useMutation } from '@apollo/client/react'
+import { useGraphQLQuery, useGraphQLMutation } from '@/lib/graphql-client-new'
 import { useSession } from 'next-auth/react'
 import { useRouter, useParams } from 'next/navigation'
 import { useState, useEffect, useRef } from 'react'
 import { Users, Lock, Globe, Send, UserPlus, UserMinus, Settings, ArrowLeft } from 'lucide-react'
 import Link from 'next/link'
 
-const GROUP_QUERY = gql`
+const GROUP_QUERY = `
   query Group($id: ID!) {
     group(id: $id) {
       id
@@ -39,7 +38,7 @@ const GROUP_QUERY = gql`
   }
 `
 
-const GROUP_CHAT_MESSAGES_QUERY = gql`
+const GROUP_CHAT_MESSAGES_QUERY = `
   query GroupChatMessages($groupId: ID!) {
     groupChatMessages(groupId: $groupId) {
       id
@@ -55,7 +54,7 @@ const GROUP_CHAT_MESSAGES_QUERY = gql`
   }
 `
 
-const SEND_GROUP_CHAT_MESSAGE = gql`
+const SEND_GROUP_CHAT_MESSAGE = `
   mutation SendGroupChatMessage($groupId: ID!, $message: String!) {
     sendGroupChatMessage(groupId: $groupId, message: $message) {
       id
@@ -71,7 +70,7 @@ const SEND_GROUP_CHAT_MESSAGE = gql`
   }
 `
 
-const GROUP_CHAT_MESSAGE_SUBSCRIPTION = gql`
+const GROUP_CHAT_MESSAGE_SUBSCRIPTION = `
   subscription GroupChatMessageAdded($groupId: ID!) {
     groupChatMessageAdded(groupId: $groupId) {
       id
@@ -87,13 +86,13 @@ const GROUP_CHAT_MESSAGE_SUBSCRIPTION = gql`
   }
 `
 
-const REMOVE_GROUP_MEMBER = gql`
+const REMOVE_GROUP_MEMBER = `
   mutation RemoveGroupMember($groupId: ID!, $userId: ID!) {
     removeGroupMember(groupId: $groupId, userId: $userId)
   }
 `
 
-const JOIN_GROUP = gql`
+const JOIN_GROUP = `
   mutation JoinGroup($groupId: ID!) {
     joinGroup(groupId: $groupId) {
       id
@@ -113,47 +112,30 @@ export default function GroupDetailPage() {
   const [showMembers, setShowMembers] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const { data: groupData, loading: groupLoading, refetch: refetchGroup } = useQuery<any>(GROUP_QUERY, {
+  const { data: groupData, loading: groupLoading, refetch: refetchGroup } = useGraphQLQuery<any>(GROUP_QUERY, {
     variables: { id: groupId },
     skip: !session || !groupId,
   })
 
-  const { data: messagesData, refetch: refetchMessages } = useQuery<any>(GROUP_CHAT_MESSAGES_QUERY, {
+  const { data: messagesData, refetch: refetchMessages } = useGraphQLQuery<any>(GROUP_CHAT_MESSAGES_QUERY, {
     variables: { groupId },
     skip: !session || !groupId,
   })
 
-  const [sendMessage] = useMutation<any>(SEND_GROUP_CHAT_MESSAGE, {
+  const [sendMessage] = useGraphQLMutation<any>(SEND_GROUP_CHAT_MESSAGE, {
     onCompleted: (data) => {
       setMessage('')
-    },
-    update: (cache, { data }) => {
-      if (data?.sendGroupChatMessage) {
-        const existingMessages: any = cache.readQuery({
-          query: GROUP_CHAT_MESSAGES_QUERY,
-          variables: { groupId },
-        })
-
-        if (existingMessages) {
-          cache.writeQuery({
-            query: GROUP_CHAT_MESSAGES_QUERY,
-            variables: { groupId },
-            data: {
-              groupChatMessages: [...existingMessages.groupChatMessages, data.sendGroupChatMessage],
-            },
-          })
-        }
-      }
+      refetchMessages()
     },
   })
 
-  const [removeMember] = useMutation(REMOVE_GROUP_MEMBER, {
+  const [removeMember] = useGraphQLMutation(REMOVE_GROUP_MEMBER, {
     onCompleted: () => {
       refetchGroup()
     },
   })
 
-  const [joinGroup] = useMutation(JOIN_GROUP, {
+  const [joinGroup] = useGraphQLMutation(JOIN_GROUP, {
     onCompleted: () => {
       refetchGroup()
     },
@@ -247,10 +229,8 @@ export default function GroupDetailPage() {
     if (!message.trim()) return
 
     await sendMessage({
-      variables: {
-        groupId,
-        message: message.trim(),
-      },
+      groupId,
+      message: message.trim(),
     })
   }
 
@@ -258,19 +238,15 @@ export default function GroupDetailPage() {
     if (!confirm('Are you sure you want to remove this member?')) return
 
     await removeMember({
-      variables: {
-        groupId,
-        userId,
-      },
+      groupId,
+      userId,
     })
   }
 
   const handleJoinGroup = async () => {
     try {
       await joinGroup({
-        variables: {
-          groupId,
-        },
+        groupId,
       })
     } catch (error: any) {
       alert(error.message || 'Failed to join group')

@@ -1,8 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { gql } from '@apollo/client'
-import { useMutation } from '@apollo/client/react'
+import { useGraphQLMutation } from '@/lib/graphql-client-new'
 import { useSession } from 'next-auth/react'
 import {
   CreateCommentMutation,
@@ -15,7 +14,7 @@ import BibleVersionSelector from '../scripture/BibleVersionSelector'
 import AIInsightsModal from '../scripture/AIInsightsModal'
 import { Sparkles } from 'lucide-react'
 
-const CREATE_COMMENT = gql`
+const CREATE_COMMENT = `
   mutation CreateComment($input: CreateCommentInput!) {
     createComment(input: $input) {
       id
@@ -46,6 +45,7 @@ interface VerseByVersePassageProps {
   passage: ScripturePassage
   sessionId: string
   canComment: boolean
+  onCommentChange?: () => void
 }
 
 type SortOption = 'newest' | 'oldest'
@@ -54,6 +54,7 @@ export default function VerseByVersePassage({
   passage,
   sessionId,
   canComment,
+  onCommentChange,
 }: VerseByVersePassageProps) {
   const { data: session } = useSession()
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null)
@@ -107,13 +108,13 @@ export default function VerseByVersePassage({
     })
   }
 
-  const [createComment, { loading }] = useMutation<CreateCommentMutation, CreateCommentMutationVariables>(
+  const [createComment, { loading }] = useGraphQLMutation<CreateCommentMutation, CreateCommentMutationVariables>(
     CREATE_COMMENT,
     {
-      refetchQueries: ['GetSession'],
       onCompleted: () => {
         setNewComment('')
         setSelectedVerse(null)
+        onCommentChange?.()
       },
     }
   )
@@ -122,14 +123,12 @@ export default function VerseByVersePassage({
     if (!newComment.trim() || !session) return
 
     await createComment({
-      variables: {
-        input: {
-          content: newComment.trim(),
-          passageId: passage.id,
-          sessionId,
-          verseNumber,
-          parentId: null,
-        },
+      input: {
+        content: newComment.trim(),
+        passageId: passage.id,
+        sessionId,
+        verseNumber,
+        parentId: null,
       },
     })
   }

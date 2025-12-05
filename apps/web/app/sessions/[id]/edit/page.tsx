@@ -1,12 +1,11 @@
 'use client'
 
 import { useParams, useRouter } from 'next/navigation'
-import { gql } from '@apollo/client'
-import { useQuery } from '@apollo/client/react'
+import { useGraphQLQuery } from '@/lib/graphql-client-new'
 import { GetSessionQuery } from '@bibleproject/types/src/graphql'
 import SessionForm from '@/components/session/SessionForm'
 
-const GET_SESSION = gql`
+const GET_SESSION = `
   query GetSession($id: ID!) {
     session(id: $id) {
       id
@@ -37,7 +36,7 @@ export default function EditSessionPage() {
   const router = useRouter()
   const sessionId = params.id as string
 
-  const { data, loading, error } = useQuery<GetSessionQuery>(GET_SESSION, {
+  const { data, loading, error } = useGraphQLQuery<GetSessionQuery>(GET_SESSION, {
     variables: { id: sessionId },
   })
 

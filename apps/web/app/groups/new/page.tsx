@@ -1,14 +1,13 @@
 'use client'
 
-import { gql } from '@apollo/client'
-import { useMutation } from '@apollo/client/react'
+import { useGraphQLMutation } from '@/lib/graphql-client-new'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { ArrowLeft, Users, Lock, Globe } from 'lucide-react'
 import Link from 'next/link'
 
-const CREATE_GROUP = gql`
+const CREATE_GROUP = `
   mutation CreateGroup($input: CreateGroupInput!) {
     createGroup(input: $input) {
       id
@@ -31,7 +30,7 @@ export default function NewGroupPage() {
   })
   const [errors, setErrors] = useState<Record<string, string>>({})
 
-  const [createGroup, { loading }] = useMutation(CREATE_GROUP, {
+  const [createGroup, { loading }] = useGraphQLMutation(CREATE_GROUP, {
     onCompleted: (data: any) => {
       router.push(`/groups/${data.createGroup.id}`)
     },
@@ -85,13 +84,11 @@ export default function NewGroupPage() {
     }
 
     await createGroup({
-      variables: {
-        input: {
-          name: formData.name.trim(),
-          description: formData.description.trim() || undefined,
-          imageUrl: formData.imageUrl.trim() || undefined,
-          visibility: formData.visibility,
-        },
+      input: {
+        name: formData.name.trim(),
+        description: formData.description.trim() || undefined,
+        imageUrl: formData.imageUrl.trim() || undefined,
+        visibility: formData.visibility,
       },
     })
   }

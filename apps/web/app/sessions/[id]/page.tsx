@@ -3,8 +3,7 @@
 import { useParams, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { gql } from '@apollo/client'
-import { useQuery, useMutation } from '@apollo/client/react'
+import { useGraphQLQuery, useGraphQLMutation } from '@/lib/graphql-client-new'
 import { useSession } from 'next-auth/react'
 import { GetSessionQuery, JoinSessionMutation, JoinSessionMutationVariables } from '@bibleproject/types/src/graphql'
 import ScripturePassageCard from '@/components/session/ScripturePassageCard'
@@ -17,7 +16,7 @@ import { SessionDetailSkeleton } from '@/components/session/SessionDetailSkeleto
 import { useToast } from '@/components/ui/toast'
 import { MessageCircle, X } from 'lucide-react'
 
-const GET_SESSION = gql`
+const GET_SESSION = `
   query GetSession($id: ID!) {
     session(id: $id) {
       id
@@ -100,7 +99,7 @@ const GET_SESSION = gql`
   }
 `
 
-const JOIN_SESSION = gql`
+const JOIN_SESSION = `
   mutation JoinSession($sessionId: ID!) {
     joinSession(sessionId: $sessionId) {
       id
@@ -115,7 +114,7 @@ const JOIN_SESSION = gql`
 `
 
 // TODO: Re-enable subscriptions once WebSocket is properly configured
-// const COMMENT_ADDED = gql`
+// const COMMENT_ADDED = `
 //   subscription CommentAdded($sessionId: ID!) {
 //     commentAdded(sessionId: $sessionId) {
 //       id
@@ -151,11 +150,11 @@ export default function SessionDetailPage() {
   const [isChatOpen, setIsChatOpen] = useState(false)
   const [isJoinCodeModalOpen, setIsJoinCodeModalOpen] = useState(false)
 
-  const { data, loading, error, refetch } = useQuery<GetSessionQuery>(GET_SESSION, {
+  const { data, loading, error, refetch } = useGraphQLQuery<GetSessionQuery>(GET_SESSION, {
     variables: { id: sessionId },
   })
 
-  const [joinSession, { loading: joining }] = useMutation<JoinSessionMutation, JoinSessionMutationVariables>(
+  const [joinSession, { loading: joining }] = useGraphQLMutation<JoinSessionMutation, JoinSessionMutationVariables>(
     JOIN_SESSION,
     {
       onCompleted: () => {
@@ -298,7 +297,7 @@ export default function SessionDetailPage() {
   )
 
   const handleJoinSession = async () => {
-    await joinSession({ variables: { sessionId } })
+    await joinSession({ sessionId })
   }
 
   // Helper function to get session type badge styles
@@ -469,6 +468,7 @@ export default function SessionDetailPage() {
                   passage={passage}
                   sessionId={sessionId}
                   canComment={isParticipant || isLeader}
+                  onCommentChange={refetch}
                 />
               ))}
           </div>
@@ -483,6 +483,7 @@ export default function SessionDetailPage() {
           canUpload={isParticipant || isLeader}
           currentUserId={session?.user?.id}
           sessionLeaderId={sessionData.leader.id}
+          onResourceChange={refetch}
         />
       </div>
 

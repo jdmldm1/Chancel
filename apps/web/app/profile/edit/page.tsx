@@ -1,14 +1,13 @@
 'use client'
 
-import { gql } from '@apollo/client'
-import { useMutation, useQuery } from '@apollo/client/react'
+import { useGraphQLQuery, useGraphQLMutation } from '@/lib/graphql-client-new'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
 import { ArrowLeft, Save, User, Mail, MapPin, Phone, FileText, Bell, Book } from 'lucide-react'
 import Link from 'next/link'
 
-const ME_QUERY = gql`
+const ME_QUERY = `
   query Me {
     me {
       id
@@ -26,7 +25,7 @@ const ME_QUERY = gql`
   }
 `
 
-const UPDATE_USER_MUTATION = gql`
+const UPDATE_USER_MUTATION = `
   mutation UpdateUser($input: UpdateUserInput!) {
     updateUser(input: $input) {
       id
@@ -49,7 +48,7 @@ export default function EditProfilePage() {
   const router = useRouter()
   const [success, setSuccess] = useState(false)
 
-  const { data, loading } = useQuery<any>(ME_QUERY, {
+  const { data, loading } = useGraphQLQuery<any>(ME_QUERY, {
     skip: !session,
   })
 
@@ -81,7 +80,7 @@ export default function EditProfilePage() {
     setDataLoaded(true)
   }
 
-  const [updateUser, { loading: updating }] = useMutation<any>(UPDATE_USER_MUTATION, {
+  const [updateUser, { loading: updating }] = useGraphQLMutation<any>(UPDATE_USER_MUTATION, {
     onCompleted: async (data) => {
       setSuccess(true)
       // Update session with new name
@@ -109,9 +108,7 @@ export default function EditProfilePage() {
     e.preventDefault()
     try {
       await updateUser({
-        variables: {
           input: formData,
-        },
       })
     } catch (err) {
       alert('Error updating profile: ' + (err as Error).message)

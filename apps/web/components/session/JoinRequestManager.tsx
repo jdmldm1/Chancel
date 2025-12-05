@@ -1,10 +1,9 @@
 'use client'
 
 import React, { useState } from 'react'
-import { gql } from '@apollo/client'
-import { useMutation, useQuery } from '@apollo/client/react'
+import { useGraphQLQuery, useGraphQLMutation } from '@/lib/graphql-client-new'
 
-const GET_USERS = gql`
+const GET_USERS = `
   query GetUsers {
     users {
       id
@@ -15,7 +14,7 @@ const GET_USERS = gql`
   }
 `
 
-const SEND_JOIN_REQUEST = gql`
+const SEND_JOIN_REQUEST = `
   mutation SendJoinRequest($sessionId: ID!, $toUserId: ID!) {
     sendJoinRequest(sessionId: $sessionId, toUserId: $toUserId) {
       id
@@ -29,7 +28,7 @@ const SEND_JOIN_REQUEST = gql`
   }
 `
 
-const GET_SESSION_JOIN_REQUESTS = gql`
+const GET_SESSION_JOIN_REQUESTS = `
   query GetSessionJoinRequests($sessionId: ID!) {
     sessionJoinRequests(sessionId: $sessionId) {
       id
@@ -50,11 +49,11 @@ interface JoinRequestManagerProps {
 
 export default function JoinRequestManager({ sessionId }: JoinRequestManagerProps) {
   const [selectedUserId, setSelectedUserId] = useState('')
-  const { data: usersData } = useQuery<any>(GET_USERS)
-  const { data: requestsData, refetch } = useQuery<any>(GET_SESSION_JOIN_REQUESTS, {
+  const { data: usersData } = useGraphQLQuery<any>(GET_USERS)
+  const { data: requestsData, refetch } = useGraphQLQuery<any>(GET_SESSION_JOIN_REQUESTS, {
     variables: { sessionId },
   })
-  const [sendJoinRequest, { loading }] = useMutation<any>(SEND_JOIN_REQUEST, {
+  const [sendJoinRequest, { loading }] = useGraphQLMutation<any>(SEND_JOIN_REQUEST, {
     onCompleted: () => {
       setSelectedUserId('')
       refetch()
@@ -66,10 +65,8 @@ export default function JoinRequestManager({ sessionId }: JoinRequestManagerProp
 
     try {
       await sendJoinRequest({
-        variables: {
-          sessionId,
-          toUserId: selectedUserId,
-        },
+        sessionId,
+        toUserId: selectedUserId,
       })
     } catch (err) {
       console.error('Error sending join request:', err)

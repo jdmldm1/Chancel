@@ -1,11 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { gql } from '@apollo/client'
-import { useMutation } from '@apollo/client/react'
+import { useGraphQLMutation } from '@/lib/graphql-client-new'
 import { useToast } from '@/components/ui/toast'
 
-const REGENERATE_JOIN_CODE = gql`
+const REGENERATE_JOIN_CODE = `
   mutation RegenerateJoinCode($sessionId: ID!) {
     regenerateJoinCode(sessionId: $sessionId) {
       id
@@ -29,7 +28,7 @@ export default function JoinCodeDisplay({
 }: JoinCodeDisplayProps) {
   const [copied, setCopied] = useState(false)
   const { addToast } = useToast()
-  const [regenerateCode, { loading }] = useMutation<any>(REGENERATE_JOIN_CODE, {
+  const [regenerateCode, { loading }] = useGraphQLMutation<any>(REGENERATE_JOIN_CODE, {
     onCompleted: (data) => {
       const newCode = data?.regenerateJoinCode?.joinCode
       if (newCode && onCodeRegenerated) {
@@ -77,7 +76,7 @@ export default function JoinCodeDisplay({
 
   const handleRegenerate = () => {
     if (confirm('Are you sure you want to regenerate the join code? The old code will stop working immediately.')) {
-      regenerateCode({ variables: { sessionId } })
+      regenerateCode({ sessionId })
     }
   }
 

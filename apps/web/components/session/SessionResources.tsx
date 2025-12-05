@@ -1,8 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { gql } from '@apollo/client'
-import { useMutation } from '@apollo/client/react'
+import { useGraphQLMutation } from '@/lib/graphql-client-new'
 import { useSession } from 'next-auth/react'
 import {
   CreateSessionResourceMutation,
@@ -15,7 +14,7 @@ import {
 import VideoPlayer from './VideoPlayer'
 import { parseVideoUrl, isVideoUrl } from '@/lib/video-utils'
 
-const CREATE_SESSION_RESOURCE = gql`
+const CREATE_SESSION_RESOURCE = `
   mutation CreateSessionResource($input: CreateSessionResourceInput!) {
     createSessionResource(input: $input) {
       id
@@ -34,7 +33,7 @@ const CREATE_SESSION_RESOURCE = gql`
   }
 `
 
-const DELETE_SESSION_RESOURCE = gql`
+const DELETE_SESSION_RESOURCE = `
   mutation DeleteSessionResource($id: ID!) {
     deleteSessionResource(id: $id)
   }
@@ -48,6 +47,7 @@ interface SessionResourcesProps {
   canUpload: boolean
   currentUserId?: string
   sessionLeaderId: string
+  onResourceChange?: () => void
 }
 
 export default function SessionResources({
@@ -56,6 +56,7 @@ export default function SessionResources({
   canUpload,
   currentUserId,
   sessionLeaderId,
+  onResourceChange,
 }: SessionResourcesProps) {
   const { data: session } = useSession()
   const [showUploadForm, setShowUploadForm] = useState(false)
@@ -66,16 +67,16 @@ export default function SessionResources({
   const [uploadType, setUploadType] = useState<'file' | 'video'>('file')
   const [isCollapsed, setIsCollapsed] = useState(false)
 
-  const [createResource] = useMutation<CreateSessionResourceMutation, CreateSessionResourceMutationVariables>(
+  const [createResource] = useGraphQLMutation<CreateSessionResourceMutation, CreateSessionResourceMutationVariables>(
     CREATE_SESSION_RESOURCE,
     {
-      refetchQueries: ['GetSession'],
       onCompleted: () => {
         setShowUploadForm(false)
         setDescription('')
         setVideoUrl('')
         setUploadError('')
         setUploadType('file')
+        onResourceChange?.()
       },
       onError: (error) => {
         setUploadError(error.message)
@@ -83,10 +84,12 @@ export default function SessionResources({
     }
   )
 
-  const [deleteResource] = useMutation<DeleteSessionResourceMutation, DeleteSessionResourceMutationVariables>(
+  const [deleteResource] = useGraphQLMutation<DeleteSessionResourceMutation, DeleteSessionResourceMutationVariables>(
     DELETE_SESSION_RESOURCE,
     {
-      refetchQueries: ['GetSession'],
+      onCompleted: () => {
+        onResourceChange?.()
+      },
     }
   )
 
@@ -116,14 +119,12 @@ export default function SessionResources({
 
       // Create resource in GraphQL
       await createResource({
-        variables: {
-          input: {
-            sessionId,
-            fileName,
-            fileUrl,
-            fileType,
-            description: description.trim() || undefined,
-          },
+        input: {
+          sessionId,
+          fileName,
+          fileUrl,
+          fileType,
+          description: description.trim() || undefined,
         },
       })
     } catch (error) {
@@ -150,16 +151,14 @@ export default function SessionResources({
       }
 
       await createResource({
-        variables: {
-          input: {
-            sessionId,
-            fileName: parsedVideo.fileName,
-            fileUrl: videoUrl.trim(),
-            fileType: 'video/url',
-            resourceType: parsedVideo.resourceType as ResourceType,
-            videoId: parsedVideo.videoId,
-            description: description.trim() || undefined,
-          },
+        input: {
+          sessionId,
+          fileName: parsedVideo.fileName,
+          fileUrl: videoUrl.trim(),
+          fileType: 'video/url',
+          resourceType: parsedVideo.resourceType as ResourceType,
+          videoId: parsedVideo.videoId,
+          description: description.trim() || undefined,
         },
       })
     } catch (error) {
@@ -173,7 +172,7 @@ export default function SessionResources({
     if (!confirm('Are you sure you want to delete this resource?')) return
 
     await deleteResource({
-      variables: { id: resourceId },
+      id: resourceId,
     })
   }
 

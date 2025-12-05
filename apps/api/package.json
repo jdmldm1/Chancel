@@ -16,7 +16,7 @@
     "@apollo/server": "^4.10.0",
     "@bibleproject/db": "*",
     "@bibleproject/types": "*",
-    "@graphql-tools/schema": "^10.0.29",
+    "@graphql-tools/schema": "^10.0.30",
     "@prisma/client": "^5.7.0",
     "@types/cookie-parser": "^1.4.10",
     "@types/jsonwebtoken": "^9.0.10",

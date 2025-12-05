@@ -1,14 +1,13 @@
 'use client'
 
-import { gql } from '@apollo/client'
-import { useMutation, useQuery } from '@apollo/client/react'
+import { useGraphQLQuery, useGraphQLMutation } from '@/lib/graphql-client-new'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useState } from 'react'
 import { ArrowLeft, Shield, Users, Trash2, Edit2, Mail, MapPin, Phone, Search } from 'lucide-react'
 
-const ALL_USERS_QUERY = gql`
+const ALL_USERS_QUERY = `
   query AllUsers {
     allUsers {
       id
@@ -24,7 +23,7 @@ const ALL_USERS_QUERY = gql`
   }
 `
 
-const UPDATE_USER_ROLE_MUTATION = gql`
+const UPDATE_USER_ROLE_MUTATION = `
   mutation AdminUpdateUserRole($userId: ID!, $role: UserRole!) {
     adminUpdateUserRole(userId: $userId, role: $role) {
       id
@@ -35,7 +34,7 @@ const UPDATE_USER_ROLE_MUTATION = gql`
   }
 `
 
-const DELETE_USER_MUTATION = gql`
+const DELETE_USER_MUTATION = `
   mutation AdminDeleteUser($userId: ID!) {
     adminDeleteUser(userId: $userId)
   }
@@ -47,15 +46,15 @@ export default function UserManagementPage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedRole, setSelectedRole] = useState<string>('ALL')
 
-  const { data, loading, error, refetch } = useQuery<any>(ALL_USERS_QUERY, {
+  const { data, loading, error, refetch } = useGraphQLQuery<any>(ALL_USERS_QUERY, {
     skip: !session || session.user?.role !== 'ADMIN',
   })
 
-  const [updateUserRole] = useMutation(UPDATE_USER_ROLE_MUTATION, {
+  const [updateUserRole] = useGraphQLMutation(UPDATE_USER_ROLE_MUTATION, {
     onCompleted: () => refetch(),
   })
 
-  const [deleteUser] = useMutation(DELETE_USER_MUTATION, {
+  const [deleteUser] = useGraphQLMutation(DELETE_USER_MUTATION, {
     onCompleted: () => refetch(),
   })
 
@@ -93,7 +92,8 @@ export default function UserManagementPage() {
     if (confirm(`Are you sure you want to change this user's role to ${newRole}?`)) {
       try {
         await updateUserRole({
-          variables: { userId, role: newRole },
+          userId,
+          role: newRole,
         })
       } catch (err) {
         alert('Error updating user role: ' + (err as Error).message)
@@ -105,7 +105,7 @@ export default function UserManagementPage() {
     if (confirm(`Are you sure you want to delete user ${email}? This action cannot be undone.`)) {
       try {
         await deleteUser({
-          variables: { userId },
+          userId,
         })
       } catch (err) {
         alert('Error deleting user: ' + (err as Error).message)

@@ -1,13 +1,12 @@
 'use client'
 
-import { gql } from '@apollo/client'
-import { useQuery } from '@apollo/client/react'
+import { useGraphQLQuery } from '@/lib/graphql-client-new'
 import { useSession } from 'next-auth/react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Mail, MapPin, Phone, Calendar, Edit2, User as UserIcon, BookOpen, MessageSquare, Heart } from 'lucide-react'
 
-const USER_QUERY = gql`
+const USER_QUERY = `
   query User($id: ID!) {
     user(id: $id) {
       id
@@ -30,7 +29,7 @@ export default function ProfileViewPage() {
   const params = useParams()
   const userId = params?.id as string
 
-  const { data, loading, error } = useQuery<any>(USER_QUERY, {
+  const { data, loading, error } = useGraphQLQuery<any>(USER_QUERY, {
     variables: { id: userId },
     skip: !userId || !session,
   })

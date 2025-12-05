@@ -1,14 +1,13 @@
 'use client'
 
-import { gql } from '@apollo/client'
-import { useQuery, useMutation } from '@apollo/client/react'
+import { useGraphQLQuery, useGraphQLMutation } from '@/lib/graphql-client-new'
 import { useSession } from 'next-auth/react'
 import { useRouter, useParams } from 'next/navigation'
 import { useState } from 'react'
 import { ArrowLeft, UserPlus, Check } from 'lucide-react'
 import Link from 'next/link'
 
-const GROUP_QUERY = gql`
+const GROUP_QUERY = `
   query Group($id: ID!) {
     group(id: $id) {
       id
@@ -21,7 +20,7 @@ const GROUP_QUERY = gql`
   }
 `
 
-const USERS_QUERY = gql`
+const USERS_QUERY = `
   query Users {
     users {
       id
@@ -32,7 +31,7 @@ const USERS_QUERY = gql`
   }
 `
 
-const ADD_GROUP_MEMBER = gql`
+const ADD_GROUP_MEMBER = `
   mutation AddGroupMember($groupId: ID!, $userId: ID!) {
     addGroupMember(groupId: $groupId, userId: $userId) {
       id
@@ -52,16 +51,16 @@ export default function AddGroupMembersPage() {
   const groupId = params?.id as string
   const [addedMembers, setAddedMembers] = useState<Set<string>>(new Set())
 
-  const { data: groupData, loading: groupLoading } = useQuery<any>(GROUP_QUERY, {
+  const { data: groupData, loading: groupLoading } = useGraphQLQuery<any>(GROUP_QUERY, {
     variables: { id: groupId },
     skip: !session || !groupId,
   })
 
-  const { data: usersData, loading: usersLoading } = useQuery<any>(USERS_QUERY, {
+  const { data: usersData, loading: usersLoading } = useGraphQLQuery<any>(USERS_QUERY, {
     skip: !session,
   })
 
-  const [addMember, { loading: addingMember }] = useMutation(ADD_GROUP_MEMBER, {
+  const [addMember, { loading: addingMember }] = useGraphQLMutation(ADD_GROUP_MEMBER, {
     onCompleted: (data: any) => {
       setAddedMembers(new Set(addedMembers).add(data.addGroupMember.userId))
     },
@@ -115,10 +114,8 @@ export default function AddGroupMembersPage() {
 
   const handleAddMember = async (userId: string) => {
     await addMember({
-      variables: {
-        groupId,
-        userId,
-      },
+      groupId,
+      userId,
     })
   }
 

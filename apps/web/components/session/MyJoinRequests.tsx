@@ -1,11 +1,10 @@
 'use client'
 
 import React from 'react'
-import { gql } from '@apollo/client'
-import { useMutation, useQuery } from '@apollo/client/react'
+import { useGraphQLQuery, useGraphQLMutation } from '@/lib/graphql-client-new'
 import Link from 'next/link'
 
-const GET_MY_JOIN_REQUESTS = gql`
+const GET_MY_JOIN_REQUESTS = `
   query GetMyJoinRequests {
     myJoinRequests {
       id
@@ -26,7 +25,7 @@ const GET_MY_JOIN_REQUESTS = gql`
   }
 `
 
-const ACCEPT_JOIN_REQUEST = gql`
+const ACCEPT_JOIN_REQUEST = `
   mutation AcceptJoinRequest($id: ID!) {
     acceptJoinRequest(id: $id) {
       id
@@ -35,7 +34,7 @@ const ACCEPT_JOIN_REQUEST = gql`
   }
 `
 
-const REJECT_JOIN_REQUEST = gql`
+const REJECT_JOIN_REQUEST = `
   mutation RejectJoinRequest($id: ID!) {
     rejectJoinRequest(id: $id) {
       id
@@ -45,11 +44,11 @@ const REJECT_JOIN_REQUEST = gql`
 `
 
 export default function MyJoinRequests() {
-  const { data, loading, error, refetch } = useQuery<any>(GET_MY_JOIN_REQUESTS)
-  const [acceptJoinRequest] = useMutation<any>(ACCEPT_JOIN_REQUEST, {
+  const { data, loading, error, refetch } = useGraphQLQuery<any>(GET_MY_JOIN_REQUESTS)
+  const [acceptJoinRequest] = useGraphQLMutation<any>(ACCEPT_JOIN_REQUEST, {
     onCompleted: () => refetch(),
   })
-  const [rejectJoinRequest] = useMutation<any>(REJECT_JOIN_REQUEST, {
+  const [rejectJoinRequest] = useGraphQLMutation<any>(REJECT_JOIN_REQUEST, {
     onCompleted: () => refetch(),
   })
 
@@ -91,13 +90,13 @@ export default function MyJoinRequests() {
                   </div>
                   <div className="flex gap-2 ml-4">
                     <button
-                      onClick={() => acceptJoinRequest({ variables: { id: request.id } })}
+                      onClick={() => acceptJoinRequest({ id: request.id })}
                       className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
                     >
                       Accept
                     </button>
                     <button
-                      onClick={() => rejectJoinRequest({ variables: { id: request.id } })}
+                      onClick={() => rejectJoinRequest({ id: request.id })}
                       className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
                     >
                       Decline

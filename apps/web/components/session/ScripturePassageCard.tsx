@@ -9,18 +9,21 @@ interface ScripturePassageCardProps {
   passage: ScripturePassage
   sessionId: string
   canComment: boolean
+  onCommentChange?: () => void
 }
 
 export default function ScripturePassageCard({
   passage,
   sessionId,
   canComment,
+  onCommentChange,
 }: ScripturePassageCardProps) {
   return (
     <VerseByVersePassage
       passage={passage}
       sessionId={sessionId}
       canComment={canComment}
+      onCommentChange={onCommentChange}
     />
   )
 }

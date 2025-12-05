@@ -1,14 +1,13 @@
 'use client'
 
-import { useQuery, useMutation } from '@apollo/client/react'
-import { gql } from '@apollo/client'
+import { useGraphQLQuery, useGraphQLMutation } from '@/lib/graphql-client-new'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useState } from 'react'
 import { useToast } from '@/components/ui/toast'
 
-const MY_SERIES_QUERY = gql`
+const MY_SERIES_QUERY = `
   query MySeries {
     mySeries {
       id
@@ -26,7 +25,7 @@ const MY_SERIES_QUERY = gql`
   }
 `
 
-const CREATE_SERIES_MUTATION = gql`
+const CREATE_SERIES_MUTATION = `
   mutation CreateSeries($input: CreateSeriesInput!) {
     createSeries(input: $input) {
       id
@@ -37,7 +36,7 @@ const CREATE_SERIES_MUTATION = gql`
   }
 `
 
-const DELETE_SERIES_MUTATION = gql`
+const DELETE_SERIES_MUTATION = `
   mutation DeleteSeries($id: ID!) {
     deleteSeries(id: $id) {
       id
@@ -71,9 +70,9 @@ export default function SeriesPage() {
     imageUrl: '',
   })
 
-  const { data, loading, refetch } = useQuery<{ mySeries: Series[] }>(MY_SERIES_QUERY)
-  const [createSeries, { loading: creating }] = useMutation(CREATE_SERIES_MUTATION)
-  const [deleteSeries] = useMutation(DELETE_SERIES_MUTATION)
+  const { data, loading, refetch } = useGraphQLQuery<{ mySeries: Series[] }>(MY_SERIES_QUERY)
+  const [createSeries, { loading: creating }] = useGraphQLMutation(CREATE_SERIES_MUTATION)
+  const [deleteSeries] = useGraphQLMutation(DELETE_SERIES_MUTATION)
 
   if (status === 'loading' || loading) {
     return (
@@ -127,12 +126,10 @@ export default function SeriesPage() {
 
     try {
       await createSeries({
-        variables: {
-          input: {
-            title: formData.title,
-            description: formData.description || null,
-            imageUrl: formData.imageUrl || null,
-          },
+        input: {
+          title: formData.title,
+          description: formData.description || null,
+          imageUrl: formData.imageUrl || null,
         },
       })
 
@@ -150,7 +147,7 @@ export default function SeriesPage() {
     if (!confirm(`Are you sure you want to delete "${title}"?`)) return
 
     try {
-      await deleteSeries({ variables: { id } })
+      await deleteSeries({ id })
       addToast({ type: 'success', message: 'Series deleted successfully!' })
       refetch()
     } catch (error) {

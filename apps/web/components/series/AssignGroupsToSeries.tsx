@@ -1,11 +1,10 @@
 'use client'
 
-import { gql } from '@apollo/client'
-import { useQuery, useMutation } from '@apollo/client/react'
+import { useGraphQLQuery, useGraphQLMutation } from '@/lib/graphql-client-new'
 import { useState } from 'react'
 import { Users, Plus, X } from 'lucide-react'
 
-const MY_GROUPS_QUERY = gql`
+const MY_GROUPS_QUERY = `
   query MyGroups {
     myGroups {
       id
@@ -16,7 +15,7 @@ const MY_GROUPS_QUERY = gql`
   }
 `
 
-const ASSIGN_GROUP_TO_SERIES = gql`
+const ASSIGN_GROUP_TO_SERIES = `
   mutation AssignGroupToSeries($groupId: ID!, $seriesId: ID!) {
     assignGroupToSeries(groupId: $groupId, seriesId: $seriesId) {
       id
@@ -34,11 +33,11 @@ interface AssignGroupsProps {
 export default function AssignGroupsToSeries({ seriesId, isLeader }: AssignGroupsProps) {
   const [showSelector, setShowSelector] = useState(false)
 
-  const { data: groupsData } = useQuery<any>(MY_GROUPS_QUERY, {
+  const { data: groupsData } = useGraphQLQuery<any>(MY_GROUPS_QUERY, {
     skip: !isLeader,
   })
 
-  const [assignGroup] = useMutation(ASSIGN_GROUP_TO_SERIES, {
+  const [assignGroup] = useGraphQLMutation(ASSIGN_GROUP_TO_SERIES, {
     onCompleted: () => {
       setShowSelector(false)
     },
@@ -53,10 +52,8 @@ export default function AssignGroupsToSeries({ seriesId, isLeader }: AssignGroup
   const handleAssignGroup = async (groupId: string) => {
     try {
       await assignGroup({
-        variables: {
-          groupId,
-          seriesId,
-        },
+      groupId,
+      seriesId,
       })
     } catch (error: any) {
       alert(error.message)

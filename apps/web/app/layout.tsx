@@ -1,5 +1,4 @@
 import type { Metadata } from "next"
-import { ApolloProviderWrapper } from "@/lib/apollo-provider"
 import { AuthSessionProvider } from "@/lib/session-provider"
 import { ToastProvider } from "@/components/ui/toast"
 import EnhancedNavigation from "@/components/EnhancedNavigation"
@@ -20,14 +19,12 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
         <AuthSessionProvider>
-          <ApolloProviderWrapper>
-            <ToastProvider>
-              <EnhancedNavigation />
-              <MainLayout>
-                {children}
-              </MainLayout>
-            </ToastProvider>
-          </ApolloProviderWrapper>
+          <ToastProvider>
+            <EnhancedNavigation />
+            <MainLayout>
+              {children}
+            </MainLayout>
+          </ToastProvider>
         </AuthSessionProvider>
       </body>
     </html>

@@ -1,8 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
-import { gql } from '@apollo/client'
-import { useQuery, useMutation } from '@apollo/client/react'
+import { useGraphQLQuery, useGraphQLMutation } from '@/lib/graphql-client-new'
 import { useSession } from 'next-auth/react'
 import {
   GetChatMessagesQuery,
@@ -10,7 +9,7 @@ import {
   SendChatMessageMutationVariables,
 } from '@bibleproject/types/src/graphql'
 
-const GET_CHAT_MESSAGES = gql`
+const GET_CHAT_MESSAGES = `
   query GetChatMessages($sessionId: ID!) {
     chatMessages(sessionId: $sessionId) {
       id
@@ -24,7 +23,7 @@ const GET_CHAT_MESSAGES = gql`
   }
 `
 
-const SEND_CHAT_MESSAGE = gql`
+const SEND_CHAT_MESSAGE = `
   mutation SendChatMessage($sessionId: ID!, $message: String!) {
     sendChatMessage(sessionId: $sessionId, message: $message) {
       id
@@ -38,7 +37,7 @@ const SEND_CHAT_MESSAGE = gql`
   }
 `
 
-const CHAT_MESSAGE_ADDED = gql`
+const CHAT_MESSAGE_ADDED = `
   subscription ChatMessageAdded($sessionId: ID!) {
     chatMessageAdded(sessionId: $sessionId) {
       id
@@ -62,11 +61,11 @@ export default function SessionChat({ sessionId }: SessionChatProps) {
   const [isCollapsed, setIsCollapsed] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  const { data, loading, error, refetch } = useQuery<GetChatMessagesQuery>(GET_CHAT_MESSAGES, {
+  const { data, loading, error, refetch } = useGraphQLQuery<GetChatMessagesQuery>(GET_CHAT_MESSAGES, {
     variables: { sessionId },
   })
 
-  const [sendMessage, { loading: sending }] = useMutation<
+  const [sendMessage, { loading: sending }] = useGraphQLMutation<
     SendChatMessageMutation,
     SendChatMessageMutationVariables
   >(SEND_CHAT_MESSAGE, {
@@ -98,10 +97,8 @@ export default function SessionChat({ sessionId }: SessionChatProps) {
 
     try {
       await sendMessage({
-        variables: {
-          sessionId,
-          message: message.trim(),
-        },
+        sessionId,
+        message: message.trim(),
       })
     } catch (err) {
       console.error('Error sending message:', err)

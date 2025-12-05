@@ -57,6 +57,7 @@ export default function LoginPage() {
       })
 
       console.log('Sign in result:', result)
+      console.log('Sign in result keys:', result ? Object.keys(result) : 'null')
 
       if (result?.error) {
         console.error('Sign in error:', result.error)
@@ -68,7 +69,11 @@ export default function LoginPage() {
         })
         setIsLoading(false)
       } else if (result?.ok) {
-        console.log('Sign in successful, redirecting...')
+        console.log('Sign in successful, checking session...')
+        // Check session before redirecting
+        const sessionData = await fetch('/api/auth/session').then((res) => res.json())
+        console.log('Session data after signin:', sessionData)
+
         addToast({
           type: 'success',
           message: 'Welcome back!',
@@ -77,6 +82,7 @@ export default function LoginPage() {
         // Force immediate redirect
         window.location.href = '/dashboard'
       } else {
+        console.log('Sign in result status - ok:', result?.ok, 'error:', result?.error)
         setError('An unexpected error occurred')
         addToast({
           type: 'error',

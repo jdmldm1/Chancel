@@ -1,7 +1,6 @@
 'use client'
 
-import { gql } from '@apollo/client'
-import { useQuery, useMutation } from '@apollo/client/react'
+import { useGraphQLQuery, useGraphQLMutation } from '@/lib/graphql-client-new'
 import { useSession } from 'next-auth/react'
 import { GetMySessionsQuery, GetAllSessionsQuery, DeleteSessionMutation, DeleteSessionMutationVariables } from '@bibleproject/types/src/graphql'
 import Link from 'next/link'
@@ -9,7 +8,7 @@ import { useState } from 'react'
 import { SessionListSkeleton } from './SessionListSkeleton'
 import EmptyState from '../ui/EmptyState'
 
-const GET_MY_SESSIONS = gql`
+const GET_MY_SESSIONS = `
   query GetMySessions($limit: Int, $offset: Int) {
     mySessions(limit: $limit, offset: $offset) {
       id
@@ -39,7 +38,7 @@ const GET_MY_SESSIONS = gql`
   }
 `
 
-const GET_ALL_SESSIONS = gql`
+const GET_ALL_SESSIONS = `
   query GetAllSessions($limit: Int, $offset: Int) {
     publicSessions(limit: $limit, offset: $offset) {
       id
@@ -69,7 +68,7 @@ const GET_ALL_SESSIONS = gql`
   }
 `
 
-const DELETE_SESSION = gql`
+const DELETE_SESSION = `
   mutation DeleteSession($id: ID!) {
     deleteSession(id: $id) {
       id
@@ -91,20 +90,15 @@ export default function SessionList({ viewMode, timeFilter = 'current' }: Sessio
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState<'date' | 'participants' | 'title'>('date')
 
-  const { data: myData, loading: myLoading, error: myError } = useQuery<GetMySessionsQuery>(GET_MY_SESSIONS, {
+  const { data: myData, loading: myLoading, error: myError } = useGraphQLQuery<GetMySessionsQuery>(GET_MY_SESSIONS, {
     skip: viewMode !== 'my',
     variables: { limit: 100, offset: 0 },
-    fetchPolicy: 'cache-and-network',
-    nextFetchPolicy: 'cache-first',
   })
-  const { data: allData, loading: allLoading, error: allError } = useQuery<GetAllSessionsQuery>(GET_ALL_SESSIONS, {
+  const { data: allData, loading: allLoading, error: allError } = useGraphQLQuery<GetAllSessionsQuery>(GET_ALL_SESSIONS, {
     skip: viewMode !== 'all',
     variables: { limit: 100, offset: 0 },
-    fetchPolicy: 'cache-and-network',
-    nextFetchPolicy: 'cache-first',
   })
-  const [deleteSession] = useMutation<DeleteSessionMutation, DeleteSessionMutationVariables>(DELETE_SESSION, {
-    refetchQueries: [{ query: GET_MY_SESSIONS }, { query: GET_ALL_SESSIONS }],
+  const [deleteSession] = useGraphQLMutation<DeleteSessionMutation, DeleteSessionMutationVariables>(DELETE_SESSION, {
   })
 
   const loading = viewMode === 'my' ? myLoading : allLoading
@@ -163,7 +157,7 @@ export default function SessionList({ viewMode, timeFilter = 'current' }: Sessio
   const handleDeleteSession = async (id: string) => {
     if (window.confirm('Are you sure you want to delete this study session?')) {
       try {
-        await deleteSession({ variables: { id } })
+        await deleteSession({ id })
       } catch (err) {
         console.error('Error deleting session:', err)
         // TODO: Display error to user

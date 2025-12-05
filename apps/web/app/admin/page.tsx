@@ -1,13 +1,12 @@
 'use client'
 
-import { gql } from '@apollo/client'
-import { useQuery } from '@apollo/client/react'
+import { useGraphQLQuery } from '@/lib/graphql-client-new'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Users, BookOpen, MessageSquare, Heart, Shield, TrendingUp } from 'lucide-react'
 
-const ADMIN_STATS_QUERY = gql`
+const ADMIN_STATS_QUERY = `
   query AdminStats {
     adminStats {
       totalUsers
@@ -25,7 +24,7 @@ export default function AdminDashboard() {
   const { data: session, status } = useSession()
   const router = useRouter()
 
-  const { data, loading, error } = useQuery<any>(ADMIN_STATS_QUERY, {
+  const { data, loading, error } = useGraphQLQuery<any>(ADMIN_STATS_QUERY, {
     skip: !session || session.user?.role !== 'ADMIN',
   })
 

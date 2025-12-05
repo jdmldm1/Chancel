@@ -6,8 +6,7 @@ import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { gql } from '@apollo/client'
-import { useMutation } from '@apollo/client/react'
+import { useGraphQLMutation } from '@/lib/graphql-client-new'
 import { useToast } from '@/components/ui/toast'
 
 const signupSchema = z.object({
@@ -23,7 +22,7 @@ const signupSchema = z.object({
 
 type SignupFormData = z.infer<typeof signupSchema>
 
-const SIGNUP_MUTATION = gql`
+const SIGNUP_MUTATION = `
   mutation Signup($email: String!, $password: String!, $name: String!, $role: UserRole!) {
     signup(email: $email, password: $password, name: $name, role: $role) {
       id
@@ -39,7 +38,7 @@ export default function SignupPage() {
   const { addToast } = useToast()
   const [error, setError] = useState<string | null>(null)
 
-  const [signup, { loading }] = useMutation(SIGNUP_MUTATION, {
+  const [signup, { loading }] = useGraphQLMutation(SIGNUP_MUTATION, {
     onCompleted: () => {
       addToast({
         type: 'success',
@@ -72,12 +71,10 @@ export default function SignupPage() {
   const onSubmit = async (data: SignupFormData) => {
     setError(null)
     await signup({
-      variables: {
         email: data.email,
         password: data.password,
         name: data.name,
         role: data.role,
-      },
     })
   }
 

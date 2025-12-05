@@ -16,6 +16,7 @@ async function main() {
   await prisma.notification.deleteMany({})
   await prisma.session.deleteMany({})
   await prisma.series.deleteMany({})
+  await prisma.group.deleteMany({})
   await prisma.user.deleteMany({})
   console.log('✅ Cleared existing data')
 
@@ -100,6 +101,15 @@ async function main() {
       title: 'Major Prophets: God\'s Messengers',
       description: 'Understanding God\'s heart through Isaiah, Jeremiah, and Daniel.',
       imageUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=400',
+      leaderId: leader.id,
+    },
+  })
+
+  const bibleRecap = await prisma.series.create({
+    data: {
+      title: 'The Bible Recap: Year-Long Journey',
+      description: 'Read through the entire Bible in chronological order with daily recaps and study notes. Based on The Bible Recap reading plan.',
+      imageUrl: 'https://www.bible.com/_next/image?url=https%3A%2F%2Fimageproxy.youversionapi.com%2Fhttps%3A%2F%2Fs3.amazonaws.com%2Fyvplans%2F17553%2F1280x720.jpg&w=3840&q=75',
       leaderId: leader.id,
     },
   })
@@ -521,7 +531,90 @@ async function main() {
 
   console.log('✅ Created Major Prophets sessions')
 
-  console.log('🎉 Chancel database seeded successfully with 30 sessions!')
+  // The Bible Recap Sessions (30 sessions - first month)
+  const bibleRecapReadings = [
+    { day: 1, title: 'Day 1: In the Beginning', passages: [{ book: 'Genesis', chapter: 1, verseStart: 1, verseEnd: 31, note: 'God creates everything good. Notice the pattern and purpose in creation.' }, { book: 'Genesis', chapter: 2, verseStart: 1, verseEnd: 25, note: 'A closer look at humanity\'s creation and purpose.' }, { book: 'Genesis', chapter: 3, verseStart: 1, verseEnd: 24, note: 'The fall changes everything. How does sin affect relationships?' }] },
+    { day: 2, title: 'Day 2: Sin Spreads', passages: [{ book: 'Genesis', chapter: 4, verseStart: 1, verseEnd: 26, note: 'Cain and Abel - the first murder' }, { book: 'Genesis', chapter: 5, verseStart: 1, verseEnd: 32, note: 'Genealogy from Adam to Noah' }, { book: 'Genesis', chapter: 6, verseStart: 1, verseEnd: 22, note: 'God\'s grief over sin and Noah\'s obedience' }, { book: 'Genesis', chapter: 7, verseStart: 1, verseEnd: 24, note: 'The flood comes' }] },
+    { day: 3, title: 'Day 3: God\'s Covenant with Noah', passages: [{ book: 'Genesis', chapter: 8, verseStart: 1, verseEnd: 22, note: 'The waters recede' }, { book: 'Genesis', chapter: 9, verseStart: 1, verseEnd: 29, note: 'God\'s covenant and the rainbow' }, { book: 'Genesis', chapter: 10, verseStart: 1, verseEnd: 32, note: 'Table of nations' }, { book: 'Genesis', chapter: 11, verseStart: 1, verseEnd: 32, note: 'Tower of Babel and Abram\'s family' }] },
+    { day: 4, title: 'Day 4: Job\'s Suffering Begins', passages: [{ book: 'Job', chapter: 1, verseStart: 1, verseEnd: 22, note: 'Job loses everything but doesn\'t curse God' }, { book: 'Job', chapter: 2, verseStart: 1, verseEnd: 13, note: 'Physical suffering and friends arrive' }, { book: 'Job', chapter: 3, verseStart: 1, verseEnd: 26, note: 'Job\'s lament' }] },
+    { day: 5, title: 'Day 5: Job and His Friends Debate', passages: [{ book: 'Job', chapter: 6, verseStart: 1, verseEnd: 30, note: 'Job responds to Eliphaz' }, { book: 'Job', chapter: 7, verseStart: 1, verseEnd: 21, note: 'Job\'s complaint to God' }, { book: 'Job', chapter: 8, verseStart: 1, verseEnd: 22, note: 'Bildad speaks' }, { book: 'Job', chapter: 9, verseStart: 1, verseEnd: 35, note: 'Job responds - God\'s power and justice' }] },
+    { day: 6, title: 'Day 6: The Debate Continues', passages: [{ book: 'Job', chapter: 10, verseStart: 1, verseEnd: 22, note: 'Job questions God\'s purposes' }, { book: 'Job', chapter: 11, verseStart: 1, verseEnd: 20, note: 'Zophar accuses Job' }, { book: 'Job', chapter: 12, verseStart: 1, verseEnd: 25, note: 'Job defends his wisdom' }, { book: 'Job', chapter: 13, verseStart: 1, verseEnd: 28, note: 'Job desires to argue his case with God' }] },
+    { day: 7, title: 'Day 7: Life, Death, and Hope', passages: [{ book: 'Job', chapter: 14, verseStart: 1, verseEnd: 22, note: 'Meditation on mortality and hope' }, { book: 'Job', chapter: 15, verseStart: 1, verseEnd: 35, note: 'Eliphaz\'s second speech' }, { book: 'Job', chapter: 16, verseStart: 1, verseEnd: 22, note: 'Job\'s response - miserable comforters' }] },
+    { day: 8, title: 'Day 8: Job\'s Hope in His Redeemer', passages: [{ book: 'Job', chapter: 17, verseStart: 1, verseEnd: 16, note: 'Job\'s spirit is broken' }, { book: 'Job', chapter: 18, verseStart: 1, verseEnd: 21, note: 'Bildad\'s second speech' }, { book: 'Job', chapter: 19, verseStart: 1, verseEnd: 29, note: 'I know my Redeemer lives!' }, { book: 'Job', chapter: 20, verseStart: 1, verseEnd: 29, note: 'Zophar\'s second speech' }] },
+    { day: 9, title: 'Day 9: Why Do the Wicked Prosper?', passages: [{ book: 'Job', chapter: 21, verseStart: 1, verseEnd: 34, note: 'Job\'s response about the wicked' }, { book: 'Job', chapter: 22, verseStart: 1, verseEnd: 30, note: 'Eliphaz\'s third speech' }, { book: 'Job', chapter: 23, verseStart: 1, verseEnd: 17, note: 'Job longs to find God' }] },
+    { day: 10, title: 'Day 10: Where Can Wisdom Be Found?', passages: [{ book: 'Job', chapter: 24, verseStart: 1, verseEnd: 25, note: 'God seems distant from injustice' }, { book: 'Job', chapter: 25, verseStart: 1, verseEnd: 6, note: 'Bildad\'s third speech' }, { book: 'Job', chapter: 26, verseStart: 1, verseEnd: 14, note: 'Job\'s response about God\'s power' }, { book: 'Job', chapter: 27, verseStart: 1, verseEnd: 23, note: 'Job maintains his integrity' }, { book: 'Job', chapter: 28, verseStart: 1, verseEnd: 28, note: 'The source of wisdom' }] },
+    { day: 11, title: 'Day 11: Job Remembers Better Days', passages: [{ book: 'Job', chapter: 29, verseStart: 1, verseEnd: 25, note: 'Job\'s former blessings' }, { book: 'Job', chapter: 30, verseStart: 1, verseEnd: 31, note: 'Job\'s current suffering' }, { book: 'Job', chapter: 31, verseStart: 1, verseEnd: 40, note: 'Job\'s final defense' }] },
+    { day: 12, title: 'Day 12: Elihu Speaks', passages: [{ book: 'Job', chapter: 32, verseStart: 1, verseEnd: 22, note: 'Elihu\'s introduction' }, { book: 'Job', chapter: 33, verseStart: 1, verseEnd: 33, note: 'Elihu\'s first speech to Job' }, { book: 'Job', chapter: 34, verseStart: 1, verseEnd: 37, note: 'God cannot do wrong' }] },
+    { day: 13, title: 'Day 13: God\'s Justice Defended', passages: [{ book: 'Job', chapter: 35, verseStart: 1, verseEnd: 16, note: 'Elihu continues about God\'s justice' }, { book: 'Job', chapter: 36, verseStart: 1, verseEnd: 33, note: 'God is mighty and just' }, { book: 'Job', chapter: 37, verseStart: 1, verseEnd: 24, note: 'God\'s power in nature' }] },
+    { day: 14, title: 'Day 14: The Lord Answers Job', passages: [{ book: 'Job', chapter: 38, verseStart: 1, verseEnd: 41, note: 'God speaks from the whirlwind' }, { book: 'Job', chapter: 39, verseStart: 1, verseEnd: 30, note: 'God\'s questions about creation continue' }] },
+    { day: 15, title: 'Day 15: Job\'s Restoration', passages: [{ book: 'Job', chapter: 40, verseStart: 1, verseEnd: 24, note: 'Job humbles himself; Behemoth' }, { book: 'Job', chapter: 41, verseStart: 1, verseEnd: 34, note: 'Leviathan and God\'s power' }, { book: 'Job', chapter: 42, verseStart: 1, verseEnd: 17, note: 'Job repents and is restored' }] },
+    { day: 16, title: 'Day 16: The Call of Abram', passages: [{ book: 'Genesis', chapter: 12, verseStart: 1, verseEnd: 20, note: 'God calls Abram to leave his homeland' }, { book: 'Genesis', chapter: 13, verseStart: 1, verseEnd: 18, note: 'Abram and Lot separate' }, { book: 'Genesis', chapter: 14, verseStart: 1, verseEnd: 24, note: 'Abram rescues Lot' }, { book: 'Genesis', chapter: 15, verseStart: 1, verseEnd: 21, note: 'God\'s covenant with Abram' }] },
+    { day: 17, title: 'Day 17: Hagar and Ishmael', passages: [{ book: 'Genesis', chapter: 16, verseStart: 1, verseEnd: 16, note: 'Hagar and Ishmael' }, { book: 'Genesis', chapter: 17, verseStart: 1, verseEnd: 27, note: 'Covenant of circumcision' }, { book: 'Genesis', chapter: 18, verseStart: 1, verseEnd: 33, note: 'Three visitors and Sodom\'s fate' }] },
+    { day: 18, title: 'Day 18: Sodom and Gomorrah', passages: [{ book: 'Genesis', chapter: 19, verseStart: 1, verseEnd: 38, note: 'Destruction of Sodom' }, { book: 'Genesis', chapter: 20, verseStart: 1, verseEnd: 18, note: 'Abraham and Abimelech' }, { book: 'Genesis', chapter: 21, verseStart: 1, verseEnd: 34, note: 'Isaac is born' }] },
+    { day: 19, title: 'Day 19: The Ultimate Test', passages: [{ book: 'Genesis', chapter: 22, verseStart: 1, verseEnd: 24, note: 'Abraham tested - offering of Isaac' }, { book: 'Genesis', chapter: 23, verseStart: 1, verseEnd: 20, note: 'Sarah\'s death' }, { book: 'Genesis', chapter: 24, verseStart: 1, verseEnd: 67, note: 'Finding a wife for Isaac' }] },
+    { day: 20, title: 'Day 20: Jacob and Esau', passages: [{ book: 'Genesis', chapter: 25, verseStart: 1, verseEnd: 34, note: 'Abraham\'s death; Jacob and Esau born' }, { book: 'Genesis', chapter: 26, verseStart: 1, verseEnd: 35, note: 'Isaac and Abimelech' }] },
+    { day: 21, title: 'Day 21: The Stolen Blessing', passages: [{ book: 'Genesis', chapter: 27, verseStart: 1, verseEnd: 46, note: 'Jacob deceives Isaac' }, { book: 'Genesis', chapter: 28, verseStart: 1, verseEnd: 22, note: 'Jacob\'s ladder' }, { book: 'Genesis', chapter: 29, verseStart: 1, verseEnd: 35, note: 'Jacob marries Leah and Rachel' }] },
+    { day: 22, title: 'Day 22: Jacob\'s Family Grows', passages: [{ book: 'Genesis', chapter: 30, verseStart: 1, verseEnd: 43, note: 'More children born to Jacob' }, { book: 'Genesis', chapter: 31, verseStart: 1, verseEnd: 55, note: 'Jacob flees from Laban' }] },
+    { day: 23, title: 'Day 23: Wrestling with God', passages: [{ book: 'Genesis', chapter: 32, verseStart: 1, verseEnd: 32, note: 'Jacob wrestles with God' }, { book: 'Genesis', chapter: 33, verseStart: 1, verseEnd: 20, note: 'Jacob meets Esau' }, { book: 'Genesis', chapter: 34, verseStart: 1, verseEnd: 31, note: 'Dinah and Shechem' }] },
+    { day: 24, title: 'Day 24: Return to Bethel', passages: [{ book: 'Genesis', chapter: 35, verseStart: 1, verseEnd: 29, note: 'Return to Bethel; Rachel dies' }, { book: 'Genesis', chapter: 36, verseStart: 1, verseEnd: 43, note: 'Esau\'s descendants' }, { book: 'Genesis', chapter: 37, verseStart: 1, verseEnd: 36, note: 'Joseph\'s dreams; sold into slavery' }] },
+    { day: 25, title: 'Day 25: Joseph in Egypt', passages: [{ book: 'Genesis', chapter: 38, verseStart: 1, verseEnd: 30, note: 'Judah and Tamar' }, { book: 'Genesis', chapter: 39, verseStart: 1, verseEnd: 23, note: 'Joseph and Potiphar\'s wife' }, { book: 'Genesis', chapter: 40, verseStart: 1, verseEnd: 23, note: 'Joseph interprets dreams in prison' }] },
+    { day: 26, title: 'Day 26: Pharaoh\'s Dreams', passages: [{ book: 'Genesis', chapter: 41, verseStart: 1, verseEnd: 57, note: 'Joseph interprets Pharaoh\'s dreams and rises to power' }, { book: 'Genesis', chapter: 42, verseStart: 1, verseEnd: 38, note: 'Joseph\'s brothers come to Egypt' }] },
+    { day: 27, title: 'Day 27: The Brothers Return', passages: [{ book: 'Genesis', chapter: 43, verseStart: 1, verseEnd: 34, note: 'The second journey to Egypt' }, { book: 'Genesis', chapter: 44, verseStart: 1, verseEnd: 34, note: 'Joseph\'s silver cup' }, { book: 'Genesis', chapter: 45, verseStart: 1, verseEnd: 28, note: 'Joseph reveals himself' }] },
+    { day: 28, title: 'Day 28: Jacob Goes to Egypt', passages: [{ book: 'Genesis', chapter: 46, verseStart: 1, verseEnd: 34, note: 'Jacob\'s family moves to Egypt' }, { book: 'Genesis', chapter: 47, verseStart: 1, verseEnd: 31, note: 'Jacob blesses Pharaoh' }] },
+    { day: 29, title: 'Day 29: Jacob\'s Final Blessings', passages: [{ book: 'Genesis', chapter: 48, verseStart: 1, verseEnd: 22, note: 'Jacob blesses Joseph\'s sons' }, { book: 'Genesis', chapter: 49, verseStart: 1, verseEnd: 33, note: 'Jacob blesses his sons' }, { book: 'Genesis', chapter: 50, verseStart: 1, verseEnd: 26, note: 'Jacob and Joseph die' }] },
+    { day: 30, title: 'Day 30: The Birth of Moses', passages: [{ book: 'Exodus', chapter: 1, verseStart: 1, verseEnd: 22, note: 'Israel oppressed in Egypt' }, { book: 'Exodus', chapter: 2, verseStart: 1, verseEnd: 25, note: 'Moses born and flees to Midian' }, { book: 'Exodus', chapter: 3, verseStart: 1, verseEnd: 22, note: 'The burning bush' }] },
+  ]
+
+  // Map of day numbers to YouTube video IDs (Days 1-30)
+  const videoIds: { [key: number]: string } = {
+    1: 'CRUkCdeNyx4', 2: '4tO6lLJIupU', 3: 'GbcOo32jzKI', 4: 'LPzYYTBHQxM', 5: '9GsCXGB4k1E',
+    6: 'F544F5PDY8s', 7: '3yEZTtGVt5s', 8: '1OfvtCxWZlM', 9: 'bLYmgYQ-PJM', 10: '2KUHTE6go0M',
+    11: 'CHYwdj6GA4A', 12: 'E_wLePwUcnw', 13: 'FBt52ZiT2NE', 14: '74Qpl1zM16I', 15: '8B5fw8-BDl0',
+    16: 'cIwDz3RwA0I', 17: 'eN2_MupAa9w', 18: 'beFeQ7skfFA', 19: 'F3OsPJH9ZCs', 20: 'EyMBGsXbUb0',
+    21: '6H476Kc25uA', 22: '0fMukHdZUMg', 23: '5yauOVwPbko', 24: '1-PkQpbxAUI', 25: '5pdhaYUyrM0',
+    26: '6_J7CC5RD78', 27: 'BlMOnn2gevg', 28: 'cntFbqOXNYg', 29: '7EG9AJt1IM8', 30: '4myOX0CH1ZQ'
+  }
+
+  for (const reading of bibleRecapReadings) {
+    await prisma.session.create({
+      data: {
+        title: reading.title,
+        description: `Day ${reading.day} of The Bible Recap chronological reading plan.`,
+        startDate: getDate(reading.day - 1),
+        endDate: getDate(reading.day),
+        visibility: SessionVisibility.PUBLIC,
+        imageUrl: 'https://www.bible.com/_next/image?url=https%3A%2F%2Fimageproxy.youversionapi.com%2Fhttps%3A%2F%2Fs3.amazonaws.com%2Fyvplans%2F17553%2F1280x720.jpg&w=3840&q=75',
+        leaderId: leader.id,
+        seriesId: bibleRecap.id,
+        scripturePassages: {
+          create: reading.passages.map((passage, index) => ({
+            book: passage.book,
+            chapter: passage.chapter,
+            verseStart: passage.verseStart,
+            verseEnd: passage.verseEnd,
+            content: '',
+            note: passage.note,
+            order: index,
+          })),
+        },
+        resources: {
+          create: [{
+            fileName: `The Bible Recap - Day ${String(reading.day).padStart(3, '0')}`,
+            fileUrl: `https://www.youtube.com/watch?v=${videoIds[reading.day]}&list=PLkgWIAVOhHuAVwyG587rctAbAuWFtAv1D`,
+            fileType: 'video/url',
+            resourceType: 'VIDEO_YOUTUBE',
+            videoId: videoIds[reading.day],
+            description: 'Watch Tara-Leigh Cobble\'s daily recap and study notes for today\'s reading.',
+            uploadedBy: leader.id,
+          }],
+        },
+      },
+    })
+  }
+
+  console.log('✅ Created Bible Recap sessions (30 days)')
+
+  console.log('🎉 Chancel database seeded successfully with 60 sessions!')
   console.log('\n📖 Sacred space. Shared study.')
   console.log('\nTest Credentials:')
   console.log('Leader: leader@example.com / password')
@@ -534,7 +627,8 @@ async function main() {
   console.log('- Psalms (4 sessions)')
   console.log('- Wisdom Literature (4 sessions)')
   console.log('- Major Prophets (3 sessions)')
-  console.log('Total: 30 sessions')
+  console.log('- The Bible Recap (30 sessions - first month)')
+  console.log('Total: 60 sessions')
 }
 
 main()

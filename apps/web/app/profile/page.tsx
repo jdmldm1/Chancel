@@ -1,12 +1,11 @@
 'use client'
 
-import { useQuery } from '@apollo/client/react'
-import { gql } from '@apollo/client'
+import { useGraphQLQuery } from '@/lib/graphql-client-new'
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
-const ME_QUERY = gql`
+const ME_QUERY = `
   query Me {
     me {
       id
@@ -26,7 +25,7 @@ const ME_QUERY = gql`
 export default function ProfilePage() {
   const router = useRouter()
   const { data: session, status } = useSession()
-  const { data, loading } = useQuery<{ me: { id: string; name: string; email: string; role: string; createdAt: string }; mySessions: Array<{ id: string; title: string; startDate: string }> }>(ME_QUERY)
+  const { data, loading } = useGraphQLQuery<{ me: { id: string; name: string; email: string; role: string; createdAt: string }; mySessions: Array<{ id: string; title: string; startDate: string }> }>(ME_QUERY)
 
   if (status === 'loading' || loading) {
     return (

@@ -1,12 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { gql } from '@apollo/client'
-import { useMutation } from '@apollo/client/react'
+import { useGraphQLMutation } from '@/lib/graphql-client-new'
 import { useToast } from '@/components/ui/toast'
 import { useRouter } from 'next/navigation'
 
-const JOIN_BY_CODE_MUTATION = gql`
+const JOIN_BY_CODE_MUTATION = `
   mutation JoinSessionByCode($joinCode: String!) {
     joinSessionByCode(joinCode: $joinCode) {
       participant {
@@ -38,7 +37,7 @@ interface JoinByCodeModalProps {
 
 export default function JoinByCodeModal({ isOpen, onClose }: JoinByCodeModalProps) {
   const [joinCode, setJoinCode] = useState('')
-  const [joinByCode, { loading }] = useMutation<any>(JOIN_BY_CODE_MUTATION)
+  const [joinByCode, { loading }] = useGraphQLMutation<any>(JOIN_BY_CODE_MUTATION)
   const { addToast } = useToast()
   const router = useRouter()
 
@@ -57,7 +56,7 @@ export default function JoinByCodeModal({ isOpen, onClose }: JoinByCodeModalProp
 
     try {
       const result = await joinByCode({
-        variables: { joinCode: cleanCode },
+        joinCode: cleanCode,
       })
 
       const data = result.data?.joinSessionByCode

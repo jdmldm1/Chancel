@@ -1,8 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { gql } from '@apollo/client'
-import { useMutation } from '@apollo/client/react'
+import { useGraphQLMutation } from '@/lib/graphql-client-new'
 import { useSession } from 'next-auth/react'
 import {
   CreateCommentMutation,
@@ -14,7 +13,7 @@ import {
   GetSessionQuery
 } from '@bibleproject/types/src/graphql'
 
-const CREATE_COMMENT = gql`
+const CREATE_COMMENT = `
   mutation CreateComment($input: CreateCommentInput!) {
     createComment(input: $input) {
       id
@@ -31,7 +30,7 @@ const CREATE_COMMENT = gql`
   }
 `
 
-const UPDATE_COMMENT = gql`
+const UPDATE_COMMENT = `
   mutation UpdateComment($id: ID!, $input: UpdateCommentInput!) {
     updateComment(id: $id, input: $input) {
       id
@@ -41,7 +40,7 @@ const UPDATE_COMMENT = gql`
   }
 `
 
-const DELETE_COMMENT = gql`
+const DELETE_COMMENT = `
   mutation DeleteComment($id: ID!) {
     deleteComment(id: $id)
   }
@@ -72,10 +71,9 @@ export default function CommentItem({
 
   const isOwner = session?.user?.id === comment.user.id
 
-  const [createComment, { loading }] = useMutation<CreateCommentMutation, CreateCommentMutationVariables>(
+  const [createComment, { loading }] = useGraphQLMutation<CreateCommentMutation, CreateCommentMutationVariables>(
     CREATE_COMMENT,
     {
-      refetchQueries: ['GetSession'],
       onCompleted: () => {
         setReplyContent('')
         setShowReplyForm(false)
@@ -83,20 +81,18 @@ export default function CommentItem({
     }
   )
 
-  const [updateComment, { loading: updating }] = useMutation<UpdateCommentMutation, UpdateCommentMutationVariables>(
+  const [updateComment, { loading: updating }] = useGraphQLMutation<UpdateCommentMutation, UpdateCommentMutationVariables>(
     UPDATE_COMMENT,
     {
-      refetchQueries: ['GetSession'],
       onCompleted: () => {
         setIsEditing(false)
       },
     }
   )
 
-  const [deleteComment, { loading: deleting }] = useMutation<DeleteCommentMutation, DeleteCommentMutationVariables>(
+  const [deleteComment, { loading: deleting }] = useGraphQLMutation<DeleteCommentMutation, DeleteCommentMutationVariables>(
     DELETE_COMMENT,
     {
-      refetchQueries: ['GetSession'],
     }
   )
 
@@ -105,13 +101,11 @@ export default function CommentItem({
     if (!replyContent.trim() || !session) return
 
     await createComment({
-      variables: {
-        input: {
-          content: replyContent.trim(),
-          passageId,
-          sessionId,
-          parentId: comment.id,
-        },
+      input: {
+        content: replyContent.trim(),
+        passageId,
+        sessionId,
+        parentId: comment.id,
       },
     })
   }
@@ -121,11 +115,9 @@ export default function CommentItem({
     if (!editContent.trim()) return
 
     await updateComment({
-      variables: {
-        id: comment.id,
-        input: {
-          content: editContent.trim(),
-        },
+      id: comment.id,
+      input: {
+        content: editContent.trim(),
       },
     })
   }
@@ -134,7 +126,7 @@ export default function CommentItem({
     if (!confirm('Are you sure you want to delete this comment?')) return
 
     await deleteComment({
-      variables: { id: comment.id },
+      id: comment.id,
     })
   }
 

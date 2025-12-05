@@ -4,13 +4,12 @@ import React, { useState, useEffect } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
-import { gql } from '@apollo/client'
-import { useMutation, useQuery } from '@apollo/client/react'
+import { useGraphQLQuery, useGraphQLMutation } from '@/lib/graphql-client-new'
 import { CreateSessionMutation, CreateSessionMutationVariables, UpdateSessionMutation, UpdateSessionMutationVariables } from '@bibleproject/types/src/graphql'
 import { BIBLE_BOOKS, getChapterCount, getVerseCount, getLastVerseInBook } from '@/src/lib/bible-books'
 import { useToast } from '@/components/ui/toast'
 
-const CREATE_SESSION = gql`
+const CREATE_SESSION = `
   mutation CreateSession($input: CreateSessionInput!) {
     createSession(input: $input) {
       id
@@ -37,7 +36,7 @@ const CREATE_SESSION = gql`
   }
 `
 
-const UPDATE_SESSION = gql`
+const UPDATE_SESSION = `
   mutation UpdateSession($id: ID!, $input: UpdateSessionInput!) {
     updateSession(id: $id, input: $input) {
       id
@@ -51,7 +50,7 @@ const UPDATE_SESSION = gql`
   }
 `
 
-const GET_MY_SERIES = gql`
+const GET_MY_SERIES = `
   query GetMySeries {
     mySeries {
       id
@@ -62,7 +61,7 @@ const GET_MY_SERIES = gql`
   }
 `
 
-const CREATE_SERIES = gql`
+const CREATE_SERIES = `
   mutation CreateSeries($input: CreateSeriesInput!) {
     createSeries(input: $input) {
       id
@@ -125,12 +124,11 @@ type FormData = z.infer<typeof formSchema>
 
 export default function SessionForm({ session, onSuccess }: SessionFormProps) {
   const { addToast } = useToast()
-  const [createSession] = useMutation<CreateSessionMutation, CreateSessionMutationVariables>(CREATE_SESSION)
-  const [updateSession] = useMutation<UpdateSessionMutation, UpdateSessionMutationVariables>(UPDATE_SESSION)
-  const [createSeries] = useMutation<any>(CREATE_SERIES, {
-    refetchQueries: [{ query: GET_MY_SERIES }],
+  const [createSession] = useGraphQLMutation<CreateSessionMutation, CreateSessionMutationVariables>(CREATE_SESSION)
+  const [updateSession] = useGraphQLMutation<UpdateSessionMutation, UpdateSessionMutationVariables>(UPDATE_SESSION)
+  const [createSeries] = useGraphQLMutation<any>(CREATE_SERIES, {
   })
-  const { data: seriesData } = useQuery<any>(GET_MY_SERIES)
+  const { data: seriesData } = useGraphQLQuery<any>(GET_MY_SERIES)
   const [showNewSeriesInput, setShowNewSeriesInput] = useState(false)
   const [uploadingSessionImage, setUploadingSessionImage] = useState(false)
   const [uploadingSeriesImage, setUploadingSeriesImage] = useState(false)
@@ -239,11 +237,9 @@ export default function SessionForm({ session, onSuccess }: SessionFormProps) {
       // Create new series if requested
       if (data.newSeriesTitle && data.newSeriesTitle.trim()) {
         const result = await createSeries({
-          variables: {
-            input: {
-              title: data.newSeriesTitle.trim(),
-              imageUrl: data.newSeriesImageUrl?.trim() || null,
-            },
+          input: {
+            title: data.newSeriesTitle.trim(),
+            imageUrl: data.newSeriesImageUrl?.trim() || null,
           },
         })
         seriesId = result.data.createSeries.id
@@ -271,19 +267,17 @@ export default function SessionForm({ session, onSuccess }: SessionFormProps) {
 
       if (session) {
         await updateSession({
-          variables: {
-            id: session.id,
-            input: {
-              title: input.title,
-              description: input.description,
-              startDate: input.startDate,
-              endDate: input.endDate,
-              seriesId: input.seriesId,
-              visibility: input.visibility as any,
-              sessionType: input.sessionType as any,
-              videoCallUrl: input.videoCallUrl,
-              imageUrl: input.imageUrl,
-            }
+          id: session.id,
+          input: {
+            title: input.title,
+            description: input.description,
+            startDate: input.startDate,
+            endDate: input.endDate,
+            seriesId: input.seriesId,
+            visibility: input.visibility as any,
+            sessionType: input.sessionType as any,
+            videoCallUrl: input.videoCallUrl,
+            imageUrl: input.imageUrl,
           },
         })
         addToast({
@@ -293,7 +287,7 @@ export default function SessionForm({ session, onSuccess }: SessionFormProps) {
         })
       } else {
         await createSession({
-          variables: { input },
+          input,
         })
         addToast({
           type: 'success',

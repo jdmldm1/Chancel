@@ -1,12 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { useQuery } from '@apollo/client/react'
-import { gql } from '@apollo/client'
+import { useGraphQLQuery } from '@/lib/graphql-client-new'
 import { useRouter } from 'next/navigation'
 import { useSession } from 'next-auth/react'
 
-const BIBLE_BOOKS_QUERY = gql`
+const BIBLE_BOOKS_QUERY = `
   query BibleBooks {
     bibleBooks {
       name
@@ -16,7 +15,7 @@ const BIBLE_BOOKS_QUERY = gql`
   }
 `
 
-const BIBLE_PASSAGES_QUERY = gql`
+const BIBLE_PASSAGES_QUERY = `
   query BiblePassages($book: String!, $chapter: Int!) {
     biblePassages(book: $book, chapter: $chapter) {
       id
@@ -30,7 +29,7 @@ const BIBLE_PASSAGES_QUERY = gql`
   }
 `
 
-const SEARCH_BIBLE_QUERY = gql`
+const SEARCH_BIBLE_QUERY = `
   query SearchBible($query: String!) {
     searchBible(query: $query) {
       id
@@ -69,18 +68,18 @@ export default function BrowseBiblePage() {
   const [searchQuery, setSearchQuery] = useState('')
   const [activeTab, setActiveTab] = useState<'browse' | 'search'>('browse')
 
-  const { data: booksData, loading: booksLoading } = useQuery<{
+  const { data: booksData, loading: booksLoading } = useGraphQLQuery<{
     bibleBooks: BibleBook[]
   }>(BIBLE_BOOKS_QUERY)
 
-  const { data: passagesData, loading: passagesLoading } = useQuery<{
+  const { data: passagesData, loading: passagesLoading } = useGraphQLQuery<{
     biblePassages: BiblePassage[]
   }>(BIBLE_PASSAGES_QUERY, {
     variables: { book: selectedBook || '', chapter: selectedChapter || 1 },
     skip: !selectedBook || !selectedChapter,
   })
 
-  const { data: searchData, loading: searchLoading } = useQuery<{
+  const { data: searchData, loading: searchLoading } = useGraphQLQuery<{
     searchBible: BiblePassage[]
   }>(SEARCH_BIBLE_QUERY, {
     variables: { query: searchQuery },

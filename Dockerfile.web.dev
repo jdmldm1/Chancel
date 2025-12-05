@@ -1,0 +1,36 @@
+# Development Dockerfile for Next.js web application
+# This runs in development mode to avoid Apollo Client production build issues
+
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Install OpenSSL for Prisma
+RUN apk add --no-cache openssl libc6-compat
+
+# Copy package files
+COPY package*.json ./
+COPY apps/web/package*.json ./apps/web/
+COPY packages/db/package*.json ./packages/db/
+COPY packages/types/package*.json ./packages/types/
+COPY packages/auth/package*.json ./packages/auth/
+
+# Install dependencies
+RUN npm ci --workspaces
+
+# Copy source code
+COPY . .
+
+# Generate Prisma client
+RUN npx prisma generate --schema=./packages/db/prisma/schema.prisma
+
+# Set environment
+ENV NODE_ENV=development
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+EXPOSE 3000
+
+# Run in development mode (this avoids Apollo Client production build issues)
+CMD ["npm", "run", "dev", "--workspace=web"]

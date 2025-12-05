@@ -1,14 +1,13 @@
 'use client'
 
-import { useQuery, useMutation } from '@apollo/client/react'
-import { gql } from '@apollo/client'
+import { useGraphQLQuery, useGraphQLMutation } from '@/lib/graphql-client-new'
 import { useSession } from 'next-auth/react'
 import { useRouter, useParams } from 'next/navigation'
 import Link from 'next/link'
 import { useState } from 'react'
 import { useToast } from '@/components/ui/toast'
 
-const SERIES_QUERY = gql`
+const SERIES_QUERY = `
   query Series($id: ID!) {
     series(id: $id) {
       id
@@ -40,7 +39,7 @@ const SERIES_QUERY = gql`
   }
 `
 
-const UPDATE_SERIES_MUTATION = gql`
+const UPDATE_SERIES_MUTATION = `
   mutation UpdateSeries($id: ID!, $input: UpdateSeriesInput!) {
     updateSeries(id: $id, input: $input) {
       id
@@ -51,7 +50,7 @@ const UPDATE_SERIES_MUTATION = gql`
   }
 `
 
-const DELETE_SESSION_MUTATION = gql`
+const DELETE_SESSION_MUTATION = `
   mutation DeleteSession($id: ID!) {
     deleteSession(id: $id) {
       id
@@ -97,12 +96,12 @@ export default function SeriesDetailPage() {
     imageUrl: '',
   })
 
-  const { data, loading, refetch } = useQuery<{ series: Series }>(SERIES_QUERY, {
+  const { data, loading, refetch } = useGraphQLQuery<{ series: Series }>(SERIES_QUERY, {
     variables: { id: params.id },
   })
 
-  const [updateSeries, { loading: updating }] = useMutation(UPDATE_SERIES_MUTATION)
-  const [deleteSession] = useMutation(DELETE_SESSION_MUTATION)
+  const [updateSeries, { loading: updating }] = useGraphQLMutation(UPDATE_SERIES_MUTATION)
+  const [deleteSession] = useGraphQLMutation(DELETE_SESSION_MUTATION)
 
   if (status === 'loading' || loading) {
     return (
@@ -153,15 +152,13 @@ export default function SeriesDetailPage() {
 
     try {
       await updateSeries({
-        variables: {
           id: series.id,
           input: {
             title: formData.title,
             description: formData.description || null,
             imageUrl: formData.imageUrl || null,
           },
-        },
-      })
+        })
 
       addToast({ type: 'success', message: 'Series updated successfully!' })
       setShowEditModal(false)
@@ -176,7 +173,7 @@ export default function SeriesDetailPage() {
     if (!confirm(`Remove "${title}" from this series?`)) return
 
     try {
-      await deleteSession({ variables: { id: sessionId } })
+      await deleteSession({ id: sessionId })
       addToast({ type: 'success', message: 'Session removed from series' })
       refetch()
     } catch (error) {

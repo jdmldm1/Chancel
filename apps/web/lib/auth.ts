@@ -15,22 +15,9 @@ const signInSchema = z.object({
 })
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  trustHost: true,
+  useSecureCookies: false, // Disabled for homelab HTTP access
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
-      allowDangerousEmailAccountLinking: true,
-    }),
-    FacebookProvider({
-      clientId: process.env.FACEBOOK_CLIENT_ID || '',
-      clientSecret: process.env.FACEBOOK_CLIENT_SECRET || '',
-      allowDangerousEmailAccountLinking: true,
-    }),
-    AppleProvider({
-      clientId: process.env.APPLE_CLIENT_ID || '',
-      clientSecret: process.env.APPLE_CLIENT_SECRET || '',
-      allowDangerousEmailAccountLinking: true,
-    }),
     Credentials({
       credentials: {
         email: { label: 'Email', type: 'email' },
@@ -80,32 +67,63 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         }
       },
     }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || '',
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+      allowDangerousEmailAccountLinking: true,
+    }),
+    FacebookProvider({
+      clientId: process.env.FACEBOOK_CLIENT_ID || '',
+      clientSecret: process.env.FACEBOOK_CLIENT_SECRET || '',
+      allowDangerousEmailAccountLinking: true,
+    }),
+    AppleProvider({
+      clientId: process.env.APPLE_CLIENT_ID || '',
+      clientSecret: process.env.APPLE_CLIENT_SECRET || '',
+      allowDangerousEmailAccountLinking: true,
+    }),
   ],
   callbacks: {
     async redirect({ url, baseUrl }) {
+      console.log('Redirect callback - url:', url, 'baseUrl:', baseUrl)
       // After sign in, redirect to dashboard
       if (url === baseUrl || url === `${baseUrl}/` || url === `${baseUrl}/auth/login`) {
+        console.log('Redirecting to dashboard')
         return `${baseUrl}/dashboard`
       }
       // Allow callback URLs on the same origin
       if (url.startsWith(baseUrl)) {
+        console.log('Redirecting to requested URL:', url)
         return url
       }
+      console.log('Redirecting to baseUrl:', baseUrl)
       return baseUrl
     },
     async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id
-        token.role = user.role
+      try {
+        if (user) {
+          token.id = user.id
+          token.role = user.role
+          console.log('JWT callback: token created with id:', user.id, 'role:', user.role)
+        }
+        return token
+      } catch (error) {
+        console.error('JWT callback error:', error)
+        throw error
       }
-      return token
     },
     async session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string
-        session.user.role = token.role as string
+      try {
+        if (session.user) {
+          session.user.id = token.id as string
+          session.user.role = token.role as string
+          console.log('Session callback: session updated with id:', token.id)
+        }
+        return session
+      } catch (error) {
+        console.error('Session callback error:', error)
+        throw error
       }
-      return session
     },
   },
   pages: {
@@ -122,7 +140,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         httpOnly: true,
         sameSite: 'lax',
         path: '/',
-        secure: process.env.NODE_ENV === 'production',
+        secure: false, // Disabled for homelab HTTP access
         maxAge: 30 * 24 * 60 * 60, // 30 days
       },
     },
