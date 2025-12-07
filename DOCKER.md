@@ -16,13 +16,13 @@ cp .env.docker.example .env
 nano .env  # or your preferred editor
 
 # 3. Start all services
-docker-compose up -d
+docker compose up -d
 
 # 4. Run database migrations
-docker-compose exec api npx prisma migrate deploy --schema=./packages/db/prisma/schema.prisma
+docker compose exec api npx prisma migrate deploy --schema=./packages/db/prisma/schema.prisma
 
 # 5. (Optional) Seed Bible data
-docker-compose exec api npx tsx packages/db/prisma/seed-bible-api.ts --test
+docker compose exec api npx tsx packages/db/prisma/seed-bible-api.ts --test
 ```
 
 Access the application at:
@@ -36,7 +36,7 @@ Run just the database in Docker, run app locally:
 
 ```bash
 # Start database
-docker-compose -f docker-compose.dev.yml up -d
+docker compose -f docker compose.dev.yml up -d
 
 # In another terminal, run the app locally
 npm run dev
@@ -44,7 +44,7 @@ npm run dev
 
 ## Services
 
-The full docker-compose stack includes:
+The full docker compose stack includes:
 
 1. **postgres** - PostgreSQL 16 database
 2. **api** - GraphQL API server (Node.js)
@@ -78,68 +78,68 @@ openssl rand -base64 32
 ### Start Services
 ```bash
 # Start in background
-docker-compose up -d
+docker compose up -d
 
 # Start with logs
-docker-compose up
+docker compose up
 
 # Start specific service
-docker-compose up -d postgres
+docker compose up -d postgres
 ```
 
 ### Stop Services
 ```bash
 # Stop all
-docker-compose down
+docker compose down
 
 # Stop and remove volumes (⚠️ deletes data)
-docker-compose down -v
+docker compose down -v
 ```
 
 ### View Logs
 ```bash
 # All services
-docker-compose logs -f
+docker compose logs -f
 
 # Specific service
-docker-compose logs -f web
-docker-compose logs -f api
-docker-compose logs -f postgres
+docker compose logs -f web
+docker compose logs -f api
+docker compose logs -f postgres
 ```
 
 ### Run Commands Inside Containers
 ```bash
 # Database migrations
-docker-compose exec api npx prisma migrate deploy --schema=./packages/db/prisma/schema.prisma
+docker compose exec api npx prisma migrate deploy --schema=./packages/db/prisma/schema.prisma
 
 # Seed database
-docker-compose exec api npm run db:seed
+docker compose exec api npm run db:seed
 
 # Import Bible data
-docker-compose exec api npx tsx packages/db/prisma/seed-bible-api.ts --resume --yes
+docker compose exec api npx tsx packages/db/prisma/seed-bible-api.ts --resume --yes
 
 # Open Prisma Studio
-docker-compose exec api npx prisma studio --schema=./packages/db/prisma/schema.prisma
+docker compose exec api npx prisma studio --schema=./packages/db/prisma/schema.prisma
 
 # Access PostgreSQL
-docker-compose exec postgres psql -U chancel -d chancel
+docker compose exec postgres psql -U chancel -d chancel
 
 # Shell into container
-docker-compose exec web sh
-docker-compose exec api sh
+docker compose exec web sh
+docker compose exec api sh
 ```
 
 ### Rebuild Containers
 ```bash
 # Rebuild all
-docker-compose build
+docker compose build
 
 # Rebuild specific service
-docker-compose build web
-docker-compose build api
+docker compose build web
+docker compose build api
 
 # Rebuild and start
-docker-compose up -d --build
+docker compose up -d --build
 ```
 
 ## Development Workflow
@@ -148,7 +148,7 @@ docker-compose up -d --build
 
 ```bash
 # 1. Start database
-docker-compose -f docker-compose.dev.yml up -d
+docker compose -f docker compose.dev.yml up -d
 
 # 2. Run migrations
 npm run db:push
@@ -164,13 +164,13 @@ npm run dev
 
 ```bash
 # 1. Build images
-docker-compose build
+docker compose build
 
 # 2. Start services
-docker-compose up -d
+docker compose up -d
 
 # 3. Check logs
-docker-compose logs -f
+docker compose logs -f
 ```
 
 ## Production Deployment
@@ -180,7 +180,7 @@ docker-compose logs -f
 1. **Use environment-specific compose files**
    ```bash
    # Production
-   docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+   docker compose -f docker compose.yml -f docker compose.prod.yml up -d
    ```
 
 2. **Use secrets management**
@@ -196,10 +196,10 @@ docker-compose logs -f
 4. **Database backups**
    ```bash
    # Backup
-   docker-compose exec postgres pg_dump -U chancel chancel > backup.sql
+   docker compose exec postgres pg_dump -U chancel chancel > backup.sql
 
    # Restore
-   docker-compose exec -T postgres psql -U chancel chancel < backup.sql
+   docker compose exec -T postgres psql -U chancel chancel < backup.sql
    ```
 
 5. **Monitoring**
@@ -225,21 +225,21 @@ DB_PORT=5433
 ### Database Connection Issues
 ```bash
 # Check if database is healthy
-docker-compose ps
+docker compose ps
 
 # View database logs
-docker-compose logs postgres
+docker compose logs postgres
 
 # Test connection
-docker-compose exec postgres pg_isready -U chancel
+docker compose exec postgres pg_isready -U chancel
 ```
 
 ### Build Failures
 ```bash
 # Clean everything and rebuild
-docker-compose down -v
+docker compose down -v
 docker system prune -a
-docker-compose build --no-cache
+docker compose build --no-cache
 ```
 
 ### Permission Issues
@@ -252,14 +252,14 @@ sudo chown -R $USER:$USER .
 
 1. **Use BuildKit** for faster builds:
    ```bash
-   DOCKER_BUILDKIT=1 docker-compose build
+   DOCKER_BUILDKIT=1 docker compose build
    ```
 
 2. **Multi-stage builds** are already configured in Dockerfiles
 
 3. **Volume mounts** for development:
    ```yaml
-   # In docker-compose.override.yml
+   # In docker compose.override.yml
    services:
      web:
        volumes:

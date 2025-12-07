@@ -4,11 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "dev": "turbo run dev"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "packageManager": "npm@10.8.2",
   "workspaces": [
     "apps/*",
     "packages/*"
@@ -17,6 +19,7 @@
     "graphql-ws": "^5.16.0"
   },
   "devDependencies": {
+    "turbo": "^2.6.3",
     "typescript": "^5.9.3"
   }
 }
