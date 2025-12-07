@@ -8,16 +8,16 @@ The easiest way is to use the API-based seed script:
 
 ```bash
 # Test mode - import first 5 books only (recommended for testing)
-npx tsx packages/db/prisma/seed-bible-api.ts --test
+npm -w @bibleproject/db run db:seed:bible:test
 
 # Import the entire Bible (takes 10-20 minutes)
-npx tsx packages/db/prisma/seed-bible-api.ts --yes
+npm -w @bibleproject/db run db:seed:bible -- --yes
 
 # Import first 10 books
-npx tsx packages/db/prisma/seed-bible-api.ts --books 10 --yes
+npm -w @bibleproject/db run db:seed:bible -- --books 10 --yes
 
 # Fast mode (less delay between requests)
-npx tsx packages/db/prisma/seed-bible-api.ts --fast --yes
+npm -w @bibleproject/db run db:seed:bible -- --fast --yes
 ```
 
 ## What the Script Does
@@ -100,13 +100,13 @@ psql $DATABASE_URL -c "SELECT book, COUNT(*) FROM \"ScriptureLibrary\" GROUP BY 
 ```bash
 # 1. Test with a few books first
 cd /path/to/BibleStudy
-npx tsx packages/db/prisma/seed-bible-api.ts --test
+npm -w @bibleproject/db run db:seed:bible:test
 
 # 2. If that works, import the entire Bible
-npx tsx packages/db/prisma/seed-bible-api.ts --yes
+npm -w @bibleproject/db run db:seed:bible -- --yes
 
 # 3. Verify in Prisma Studio
-npx prisma studio
+npm -w @bibleproject/db run db:studio
 ```
 
 ## Statistics

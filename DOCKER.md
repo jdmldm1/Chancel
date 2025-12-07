@@ -36,7 +36,7 @@ Run just the database in Docker, run app locally:
 
 ```bash
 # Start database
-docker compose -f docker compose.dev.yml up -d
+docker compose -f docker-compose.dev.yml up -d
 
 # In another terminal, run the app locally
 npm run dev
@@ -148,13 +148,13 @@ docker compose up -d --build
 
 ```bash
 # 1. Start database
-docker compose -f docker compose.dev.yml up -d
+docker compose -f docker-compose.dev.yml up -d
 
 # 2. Run migrations
-npm run db:push
+npm -w @bibleproject/db run db:push
 
 # 3. Seed data
-npm run db:seed
+npm -w @bibleproject/db run db:seed
 
 # 4. Start dev servers
 npm run dev

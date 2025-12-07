@@ -18,10 +18,10 @@ npm install
 
 ```bash
 # Push the schema to your database (includes ScriptureLibrary table)
-npm run db:push
+npm -w @bibleproject/db run db:push
 
 # Seed with sample session data
-npm run db:seed
+npm -w @bibleproject/db run db:seed
 ```
 
 ## Step 3: Import Bible Data
@@ -33,7 +33,7 @@ You have two options:
 Import just 5 books to test the feature:
 
 ```bash
-npm run db:seed:bible:test
+npm -w @bibleproject/db run db:seed:bible:test
 ```
 
 This takes about 2-3 minutes and imports Genesis, Exodus, Leviticus, Numbers, and Deuteronomy.
@@ -43,7 +43,7 @@ This takes about 2-3 minutes and imports Genesis, Exodus, Leviticus, Numbers, an
 Import all 66 books of the Bible:
 
 ```bash
-npm run db:seed:bible -- --yes
+npm -w @bibleproject/db run db:seed:bible -- --yes
 ```
 
 ⚠️ **Note**: This takes 10-20 minutes and makes ~1,189 API requests to bible-api.com
@@ -52,10 +52,10 @@ npm run db:seed:bible -- --yes
 
 ```bash
 # Import first 10 books only
-npm run db:seed:bible -- --books 10 --yes
+npm -w @bibleproject/db run db:seed:bible -- --books 10 --yes
 
 # Fast mode (less delay between requests)
-npm run db:seed:bible -- --fast --yes
+npm -w @bibleproject/db run db:seed:bible -- --fast --yes
 ```
 
 ## Step 4: Generate GraphQL Types
@@ -115,7 +115,7 @@ This starts:
 After importing, verify the data in Prisma Studio:
 
 ```bash
-npx prisma studio
+npm -w @bibleproject/db run db:studio
 ```
 
 Navigate to the `ScriptureLibrary` table and you should see:
@@ -127,7 +127,7 @@ Navigate to the `ScriptureLibrary` table and you should see:
 ### "No Bible data available" message
 
 **Cause**: ScriptureLibrary table is empty
-**Solution**: Run `npm run db:seed:bible:test` to import Bible data
+**Solution**: Run `npm -w @bibleproject/db run db:seed:bible:test` to import Bible data
 
 ### Build errors after adding features
 

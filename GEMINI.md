@@ -58,6 +58,7 @@ The project has completed its foundational and core feature development phases. 
 *   Node.js 18+
 *   PostgreSQL 14+
 *   npm
+*   turbo (run `npm install -g turbo`)
 
 ### 1. Installation
 
@@ -72,8 +73,8 @@ Create a PostgreSQL database and configure the `DATABASE_URL` in a `.env` file (
 ### 3. Initialize Database
 
 ```bash
-npm run db:push
-npm run db:seed
+npm -w @bibleproject/db run db:push
+npm -w @bibleproject/db run db:seed
 ```
 
 ### 4. Start Development Servers

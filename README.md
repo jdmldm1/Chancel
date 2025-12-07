@@ -101,8 +101,8 @@ OLLAMA_PORT="11434"
 ### 4. Initialize Database
 
 ```bash
-npm run db:push      # Create database tables
-npm run db:seed      # Add sample data
+npm -w @bibleproject/db run db:push      # Create database tables
+npm -w @bibleproject/db run db:seed      # Add sample data
 ```
 
 **Sample Test Credentials:**
@@ -134,10 +134,10 @@ npm run codegen          # Generate GraphQL types from schema
 
 ### Database
 ```bash
-npm run db:push          # Sync Prisma schema to database
-npm run db:migrate       # Create and run migrations
-npm run db:seed          # Seed database with test data
-npm run db:studio        # Open Prisma Studio (database GUI)
+npm -w @bibleproject/db run db:push          # Sync Prisma schema to database
+npm -w @bibleproject/db run db:migrate       # Create and run migrations
+npm -w @bibleproject/db run db:seed          # Seed database with test data
+npm -w @bibleproject/db run db:studio        # Open Prisma Studio (database GUI)
 ```
 
 ### Testing
@@ -162,8 +162,8 @@ npm run sonar:scan       # Run SonarQube analysis (requires server)
 ### Docker & Kubernetes
 ```bash
 # Local development
-docker-compose up -d     # Start all services
-docker-compose down      # Stop services
+docker compose up -d     # Start all services
+docker compose down      # Stop services
 
 # Kubernetes deployment
 cd infra/kubernetes
@@ -196,7 +196,7 @@ BibleProject/
 │   └── e2e/                 # Cross-app E2E tests
 ├── infra/                   # Infrastructure as Code
 │   ├── kubernetes/          # K8s manifests
-│   └── docker-compose.yml   # Local development
+│   └── docker compose.yml   # Local development
 ├── .eslintrc.json           # ESLint + security rules
 ├── playwright.config.ts     # E2E test configuration
 ├── sonar-project.properties # SonarQube configuration
