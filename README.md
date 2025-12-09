@@ -4,6 +4,37 @@
 
 An online Bible study platform for collaborative group sessions with real-time commenting and discussion.
 
+## 🌟 Visual Overview
+
+Welcome to Chancel, a modern platform designed for immersive group Bible study. Below is a visual tour of the key features that make Chancel a powerful tool for your study group.
+
+| Dashboard & Sessions                                   | AI-Powered Insights                                        |
+| ------------------------------------------------------ | ---------------------------------------------------------- |
+| ![Dashboard](screenshots/chancel_dashboard.png)        | ![AI Insights](screenshots/chancel_ai_insights_summary.png) |
+| *The user dashboard provides a centralized view of your sessions and activities.* | *Optional AI integration with Ollama offers deeper scriptural analysis.* |
+
+| Bible Browser & Passage Comments                       | Session Details & Chat                                     |
+| ------------------------------------------------------ | ---------------------------------------------------------- |
+| ![Bible Browser](screenshots/chancel_bible_browser.png) | ![Session Details](screenshots/chancel_session_details.png) |
+| *Easily browse and select scripture passages for your study.* | *Each session includes a detailed view and a real-time chat for discussion.* |
+
+| Prayer Requests & Series Browser                       |
+| ------------------------------------------------------ |
+| ![Prayer Requests](screenshots/chancel_prayer_request.png) |
+| *A dedicated space for group members to share and view prayer requests.* |
+
+### Core Features
+
+-   **Interactive Study Sessions:** Create and manage study sessions with selected scripture passages.
+-   **Real-Time Discussion:** Comment on specific verses and engage in live, threaded conversations.
+-   **AI-Powered Insights:** Optionally integrate with **Ollama** to generate summaries, character analyses, and historical context for scripture passages.
+-   **Virtual Meeting Rooms:** Each session can have an integrated **Jitsi** video call room, allowing for face-to-face discussion alongside the text.
+-   **Resource Sharing:** Upload and share relevant documents, links, and notes within a session.
+-   **Prayer Wall:** A shared space for your group to post and pray for one another's needs.
+-   **Series Planning:** Organize individual sessions into a cohesive series for longer-running studies.
+
+---
+
 ## Overview
 
 Chancel enables Bible study leaders to organize study sessions with scripture passages, videos, and resources, while allowing group members to engage through inline comments and discussions on specific verses. Built with GraphQL, Next.js, and PostgreSQL for a modern, type-safe development experience.
