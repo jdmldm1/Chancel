@@ -404,6 +404,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Issues:** Report bugs and request features via GitHub Issues
 - **Documentation:** See [CLAUDE.md](./CLAUDE.md) for comprehensive docs
 - **Tasks:** Track progress in [TODO.md](./TODO.md)
+- **Financial:** If you find this project helpful, you can [buy me a coffee](https://buymeacoffee.com/jdmldm1) to support its development.
 
 ## Contact
 
