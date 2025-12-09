@@ -17,7 +17,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-gradient-to-br from-slate-50 via-blue-50/30 to-indigo-50/20">
+      <body className="bg-white">
         <AuthSessionProvider>
           <ToastProvider>
             <EnhancedNavigation />

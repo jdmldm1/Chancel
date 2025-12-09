@@ -22,20 +22,20 @@ export default function SessionsPage() {
 
   return (
     <div className="container mx-auto py-8 px-4 sm:px-6 lg:px-8">
-      {/* Header with gradient */}
-      <div className="mb-8 flex items-start justify-between">
+      {/* Header */}
+      <div className="mb-10 flex items-start justify-between">
         <div>
-          <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent mb-2">
+          <h1 className="text-3xl sm:text-4xl font-semibold text-gray-900 mb-1">
             Study Sessions
           </h1>
-          <p className="text-gray-600">Manage and explore collaborative Bible study sessions</p>
+          <p className="text-gray-500 font-light">Manage and explore collaborative Bible study sessions</p>
         </div>
         <button
           onClick={() => setShowJoinModal(true)}
-          className="text-sm text-blue-600 hover:text-blue-700 font-medium underline underline-offset-4 decoration-blue-400 hover:decoration-blue-600 transition-colors flex items-center gap-1.5"
+          className="text-sm text-gray-600 hover:text-gray-900 font-medium transition-colors flex items-center gap-1.5"
         >
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
           </svg>
           Join with Code
         </button>
@@ -47,13 +47,13 @@ export default function SessionsPage() {
         {isLeader && (
           <button
             onClick={() => setShowForm(!showForm)}
-            className="inline-flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-green-600 to-green-700 px-5 py-3 text-white font-semibold hover:from-green-700 hover:to-green-800 shadow-md hover:shadow-lg transition-all duration-300 hover:scale-105 w-fit"
+            className="inline-flex items-center justify-center gap-2 rounded-lg bg-gray-900 px-5 py-2.5 text-white font-medium hover:bg-gray-800 transition-all duration-200 w-fit"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               {showForm ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M6 18L18 6M6 6l12 12" />
               ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
               )}
             </svg>
             {showForm ? 'Cancel' : 'Create New Session'}
@@ -64,13 +64,13 @@ export default function SessionsPage() {
         {!showForm && (
           <div className="flex flex-wrap items-center gap-4">
             {/* View Mode Filter */}
-            <div className="flex gap-2 bg-white border border-gray-200 rounded-lg p-1 shadow-sm">
+            <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
               <button
                 onClick={() => setViewMode('my')}
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                   viewMode === 'my'
-                    ? 'bg-blue-600 text-white shadow-sm'
-                    : 'text-gray-700 hover:bg-gray-50'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
                 My Sessions
@@ -79,8 +79,8 @@ export default function SessionsPage() {
                 onClick={() => setViewMode('all')}
                 className={`px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                   viewMode === 'all'
-                    ? 'bg-blue-600 text-white shadow-sm'
-                    : 'text-gray-700 hover:bg-gray-50'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
                 Browse All
@@ -88,16 +88,16 @@ export default function SessionsPage() {
             </div>
 
             {/* Divider */}
-            <div className="h-8 w-px bg-gray-300"></div>
+            <div className="h-8 w-px bg-gray-200"></div>
 
             {/* Time Filter */}
-            <div className="flex gap-2 bg-white border border-gray-200 rounded-lg p-1 shadow-sm">
+            <div className="flex gap-1 bg-gray-100 rounded-lg p-1">
               <button
                 onClick={() => setTimeFilter('current')}
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                   timeFilter === 'current'
-                    ? 'bg-green-600 text-white shadow-sm'
-                    : 'text-gray-700 hover:bg-gray-50'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
                 Current
@@ -106,8 +106,8 @@ export default function SessionsPage() {
                 onClick={() => setTimeFilter('past')}
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                   timeFilter === 'past'
-                    ? 'bg-gray-600 text-white shadow-sm'
-                    : 'text-gray-700 hover:bg-gray-50'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
                 Past
@@ -116,8 +116,8 @@ export default function SessionsPage() {
                 onClick={() => setTimeFilter('future')}
                 className={`px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
                   timeFilter === 'future'
-                    ? 'bg-blue-600 text-white shadow-sm'
-                    : 'text-gray-700 hover:bg-gray-50'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
                 }`}
               >
                 Future
@@ -130,7 +130,7 @@ export default function SessionsPage() {
       {/* Content */}
       <div className="animate-fade-in">
         {showForm ? (
-          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+          <div className="bg-white rounded-xl border border-gray-200 p-6">
             <SessionForm onSuccess={handleFormSuccess} />
           </div>
         ) : (

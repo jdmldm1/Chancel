@@ -64,9 +64,9 @@ export default function EnhancedNavigation() {
   return (
     <>
       {/* Top Navigation Bar */}
-      <nav className="fixed top-0 left-0 right-0 bg-white/80 backdrop-blur-md border-b border-gray-200 z-50 shadow-sm">
+      <nav className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-b border-gray-200 z-50">
         <div className="max-w-full mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
+          <div className="flex justify-between h-14">
             <div className="flex items-center gap-4">
               {/* Mobile menu button */}
               {session && (
@@ -80,8 +80,8 @@ export default function EnhancedNavigation() {
 
               {/* Logo */}
               <Link href="/" className="flex items-center gap-2 px-2 group">
-                <ChanelLogo size="sm" className="text-blue-600 transition-transform group-hover:scale-110 duration-200" />
-                <span className="text-gray-900 font-semibold text-xl bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+                <ChanelLogo size="sm" className="text-gray-900 transition-transform group-hover:scale-105 duration-200" />
+                <span className="text-gray-900 font-semibold text-lg">
                   Chancel
                 </span>
               </Link>
@@ -98,19 +98,19 @@ export default function EnhancedNavigation() {
                 <>
                   <Link
                     href="/profile"
-                    className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="hidden sm:flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 rounded-lg transition-colors"
                   >
-                    <UserCircleIcon className="w-4 h-4 text-gray-600" />
+                    <UserCircleIcon className="w-4 h-4 text-gray-500" />
                     <span className="text-sm font-medium text-gray-700">
                       {session.user.name}
                     </span>
-                    <span className="px-2 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">
+                    <span className="px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-600 rounded">
                       {session.user.role}
                     </span>
                   </Link>
                   <button
                     onClick={() => signOut({ callbackUrl: '/' })}
-                    className="px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200 border border-red-200 hover:border-red-300"
+                    className="px-4 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-all duration-200"
                   >
                     Sign out
                   </button>
@@ -119,13 +119,13 @@ export default function EnhancedNavigation() {
                 <div className="flex items-center gap-3">
                   <Link
                     href="/auth/login"
-                    className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
+                    className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
                   >
                     Sign in
                   </Link>
                   <Link
                     href="/auth/signup"
-                    className="px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 rounded-lg transition-all duration-200 shadow-sm hover:shadow"
+                    className="px-4 py-1.5 text-sm font-medium text-white bg-gray-900 hover:bg-gray-800 rounded-lg transition-all duration-200"
                   >
                     Sign up
                   </Link>
@@ -239,8 +239,8 @@ export default function EnhancedNavigation() {
 
               {/* Decorative element at bottom */}
               <div className="mt-auto pt-6 border-t border-gray-200">
-                <div className="px-3 py-4 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg border border-blue-100">
-                  <p className="text-xs text-gray-600 italic">
+                <div className="px-3 py-3 bg-gray-50 rounded-lg">
+                  <p className="text-xs text-gray-500 italic">
                     "Sacred space. Shared study."
                   </p>
                 </div>
