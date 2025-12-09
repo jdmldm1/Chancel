@@ -407,7 +407,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contact
 
-For questions, support, or assistance with setting up Chancel for your church or ministry, please contact us at [jdmldm1@gmail.com](mailto:jdmldm1@gmail.com). We are happy to help you get started.
+For questions, support, or assistance with setting up Chancel for your church or ministry, please contact us at chancel@duck.com. We are happy to help you get started.
 
 ---
 
