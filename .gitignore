@@ -49,3 +49,7 @@ Thumbs.db
 # Prisma
 prisma/.env
 .aider*
+
+# AI assistant context files
+GEMINI.md
+CLAUDE.md
