@@ -405,6 +405,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **Documentation:** See [CLAUDE.md](./CLAUDE.md) for comprehensive docs
 - **Tasks:** Track progress in [TODO.md](./TODO.md)
 
+## Contact
+
+For questions, support, or assistance with setting up Chancel for your church or ministry, please contact us at [jdmldm1@gmail.com](mailto:jdmldm1@gmail.com). We are happy to help you get started.
+
 ---
 
 **Built with ❤️ for Bible study communities**
