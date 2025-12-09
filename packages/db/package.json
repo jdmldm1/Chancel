@@ -12,7 +12,8 @@
     "generate": "prisma generate"
   },
   "dependencies": {
-    "@prisma/client": "^5.7.0"
+    "@prisma/client": "^5.7.0",
+    "dotenv": "^16.3.1"
   },
   "devDependencies": {
     "prisma": "^5.7.0",

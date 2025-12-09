@@ -15,7 +15,18 @@
       "Bash(git rm:*)",
       "Bash(git add:*)",
       "Bash(git commit -m \"$(cat <<''EOF''\nPrepare repository for open source release\n\nSecurity improvements:\n- Remove sensitive .env.production from version control\n- Add .env.production to .gitignore\n- Replace hardcoded server names (shiloh) with localhost in examples\n\nDocumentation updates:\n- Add AI Insights feature to README\n- Update .env.example with Ollama configuration\n- Use generic localhost examples instead of server-specific configs\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
-      "WebFetch(domain:www.youtube.com)"
+      "WebFetch(domain:www.youtube.com)",
+      "WebSearch",
+      "WebFetch(domain:account-media.s3.amazonaws.com)",
+      "Bash(node scripts/fetch-playlist.js:*)",
+      "Bash(pip3 install:*)",
+      "Bash(apt-get update:*)",
+      "Bash(apt-get install:*)",
+      "Bash(yt-dlp:*)",
+      "Bash(grep:*)",
+      "Bash(chmod:*)",
+      "Bash(python3:*)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

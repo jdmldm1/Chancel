@@ -1,4 +1,8 @@
 import { PrismaClient, UserRole, SessionVisibility } from '@prisma/client'
+import dotenv from 'dotenv'
+import path from 'path'
+
+dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
 const prisma = new PrismaClient()
 
@@ -126,69 +130,32 @@ async function main() {
   // Gospel of John Sessions (8 sessions)
   const johnSessions = [
     {
-      title: 'The Word Became Flesh',
+      title: 'The Word Became Flesh (Current)',
       description: 'Understanding the prologue and the incarnation of Christ.',
       passages: [
         { book: 'John', chapter: 1, verseStart: 1, verseEnd: 18, note: 'Notice the parallels to Genesis 1. How does John present Jesus as both fully God and fully human?' }
       ],
-      day: 0
+      startDate: getDate(-2),
+      endDate: getDate(2)
     },
     {
-      title: 'The First Disciples and First Miracle',
+      title: 'The First Disciples and First Miracle (Past)',
       description: 'Jesus calls His first followers and reveals His glory at Cana.',
       passages: [
         { book: 'John', chapter: 1, verseStart: 35, verseEnd: 51, note: 'What does it mean that Jesus is the Lamb of God?' },
-        { book: 'John', chapter: 2, verseStart: 1, verseEnd: 11, note: 'How does this miracle reveal Jesus\' glory?' }
+        { book: 'John', chapter: 2, verseStart: 1, verseEnd: 11, note: "How does this miracle reveal Jesus' glory?" }
       ],
-      day: 7
+      startDate: getDate(-10),
+      endDate: getDate(-8)
     },
     {
-      title: 'You Must Be Born Again',
+      title: 'You Must Be Born Again (Future)',
       description: 'Jesus teaches Nicodemus about spiritual rebirth.',
       passages: [
         { book: 'John', chapter: 3, verseStart: 1, verseEnd: 21, note: 'What does it mean to be born again? How does this relate to verse 16?' }
       ],
-      day: 14
-    },
-    {
-      title: 'The Samaritan Woman',
-      description: 'Jesus offers living water to an outcast woman.',
-      passages: [
-        { book: 'John', chapter: 4, verseStart: 1, verseEnd: 42, note: 'Notice how Jesus breaks social barriers. What is living water?' }
-      ],
-      day: 21
-    },
-    {
-      title: 'I Am the Bread of Life',
-      description: 'Jesus reveals Himself as the bread that gives eternal life.',
-      passages: [
-        { book: 'John', chapter: 6, verseStart: 25, verseEnd: 59, note: 'This is the first of seven "I AM" statements. What does it mean that Jesus is the bread of life?' }
-      ],
-      day: 28
-    },
-    {
-      title: 'I Am the Light of the World',
-      description: 'Jesus claims to be the light that overcomes darkness.',
-      passages: [
-        { book: 'John', chapter: 8, verseStart: 12, verseEnd: 30, note: 'How does light imagery connect to John 1? What does it mean to walk in darkness vs light?' }
-      ],
-      day: 35
-    },
-    {
-      title: 'I Am the Good Shepherd',
-      description: 'Jesus describes His relationship with His sheep.',
-      passages: [
-        { book: 'John', chapter: 10, verseStart: 1, verseEnd: 21, note: 'Compare this to Psalm 23. What makes Jesus the "good" shepherd?' }
-      ],
-      day: 42
-    },
-    {
-      title: 'I Am the Resurrection and the Life',
-      description: 'Jesus raises Lazarus and declares victory over death.',
-      passages: [
-        { book: 'John', chapter: 11, verseStart: 1, verseEnd: 44, note: 'Notice Jesus\' emotions in this passage. What does this miracle teach about faith?' }
-      ],
-      day: 49
+      startDate: getDate(8),
+      endDate: getDate(10)
     },
   ]
 
@@ -197,8 +164,8 @@ async function main() {
       data: {
         title: sessionData.title,
         description: sessionData.description,
-        startDate: getDate(sessionData.day),
-        endDate: getDate(sessionData.day + 7),
+        startDate: sessionData.startDate,
+        endDate: sessionData.endDate,
         leaderId: leader.id,
         seriesId: gospelOfJohn.id,
         visibility: SessionVisibility.PUBLIC,
@@ -654,8 +621,8 @@ async function main() {
       data: {
         title: reading.title,
         description: `Day ${reading.day} of The Bible Recap chronological reading plan.`,
-        startDate: getDate(reading.day - 1),
-        endDate: getDate(reading.day),
+        startDate: getDate(reading.day - 6),
+        endDate: getDate(reading.day - 5),
         visibility: SessionVisibility.PUBLIC,
         imageUrl: 'https://www.bible.com/_next/image?url=https%3A%2F%2Fimageproxy.youversionapi.com%2Fhttps%3A%2F%2Fs3.amazonaws.com%2Fyvplans%2F17553%2F1280x720.jpg&w=3840&q=75',
         leaderId: leader.id,

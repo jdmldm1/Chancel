@@ -7,8 +7,8 @@ import Link from 'next/link'
 import { Users, BookOpen, Calendar } from 'lucide-react'
 
 const MY_SESSIONS_QUERY = `
-  query MySessions {
-    mySessions {
+  query MySessions($limit: Int, $offset: Int) {
+    mySessions(limit: $limit, offset: $offset) {
       id
       title
       description
@@ -123,6 +123,7 @@ export default function DashboardPage() {
     mySessions: Session[]
   }>(MY_SESSIONS_QUERY, {
     skip: status === 'loading' || status === 'unauthenticated',
+    variables: { limit: 500, offset: 0 },
   })
 
   const { data: seriesData, loading: seriesLoading } = useGraphQLQuery<{
@@ -160,16 +161,29 @@ export default function DashboardPage() {
   const isLeader = session.user.role === 'LEADER'
   const now = new Date()
 
+  console.log('Dashboard Debug:', {
+    totalSessions: sessions.length,
+    now: now.toISOString(),
+    firstThreeSessions: sessions.slice(0, 3).map(s => ({
+      title: s.title,
+      startDate: s.startDate,
+      endDate: s.endDate,
+    }))
+  })
+
   // Filter to show only active/current sessions (current date between start and end)
   const activeSessions = sessions.filter(s => {
     const startDate = new Date(s.startDate)
     const endDate = new Date(s.endDate)
-    return startDate <= now && endDate >= now
+    const isActive = startDate <= now && endDate >= now
+    return isActive
   }).sort((a, b) => {
     const dateA = new Date(a.startDate).getTime()
     const dateB = new Date(b.startDate).getTime()
     return dateA - dateB
   })
+
+  console.log('Active Sessions:', activeSessions.length, activeSessions.slice(0, 3).map(s => s.title))
 
   // Filter to show only active series (series with at least one active session)
   const activeSeries = series.filter(s => {

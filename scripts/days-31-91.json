@@ -1,0 +1,372 @@
+{
+  "video_ids": {
+    "31": "MWXH-0z3Cbw",
+    "32": "iSwChMM410I",
+    "33": "6_J7CC5RD78",
+    "34": "yUxdhmI8gXU",
+    "35": "gRR1_T8_zZc",
+    "36": "rW5ipVQEHHA",
+    "37": "kP6OeXvpyBg",
+    "38": "ViE64XslAHk",
+    "39": "eWvwYistR1w",
+    "40": "1cuONAUU9ck",
+    "41": "6H476Kc25uA",
+    "42": "gya8QydxYzw",
+    "43": "Llh8ZbDanMU",
+    "44": "m0gpthW4ov8",
+    "45": "UNVkfWeb8Xs",
+    "46": "Rt8wxhoO9Xo",
+    "47": "STyaHxVu0NM",
+    "48": "mXvp8tEOYDc",
+    "49": "-WrJWmeYIHo",
+    "50": "JxWVCOFE3zM",
+    "51": "9GsCXGB4k1E",
+    "52": "_t8ejRLqlCo",
+    "53": "s5evtCy2ms4",
+    "54": "5yauOVwPbko",
+    "55": "qoCObsPw5l4",
+    "56": "beFeQ7skfFA",
+    "57": "FOubrQmfURU",
+    "58": "E_wLePwUcnw",
+    "59": "pmXfvFiJs3s",
+    "60": "kjI6wqvLSXQ",
+    "61": "3yEZTtGVt5s",
+    "62": "1OfvtCxWZlM",
+    "63": "CfJym4yUN5k",
+    "64": "5pdhaYUyrM0",
+    "65": "2YUCYZzi3yA",
+    "66": "QK__bM73iK8",
+    "67": "BlMOnn2gevg",
+    "68": "MK6oySTvdJE",
+    "69": "cntFbqOXNYg",
+    "70": "X9AO6SZGyYk",
+    "71": "rEvj51548rI",
+    "72": "rS3NKQqXLjQ",
+    "73": "0fMukHdZUMg",
+    "74": "z0n9KqRlsUI",
+    "75": "IOohqxkhsi4",
+    "76": "8B5fw8-BDl0",
+    "77": "FObrQ8Euzao",
+    "78": "Itv-UYbwff4",
+    "79": "rTd2kfSE7B4",
+    "80": "4myOX0CH1ZQ",
+    "81": "6ncLqdQv6nc",
+    "82": "bLYmgYQ-PJM",
+    "83": "7EG9AJt1IM8",
+    "84": "s2Ao1a3Otxw",
+    "85": "Uu4FnTCBoP8",
+    "86": "GnFB6qwNDVU",
+    "87": "VaXiyR2kFaY",
+    "88": "1ppaMnI7MGI",
+    "89": "CHYwdj6GA4A",
+    "90": "wth3Plwy0jY",
+    "91": "ihlwOKyaKyA"
+  },
+  "days": {
+    "31": {
+      "video_id": "MWXH-0z3Cbw",
+      "passages_str": "Exodus 4-6",
+      "title": "Day 31: Exodus 4-6"
+    },
+    "32": {
+      "video_id": "iSwChMM410I",
+      "passages_str": "Exodus 7-9",
+      "title": "Day 32: Exodus 7-9"
+    },
+    "33": {
+      "video_id": "6_J7CC5RD78",
+      "passages_str": "Exodus 10-12",
+      "title": "Day 33: Exodus 10-12"
+    },
+    "34": {
+      "video_id": "yUxdhmI8gXU",
+      "passages_str": "Exodus 13-15",
+      "title": "Day 34: Exodus 13-15"
+    },
+    "35": {
+      "video_id": "gRR1_T8_zZc",
+      "passages_str": "Exodus 16-18",
+      "title": "Day 35: Exodus 16-18"
+    },
+    "36": {
+      "video_id": "rW5ipVQEHHA",
+      "passages_str": "Exodus 19-21",
+      "title": "Day 36: Exodus 19-21"
+    },
+    "37": {
+      "video_id": "kP6OeXvpyBg",
+      "passages_str": "Exodus 22-24",
+      "title": "Day 37: Exodus 22-24"
+    },
+    "38": {
+      "video_id": "ViE64XslAHk",
+      "passages_str": "Exodus 25-27",
+      "title": "Day 38: Exodus 25-27"
+    },
+    "39": {
+      "video_id": "eWvwYistR1w",
+      "passages_str": "Exodus 28-29",
+      "title": "Day 39: Exodus 28-29"
+    },
+    "40": {
+      "video_id": "1cuONAUU9ck",
+      "passages_str": "Exodus 30-32",
+      "title": "Day 40: Exodus 30-32"
+    },
+    "41": {
+      "video_id": "6H476Kc25uA",
+      "passages_str": "Exodus 33-35",
+      "title": "Day 41: Exodus 33-35"
+    },
+    "42": {
+      "video_id": "gya8QydxYzw",
+      "passages_str": "Exodus 36-38",
+      "title": "Day 42: Exodus 36-38"
+    },
+    "43": {
+      "video_id": "Llh8ZbDanMU",
+      "passages_str": "Exodus 39-40",
+      "title": "Day 43: Exodus 39-40"
+    },
+    "44": {
+      "video_id": "m0gpthW4ov8",
+      "passages_str": "Leviticus 1-4",
+      "title": "Day 44: Leviticus 1-4"
+    },
+    "45": {
+      "video_id": "UNVkfWeb8Xs",
+      "passages_str": "Leviticus 5-7",
+      "title": "Day 45: Leviticus 5-7"
+    },
+    "46": {
+      "video_id": "Rt8wxhoO9Xo",
+      "passages_str": "Leviticus 8-10",
+      "title": "Day 46: Leviticus 8-10"
+    },
+    "47": {
+      "video_id": "STyaHxVu0NM",
+      "passages_str": "Leviticus 11-13",
+      "title": "Day 47: Leviticus 11-13"
+    },
+    "48": {
+      "video_id": "mXvp8tEOYDc",
+      "passages_str": "Leviticus 14-15",
+      "title": "Day 48: Leviticus 14-15"
+    },
+    "49": {
+      "video_id": "-WrJWmeYIHo",
+      "passages_str": "Leviticus 16-18",
+      "title": "Day 49: Leviticus 16-18"
+    },
+    "50": {
+      "video_id": "JxWVCOFE3zM",
+      "passages_str": "Leviticus 19-21",
+      "title": "Day 50: Leviticus 19-21"
+    },
+    "51": {
+      "video_id": "9GsCXGB4k1E",
+      "passages_str": "Leviticus 22-23",
+      "title": "Day 51: Leviticus 22-23"
+    },
+    "52": {
+      "video_id": "_t8ejRLqlCo",
+      "passages_str": "Leviticus 24-25",
+      "title": "Day 52: Leviticus 24-25"
+    },
+    "53": {
+      "video_id": "s5evtCy2ms4",
+      "passages_str": "Leviticus 26-27",
+      "title": "Day 53: Leviticus 26-27"
+    },
+    "54": {
+      "video_id": "5yauOVwPbko",
+      "passages_str": "Numbers 1-2",
+      "title": "Day 54: Numbers 1-2"
+    },
+    "55": {
+      "video_id": "qoCObsPw5l4",
+      "passages_str": "Numbers 3-4",
+      "title": "Day 55: Numbers 3-4"
+    },
+    "56": {
+      "video_id": "beFeQ7skfFA",
+      "passages_str": "Numbers 5-6",
+      "title": "Day 56: Numbers 5-6"
+    },
+    "57": {
+      "video_id": "FOubrQmfURU",
+      "passages_str": "Numbers 7",
+      "title": "Day 57: Numbers 7"
+    },
+    "58": {
+      "video_id": "E_wLePwUcnw",
+      "passages_str": "Numbers 8-10",
+      "title": "Day 58: Numbers 8-10"
+    },
+    "59": {
+      "video_id": "pmXfvFiJs3s",
+      "passages_str": "Numbers 11-13",
+      "title": "Day 59: Numbers 11-13"
+    },
+    "60": {
+      "video_id": "kjI6wqvLSXQ",
+      "passages_str": "Numbers 14-15, Psalm 90",
+      "title": "Day 60: Numbers 14-15, Psalm 90"
+    },
+    "61": {
+      "video_id": "3yEZTtGVt5s",
+      "passages_str": "Numbers 16-17",
+      "title": "Day 61: Numbers 16-17"
+    },
+    "62": {
+      "video_id": "1OfvtCxWZlM",
+      "passages_str": "Numbers 18-20",
+      "title": "Day 62: Numbers 18-20"
+    },
+    "63": {
+      "video_id": "CfJym4yUN5k",
+      "passages_str": "Numbers 21-22",
+      "title": "Day 63: Numbers 21-22"
+    },
+    "64": {
+      "video_id": "5pdhaYUyrM0",
+      "passages_str": "Numbers 23-25",
+      "title": "Day 64: Numbers 23-25"
+    },
+    "65": {
+      "video_id": "2YUCYZzi3yA",
+      "passages_str": "Numbers 26-27",
+      "title": "Day 65: Numbers 26-27"
+    },
+    "66": {
+      "video_id": "QK__bM73iK8",
+      "passages_str": "Numbers 28-30",
+      "title": "Day 66: Numbers 28-30"
+    },
+    "67": {
+      "video_id": "BlMOnn2gevg",
+      "passages_str": "Numbers 31-32",
+      "title": "Day 67: Numbers 31-32"
+    },
+    "68": {
+      "video_id": "MK6oySTvdJE",
+      "passages_str": "Numbers 33-34",
+      "title": "Day 68: Numbers 33-34"
+    },
+    "69": {
+      "video_id": "cntFbqOXNYg",
+      "passages_str": "Numbers 35-36",
+      "title": "Day 69: Numbers 35-36"
+    },
+    "70": {
+      "video_id": "X9AO6SZGyYk",
+      "passages_str": "Deuteronomy 1-2",
+      "title": "Day 70: Deuteronomy 1-2"
+    },
+    "71": {
+      "video_id": "rEvj51548rI",
+      "passages_str": "Deuteronomy 3-4",
+      "title": "Day 71: Deuteronomy 3-4"
+    },
+    "72": {
+      "video_id": "rS3NKQqXLjQ",
+      "passages_str": "Deuteronomy 5-7",
+      "title": "Day 72: Deuteronomy 5-7"
+    },
+    "73": {
+      "video_id": "0fMukHdZUMg",
+      "passages_str": "Deuteronomy 8-10",
+      "title": "Day 73: Deuteronomy 8-10"
+    },
+    "74": {
+      "video_id": "z0n9KqRlsUI",
+      "passages_str": "Deuteronomy 11-13",
+      "title": "Day 74: Deuteronomy 11-13"
+    },
+    "75": {
+      "video_id": "IOohqxkhsi4",
+      "passages_str": "Deuteronomy 14-16",
+      "title": "Day 75: Deuteronomy 14-16"
+    },
+    "76": {
+      "video_id": "8B5fw8-BDl0",
+      "passages_str": "Deuteronomy 17-20",
+      "title": "Day 76: Deuteronomy 17-20"
+    },
+    "77": {
+      "video_id": "FObrQ8Euzao",
+      "passages_str": "Deuteronomy 21-23",
+      "title": "Day 77: Deuteronomy 21-23"
+    },
+    "78": {
+      "video_id": "Itv-UYbwff4",
+      "passages_str": "Deuteronomy 24-27",
+      "title": "Day 78: Deuteronomy 24-27"
+    },
+    "79": {
+      "video_id": "rTd2kfSE7B4",
+      "passages_str": "Deuteronomy 28-29",
+      "title": "Day 79: Deuteronomy 28-29"
+    },
+    "80": {
+      "video_id": "4myOX0CH1ZQ",
+      "passages_str": "Deuteronomy 30-31",
+      "title": "Day 80: Deuteronomy 30-31"
+    },
+    "81": {
+      "video_id": "6ncLqdQv6nc",
+      "passages_str": "Deuteronomy 32-34, Psalm 91",
+      "title": "Day 81: Deuteronomy 32-34, Psalm 91"
+    },
+    "82": {
+      "video_id": "bLYmgYQ-PJM",
+      "passages_str": "Joshua 1-4",
+      "title": "Day 82: Joshua 1-4"
+    },
+    "83": {
+      "video_id": "7EG9AJt1IM8",
+      "passages_str": "Joshua 5-8",
+      "title": "Day 83: Joshua 5-8"
+    },
+    "84": {
+      "video_id": "s2Ao1a3Otxw",
+      "passages_str": "Joshua 9-11",
+      "title": "Day 84: Joshua 9-11"
+    },
+    "85": {
+      "video_id": "Uu4FnTCBoP8",
+      "passages_str": "Joshua 12-15",
+      "title": "Day 85: Joshua 12-15"
+    },
+    "86": {
+      "video_id": "GnFB6qwNDVU",
+      "passages_str": "Joshua 16-18",
+      "title": "Day 86: Joshua 16-18"
+    },
+    "87": {
+      "video_id": "VaXiyR2kFaY",
+      "passages_str": "Joshua 19-21",
+      "title": "Day 87: Joshua 19-21"
+    },
+    "88": {
+      "video_id": "1ppaMnI7MGI",
+      "passages_str": "Joshua 22-24",
+      "title": "Day 88: Joshua 22-24"
+    },
+    "89": {
+      "video_id": "CHYwdj6GA4A",
+      "passages_str": "Judges 1-2",
+      "title": "Day 89: Judges 1-2"
+    },
+    "90": {
+      "video_id": "wth3Plwy0jY",
+      "passages_str": "Judges 3-5",
+      "title": "Day 90: Judges 3-5"
+    },
+    "91": {
+      "video_id": "ihlwOKyaKyA",
+      "passages_str": "Judges 6-7",
+      "title": "Day 91: Judges 6-7"
+    }
+  }
+}

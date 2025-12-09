@@ -265,11 +265,13 @@ export default function SeriesPage() {
                 className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
               >
                 {s.imageUrl && (
-                  <img
-                    src={s.imageUrl}
-                    alt={s.title}
-                    className="w-full h-48 object-cover"
-                  />
+                  <div className="w-full h-48 bg-gray-50 flex items-center justify-center">
+                    <img
+                      src={s.imageUrl}
+                      alt={s.title}
+                      className="w-full h-full object-contain"
+                    />
+                  </div>
                 )}
                 <div className="p-6">
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">

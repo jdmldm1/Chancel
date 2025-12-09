@@ -4,7 +4,7 @@ import { useGraphQLQuery, useGraphQLMutation } from '@/lib/graphql-client-new'
 import { useSession } from 'next-auth/react'
 import { GetMySessionsQuery, GetAllSessionsQuery, DeleteSessionMutation, DeleteSessionMutationVariables } from '@bibleproject/types/src/graphql'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { SessionListSkeleton } from './SessionListSkeleton'
 import EmptyState from '../ui/EmptyState'
 
@@ -89,40 +89,157 @@ export default function SessionList({ viewMode, timeFilter = 'current' }: Sessio
   const [sessionTypeFilter, setSessionTypeFilter] = useState<'all' | 'SCRIPTURE_BASED' | 'TOPIC_BASED'>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [sortBy, setSortBy] = useState<'date' | 'participants' | 'title'>('date')
+  const [offset, setOffset] = useState(0)
+  const [allSessions, setAllSessions] = useState<Session[]>([])
+  const [hasMore, setHasMore] = useState(true)
+  const [isLoadingMore, setIsLoadingMore] = useState(false)
+  const limit = 500  // Increased from 100 to 500 to get all sessions including past ones
+  const isFirstRender = useRef(true)
 
   const { data: myData, loading: myLoading, error: myError } = useGraphQLQuery<GetMySessionsQuery>(GET_MY_SESSIONS, {
     skip: viewMode !== 'my',
-    variables: { limit: 100, offset: 0 },
+    variables: { limit, offset: 0 },
   })
-  const { data: allData, loading: allLoading, error: allError } = useGraphQLQuery<GetAllSessionsQuery>(GET_ALL_SESSIONS, {
+  const { data: allData, loading: allLoading, error: allError, refetch: refetchAll } = useGraphQLQuery<GetAllSessionsQuery>(GET_ALL_SESSIONS, {
     skip: viewMode !== 'all',
-    variables: { limit: 100, offset: 0 },
+    variables: { limit, offset: 0 },
   })
   const [deleteSession] = useGraphQLMutation<DeleteSessionMutation, DeleteSessionMutationVariables>(DELETE_SESSION, {
   })
 
+  // Initialize sessions when data loads
+  useEffect(() => {
+    if (viewMode === 'my' && myData?.mySessions) {
+      setAllSessions(myData.mySessions)
+      setHasMore(myData.mySessions.length === limit)
+      setOffset(myData.mySessions.length)
+    } else if (viewMode === 'all' && allData?.publicSessions) {
+      setAllSessions(allData.publicSessions)
+      setHasMore(allData.publicSessions.length === limit)
+      setOffset(allData.publicSessions.length)
+    }
+  }, [myData, allData, viewMode, limit])
+
+  // Reset pagination when viewMode changes (but not on initial mount)
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false
+      return
+    }
+    setAllSessions([])
+    setOffset(0)
+    setHasMore(true)
+  }, [viewMode])
+
+  const loadMore = async () => {
+    if (isLoadingMore || !hasMore) return
+
+    setIsLoadingMore(true)
+    try {
+      const authHeaders = typeof window !== 'undefined'
+        ? await fetch('/api/auth/session', { cache: 'no-store' })
+            .then(res => res.ok ? res.json() : {})
+            .then(session => session?.user?.id ? { authorization: `Bearer ${session.user.id}` } : {})
+        : {}
+
+      const { GraphQLClient } = await import('graphql-request')
+      const endpoint = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/graphql'
+      const client = new GraphQLClient(endpoint, { credentials: 'include' })
+
+      const query = viewMode === 'my' ? GET_MY_SESSIONS : GET_ALL_SESSIONS
+      const result = await client.request<GetMySessionsQuery | GetAllSessionsQuery>(
+        query,
+        { limit, offset },
+        authHeaders
+      )
+
+      const newSessions = viewMode === 'my'
+        ? (result as GetMySessionsQuery).mySessions || []
+        : (result as GetAllSessionsQuery).publicSessions || []
+
+      setAllSessions(prev => [...prev, ...newSessions])
+      setOffset(prev => prev + newSessions.length)
+      setHasMore(newSessions.length === limit)
+    } catch (err) {
+      console.error('Error loading more sessions:', err)
+    } finally {
+      setIsLoadingMore(false)
+    }
+  }
+
   const loading = viewMode === 'my' ? myLoading : allLoading
   const error = viewMode === 'my' ? myError : allError
-  const allSessions = viewMode === 'my' ? (myData?.mySessions || []) : (allData?.publicSessions || [])
+
+  // Use accumulated sessions if we have them, otherwise use fresh query data
+  const sessionsToDisplay = allSessions.length > 0 ? allSessions :
+    (viewMode === 'my' ? (myData?.mySessions || []) : (allData?.publicSessions || []))
+
+  // DEBUG: Log what we're getting
+  console.log('SessionList Debug:', {
+    viewMode,
+    timeFilter,
+    allSessionsCount: allSessions.length,
+    sessionsToDisplayCount: sessionsToDisplay.length,
+    myDataExists: !!myData,
+    allDataExists: !!allData,
+    publicSessionsCount: allData?.publicSessions?.length,
+    mySessionsCount: myData?.mySessions?.length,
+    loading,
+    error: error?.message
+  })
 
   // Filter by time (current, past, future)
   const now = new Date()
-  const timeFilteredSessions = allSessions.filter(s => {
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0)
+  const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)
+
+  console.log('Time filter debug:', {
+    now: now.toISOString(),
+    startOfToday: startOfToday.toISOString(),
+    endOfToday: endOfToday.toISOString(),
+    timeFilter
+  })
+
+  const timeFilteredSessions = sessionsToDisplay.filter(s => {
     const startDate = new Date(s.startDate)
     const endDate = new Date(s.endDate)
 
+    // Debug: Log first 3 sessions to see what we're working with
+    const sessionIndex = sessionsToDisplay.indexOf(s)
+    if (sessionIndex < 3) {
+      console.log(`Session ${sessionIndex} (${s.title}):`, {
+        startDate: s.startDate,
+        endDate: s.endDate,
+        startDateParsed: startDate.toISOString(),
+        endDateParsed: endDate.toISOString(),
+        startOfToday: startOfToday.toISOString(),
+        endOfToday: endOfToday.toISOString(),
+        timeFilter,
+      })
+    }
+
     if (timeFilter === 'current') {
-      // Session is current if now is between start and end date
-      return startDate <= now && endDate >= now
+      // Session is "current" if it overlaps with today at all
+      const isCurrent = startDate <= endOfToday && endDate >= startOfToday
+      if (sessionIndex < 3) {
+        console.log(`  -> Current filter: ${isCurrent} (${startDate <= endOfToday} && ${endDate >= startOfToday})`)
+      }
+      return isCurrent
     } else if (timeFilter === 'past') {
-      // Session is past if end date is before now
-      return endDate < now
+      // Session is "past" if it ended before today started
+      const isPast = endDate < startOfToday
+      if (sessionIndex < 3) {
+        console.log(`  -> Past filter: ${isPast} (${endDate.toISOString()} < ${startOfToday.toISOString()})`)
+      }
+      return isPast
     } else if (timeFilter === 'future') {
-      // Session is future if start date is after now
-      return startDate > now
+      // Session is "future" if it starts after today ends
+      return startDate > endOfToday
     }
     return true
   })
+
+  console.log('After time filter:', timeFilteredSessions.length, 'sessions')
 
   // Filter, search, and sort sessions
   let sessions = sessionTypeFilter === 'all'
@@ -386,7 +503,7 @@ export default function SessionList({ viewMode, timeFilter = 'current' }: Sessio
                       <img
                         src={(session.series?.imageUrl || session.imageUrl) || undefined}
                         alt={session.series?.title || session.title}
-                        className="w-32 h-32 object-cover rounded-md"
+                        className="w-32 h-32 object-contain rounded-md bg-gray-50"
                       />
                     </div>
                   )}
@@ -418,13 +535,13 @@ export default function SessionList({ viewMode, timeFilter = 'current' }: Sessio
                         <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
-                        <span className="font-medium">Start:</span> {new Date(session.startDate).toLocaleDateString()}
+                        <span className="font-medium">Start:</span> {new Date(session.startDate).toLocaleString()}
                       </div>
                       <div className="flex items-center gap-1.5">
                         <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                         </svg>
-                        <span className="font-medium">End:</span> {new Date(session.endDate).toLocaleDateString()}
+                        <span className="font-medium">End:</span> {new Date(session.endDate).toLocaleString()}
                       </div>
                       <div className="flex items-center gap-1.5">
                         <svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -467,6 +584,34 @@ export default function SessionList({ viewMode, timeFilter = 'current' }: Sessio
             )
           })}
         </ul>
+      )}
+
+      {/* Load More Button */}
+      {!loading && !searchQuery && sessions.length > 0 && hasMore && (
+        <div className="mt-6 flex justify-center">
+          <button
+            onClick={loadMore}
+            disabled={isLoadingMore}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors shadow-md hover:shadow-lg"
+          >
+            {isLoadingMore ? (
+              <>
+                <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Loading more...
+              </>
+            ) : (
+              <>
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+                Load More Sessions
+              </>
+            )}
+          </button>
+        </div>
       )}
     </div>
   )

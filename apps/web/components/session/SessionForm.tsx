@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
@@ -723,26 +723,51 @@ interface ScripturePassageFieldProps {
 }
 
 function ScripturePassageField({ index, register, setValue, watch, errors, onRemove }: ScripturePassageFieldProps) {
-  const [chapters, setChapters] = useState<number[]>([])
-  const [verses, setVerses] = useState<number[]>([])
-
   const watchedBook = watch(`scripturePassages.${index}.book`)
   const watchedChapter = watch(`scripturePassages.${index}.chapter`)
+  const watchedVerseStart = watch(`scripturePassages.${index}.verseStart`)
+  const watchedVerseEnd = watch(`scripturePassages.${index}.verseEnd`)
 
-  // Update chapters and verses when book changes
+  // Initialize chapters and verses based on current form values
+  const [chapters, setChapters] = useState<number[]>(() => {
+    if (watchedBook) {
+      const chapterCount = getChapterCount(watchedBook)
+      return Array.from({ length: chapterCount }, (_, i) => i + 1)
+    }
+    return []
+  })
+
+  const [verses, setVerses] = useState<number[]>(() => {
+    if (watchedBook && watchedChapter) {
+      const verseCount = getVerseCount(watchedBook, watchedChapter)
+      return Array.from({ length: verseCount }, (_, i) => i + 1)
+    }
+    return []
+  })
+
+  // Use refs to track previous values to detect actual changes
+  const prevBookRef = useRef<string>()
+  const prevChapterRef = useRef<number>()
+
+  // Update chapters when book changes
   useEffect(() => {
     if (watchedBook) {
       const chapterCount = getChapterCount(watchedBook)
       const chapterArray = Array.from({ length: chapterCount }, (_, i) => i + 1)
       setChapters(chapterArray)
 
-      // Reset to chapter 1 and auto-set verse ranges
-      setValue(`scripturePassages.${index}.chapter`, 1)
-      setValue(`scripturePassages.${index}.verseStart`, 1)
+      // Only reset values if the book actually changed (not on initial mount)
+      if (prevBookRef.current && prevBookRef.current !== watchedBook) {
+        // Reset to chapter 1 and auto-set verse ranges
+        setValue(`scripturePassages.${index}.chapter`, 1)
+        setValue(`scripturePassages.${index}.verseStart`, 1)
 
-      // Set end verse to last verse in chapter 1
-      const verseCountChapter1 = getVerseCount(watchedBook, 1)
-      setValue(`scripturePassages.${index}.verseEnd`, verseCountChapter1)
+        // Set end verse to last verse in chapter 1
+        const verseCountChapter1 = getVerseCount(watchedBook, 1)
+        setValue(`scripturePassages.${index}.verseEnd`, verseCountChapter1)
+      }
+
+      prevBookRef.current = watchedBook
     }
   }, [watchedBook, setValue, index])
 
@@ -753,9 +778,14 @@ function ScripturePassageField({ index, register, setValue, watch, errors, onRem
       const verseArray = Array.from({ length: verseCount }, (_, i) => i + 1)
       setVerses(verseArray)
 
-      // Auto-default start verse to 1 and end verse to last verse in chapter
-      setValue(`scripturePassages.${index}.verseStart`, 1)
-      setValue(`scripturePassages.${index}.verseEnd`, verseCount)
+      // Only reset values if the chapter actually changed (not on initial mount)
+      if (prevChapterRef.current && prevChapterRef.current !== watchedChapter) {
+        // Auto-default start verse to 1 and end verse to last verse in chapter
+        setValue(`scripturePassages.${index}.verseStart`, 1)
+        setValue(`scripturePassages.${index}.verseEnd`, verseCount)
+      }
+
+      prevChapterRef.current = watchedChapter
     }
   }, [watchedBook, watchedChapter, setValue, index])
 
