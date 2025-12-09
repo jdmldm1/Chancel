@@ -11,27 +11,27 @@ Welcome to Chancel, a modern platform designed for immersive group Bible study. 
 | Dashboard & Sessions                                   | AI-Powered Insights                                        |
 | ------------------------------------------------------ | ---------------------------------------------------------- |
 | ![Dashboard](screenshots/chancel_dashboard.png)        | ![AI Insights](screenshots/chancel_ai_insights_summary.png) |
-| *The user dashboard provides a centralized view of your sessions and activities.* | *Optional AI integration with Ollama offers deeper scriptural analysis.* |
+| *Your personalized starting point. Effortlessly manage upcoming and past sessions, view group activity, and stay organized.* | *Deepen your understanding with AI-driven summaries, character analyses, and historical context for any scripture passage, powered by Ollama.* |
 
 | Bible Browser & Passage Comments                       | Session Details & Chat                                     |
 | ------------------------------------------------------ | ---------------------------------------------------------- |
 | ![Bible Browser](screenshots/chancel_bible_browser.png) | ![Session Details](screenshots/chancel_session_details.png) |
-| *Easily browse and select scripture passages for your study.* | *Each session includes a detailed view and a real-time chat for discussion.* |
+| *Navigate the Bible with ease. Search for passages, add them to your sessions, and see where group discussions are unfolding.* | *Dive into the heart of your study with a dedicated session view, complete with real-time chat for dynamic group interaction and shared insights.* |
 
-| Prayer Requests & Series Browser                       |
+| Passage Commenting                                     |
 | ------------------------------------------------------ |
-| ![Prayer Requests](screenshots/chancel_prayer_request.png) |
-| *A dedicated space for group members to share and view prayer requests.* |
+| ![Passage Commenting](screenshots/chancel_passagecomment.png) |
+| *Engage directly with the text. Click on any verse to add your thoughts, ask questions, and participate in threaded discussions, all in real-time.* |
 
 ### Core Features
 
--   **Interactive Study Sessions:** Create and manage study sessions with selected scripture passages.
--   **Real-Time Discussion:** Comment on specific verses and engage in live, threaded conversations.
--   **AI-Powered Insights:** Optionally integrate with **Ollama** to generate summaries, character analyses, and historical context for scripture passages.
--   **Virtual Meeting Rooms:** Each session can have an integrated **Jitsi** video call room, allowing for face-to-face discussion alongside the text.
--   **Resource Sharing:** Upload and share relevant documents, links, and notes within a session.
--   **Prayer Wall:** A shared space for your group to post and pray for one another's needs.
--   **Series Planning:** Organize individual sessions into a cohesive series for longer-running studies.
+-   **Interactive Study Sessions:** Create and manage dynamic study sessions, effortlessly adding scripture passages, videos, and resources to guide your group's exploration of the Bible. Leaders can prepare sessions, and members can join to engage with the material.
+-   **Real-Time Discussion:** Foster vibrant community by allowing participants to comment directly on specific verses. All comments and replies update instantly across the group, enabling rich, contextualized conversations that deepen understanding.
+-   **AI-Powered Insights:** Leverage optional integration with **Ollama** to unlock deeper understanding. Generate instant summaries, insightful character analyses, and comprehensive historical context for any scripture passage, enriching your study experience.
+-   **Virtual Meeting Rooms:** Integrate seamlessly with your discussion by utilizing built-in **Jitsi** video call rooms. Facilitate face-to-face interaction and discussion alongside the scripture text and comments, bringing your group closer.
+-   **Resource Sharing:** Easily upload and share supplementary materials such as PDFs, external links, and personal notes directly within a session, ensuring all members have access to valuable study aids.
+-   **Prayer Wall:** Cultivate spiritual support with a dedicated Prayer Wall where group members can openly share prayer requests and intercede for one another, fostering a sense of community and care.
+-   **Series Planning:** Structure your studies effectively by organizing individual sessions into cohesive series. This allows for in-depth exploration of books, themes, or topics over multiple meetings, providing continuity and progressive learning.
 
 ---
 
