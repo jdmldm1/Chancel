@@ -137,6 +137,9 @@ See `CLAUDE.md` for architecture and technical guidelines.
 - [x] Environment configuration templates
 - [x] `DOCKER.md` documentation
 
+### Documentation
+- [x] Add MIT License
+
 ---
 
 ## 🔄 CURRENT IMPLEMENTATION TASKS

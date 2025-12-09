@@ -128,3 +128,7 @@ BibleProject/
 *   `apps/web/app/page.tsx`: The main entry point for the Next.js application.
 *   `apps/api/src/index.ts`: The main entry point for the GraphQL API.
 *   `packages/db/prisma/schema.prisma`: The database schema.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
