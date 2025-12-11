@@ -170,5 +170,5 @@ Navigate to the `ScriptureLibrary` table and you should see:
 - **Start discussions** using the inline commenting feature
 
 For more detailed information, see:
-- [CLAUDE.md](./CLAUDE.md) - Full project documentation
+- [DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md) - Full project documentation
 - [BIBLE_SEEDING.md](./packages/db/BIBLE_SEEDING.md) - Bible data import details

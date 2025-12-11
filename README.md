@@ -369,7 +369,7 @@ BibleProject/
 ├── .eslintrc.json           # ESLint + security rules
 ├── playwright.config.ts     # E2E test configuration
 ├── sonar-project.properties # SonarQube configuration
-├── CLAUDE.md                # Developer guide & architecture
+├── DEVELOPER_GUIDE.md       # Developer guide & architecture
 └── TODO.md                  # Project task tracker
 ```
 
@@ -424,7 +424,7 @@ mutation CreateSession {
 
 ### Architecture & Guidelines
 
-See **[CLAUDE.md](./CLAUDE.md)** for:
+See **[DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md)** for:
 - Detailed architecture decisions
 - Development best practices
 - GraphQL implementation patterns
@@ -493,7 +493,7 @@ node --version  # Should be 18.x or higher
 
 ## Contributing
 
-1. Follow the development guidelines in [CLAUDE.md](./CLAUDE.md)
+1. Follow the development guidelines in [DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md)
 2. Use TypeScript strict mode for all code
 3. Write tests for new features (Vitest for units, Playwright for E2E)
 4. Run linting and security checks before committing
@@ -540,7 +540,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Support
 
 - **Issues:** Report bugs and request features via GitHub Issues
-- **Documentation:** See [CLAUDE.md](./CLAUDE.md) for comprehensive docs
+- **Documentation:** See [DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md) for comprehensive docs
 - **Tasks:** Track progress in [TODO.md](./TODO.md)
 - **Financial:** If you find this project helpful, you can [buy me a coffee](https://buymeacoffee.com/jdmldm1) to support its development.
 

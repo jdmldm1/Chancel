@@ -4,7 +4,7 @@
 **Project Status:** ~83% Complete ✅
 
 This is the **single source of truth** for project status, features, and implementation tasks.
-See `CLAUDE.md` for architecture and technical guidelines.
+See `DEVELOPER_GUIDE.md` for architecture and technical guidelines.
 
 **Note:** This file consolidates information previously in FEATURES_COMPLETED.md and IMPLEMENTATION_GUIDE.md (now deprecated).
 
