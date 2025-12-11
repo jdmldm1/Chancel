@@ -191,6 +191,65 @@ const baseResolvers = {
       })
     },
 
+    paginatedPassages: async (
+      _parent: unknown,
+      args: { sessionId: string; limit?: number; offset?: number; includeCompleted?: boolean },
+      context: Context
+    ) => {
+      const limit = args.limit || 15
+      const offset = args.offset || 0
+      const includeCompleted = args.includeCompleted ?? false
+
+      // Build where clause to optionally filter out completed passages
+      const whereClause: any = { sessionId: args.sessionId }
+
+      if (!includeCompleted && context.userId) {
+        // Exclude passages that the current user has completed
+        whereClause.NOT = {
+          completions: {
+            some: {
+              userId: context.userId
+            }
+          }
+        }
+      }
+
+      // Get total count (all passages for the session)
+      const totalCount = await context.prisma.scripturePassage.count({
+        where: { sessionId: args.sessionId },
+      })
+
+      // Get completed count for current user
+      const completedCount = context.userId
+        ? await context.prisma.passageCompletion.count({
+            where: {
+              userId: context.userId,
+              passage: {
+                sessionId: args.sessionId,
+              },
+            },
+          })
+        : 0
+
+      // Get paginated passages
+      const passages = await context.prisma.scripturePassage.findMany({
+        where: whereClause,
+        orderBy: { order: 'asc' },
+        take: limit,
+        skip: offset,
+      })
+
+      const progressPercentage = totalCount > 0 ? (completedCount / totalCount) * 100 : 0
+
+      return {
+        passages,
+        totalCount,
+        hasMore: offset + passages.length < totalCount,
+        completedCount,
+        progressPercentage,
+      }
+    },
+
     sessionResources: async (_parent: unknown, args: { sessionId: string }, context: Context) => {
       return context.prisma.sessionResource.findMany({
         where: { sessionId: args.sessionId },
@@ -846,6 +905,42 @@ const baseResolvers = {
       return true
     },
 
+    togglePassageCompletion: async (
+      _parent: unknown,
+      args: { passageId: string },
+      context: Context
+    ) => {
+      if (!context.userId) {
+        throw new Error('Not authenticated')
+      }
+
+      // Check if completion already exists
+      const existingCompletion = await context.prisma.passageCompletion.findUnique({
+        where: {
+          passageId_userId: {
+            passageId: args.passageId,
+            userId: context.userId,
+          },
+        },
+      })
+
+      if (existingCompletion) {
+        // Remove completion (toggle off)
+        await context.prisma.passageCompletion.delete({
+          where: { id: existingCompletion.id },
+        })
+        return null
+      } else {
+        // Add completion (toggle on)
+        return context.prisma.passageCompletion.create({
+          data: {
+            passageId: args.passageId,
+            userId: context.userId,
+          },
+        })
+      }
+    },
+
     joinSession: async (
       _parent: unknown,
       args: { sessionId: string },
@@ -1466,6 +1561,31 @@ const baseResolvers = {
       // Use DataLoader to batch comment lookups by passage
       return context.loaders.commentsByPassageLoader.load(parent.id)
     },
+    isCompleted: async (parent: { id: string }, _args: unknown, context: Context) => {
+      if (!context.userId) return false
+
+      const completion = await context.prisma.passageCompletion.findUnique({
+        where: {
+          passageId_userId: {
+            passageId: parent.id,
+            userId: context.userId,
+          },
+        },
+      })
+
+      return !!completion
+    },
+  },
+
+  PassageCompletion: {
+    passage: (parent: { passageId: string }, _args: unknown, context: Context) => {
+      return context.prisma.scripturePassage.findUnique({
+        where: { id: parent.passageId },
+      })
+    },
+    user: (parent: { userId: string }, _args: unknown, context: Context) => {
+      return context.loaders.userLoader.load(parent.userId)
+    },
   },
 
   Comment: {
@@ -1686,6 +1806,7 @@ export const resolvers = {
   Session: baseResolvers.Session,
   JoinRequest: baseResolvers.JoinRequest,
   ScripturePassage: baseResolvers.ScripturePassage,
+  PassageCompletion: baseResolvers.PassageCompletion,
   Comment: baseResolvers.Comment,
   SessionResource: baseResolvers.SessionResource,
   SessionParticipant: baseResolvers.SessionParticipant,

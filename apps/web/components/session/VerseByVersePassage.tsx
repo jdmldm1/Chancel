@@ -46,6 +46,8 @@ interface VerseByVersePassageProps {
   sessionId: string
   canComment: boolean
   onCommentChange?: () => void
+  onToggleCompletion?: () => void
+  showCompletionButton?: boolean
 }
 
 type SortOption = 'newest' | 'oldest'
@@ -55,6 +57,8 @@ export default function VerseByVersePassage({
   sessionId,
   canComment,
   onCommentChange,
+  onToggleCompletion,
+  showCompletionButton = false,
 }: VerseByVersePassageProps) {
   const { data: session } = useSession()
   const [selectedVerse, setSelectedVerse] = useState<number | null>(null)
@@ -162,9 +166,9 @@ export default function VerseByVersePassage({
   }
 
   return (
-    <div className="bg-white shadow-lg rounded-xl overflow-hidden border border-gray-100 transition-smooth hover:shadow-xl">
-      {/* Scripture Header */}
-      <div className="bg-blue-50 px-6 py-4 border-b border-blue-100 flex items-center justify-between">
+    <div className="bg-white shadow-lg rounded-xl border border-gray-100 transition-smooth hover:shadow-xl">
+      {/* Scripture Header - Sticky header that stays at top while scrolling through passage */}
+      <div className="sticky top-16 z-10 bg-blue-50 px-6 py-4 border-b border-blue-100 flex items-center justify-between rounded-t-xl">
         <h3 className="text-xl font-semibold text-blue-900">{reference}</h3>
         <div className="flex items-center gap-3">
           <button
@@ -179,6 +183,32 @@ export default function VerseByVersePassage({
             selectedVersion={bibleTranslation}
             onVersionChange={setBibleTranslation}
           />
+          {showCompletionButton && onToggleCompletion && (
+            <button
+              onClick={onToggleCompletion}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all duration-200 shadow-md ${
+                passage.isCompleted
+                  ? 'bg-green-600 hover:bg-green-700 text-white'
+                  : 'bg-white hover:bg-gray-50 text-gray-700 border-2 border-gray-300'
+              }`}
+            >
+              {passage.isCompleted ? (
+                <>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                  Completed
+                </>
+              ) : (
+                <>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  Mark Complete
+                </>
+              )}
+            </button>
+          )}
         </div>
       </div>
 

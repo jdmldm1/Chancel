@@ -104,6 +104,7 @@ export const typeDefs = `#graphql
     sessionId: String!
     book: String!
     chapter: Int!
+    chapterEnd: Int
     verseStart: Int!
     verseEnd: Int
     content: String!
@@ -111,8 +112,26 @@ export const typeDefs = `#graphql
     order: Int!
     session: Session!
     comments: [Comment!]!
+    isCompleted: Boolean! # Whether current user has marked this passage as complete
     createdAt: DateTime!
     updatedAt: DateTime!
+  }
+
+  type PassageCompletion {
+    id: ID!
+    passageId: String!
+    userId: String!
+    createdAt: DateTime!
+    passage: ScripturePassage!
+    user: User!
+  }
+
+  type PaginatedPassages {
+    passages: [ScripturePassage!]!
+    totalCount: Int!
+    hasMore: Boolean!
+    completedCount: Int!
+    progressPercentage: Float!
   }
 
   type Comment {
@@ -363,6 +382,7 @@ export const typeDefs = `#graphql
   input CreateScripturePassageInput {
     book: String!
     chapter: Int!
+    chapterEnd: Int
     verseStart: Int!
     verseEnd: Int
     content: String!
@@ -416,6 +436,7 @@ export const typeDefs = `#graphql
 
     # Scripture queries
     scripturePassages(sessionId: ID!): [ScripturePassage!]!
+    paginatedPassages(sessionId: ID!, limit: Int, offset: Int, includeCompleted: Boolean): PaginatedPassages!
 
     # Resource queries
     sessionResources(sessionId: ID!): [SessionResource!]!
@@ -487,6 +508,7 @@ export const typeDefs = `#graphql
     # Scripture passage mutations
     createScripturePassage(input: CreateScripturePassageInput!): ScripturePassage!
     deleteScripturePassage(id: ID!): Boolean!
+    togglePassageCompletion(passageId: ID!): PassageCompletion
 
     # Participant mutations
     joinSession(sessionId: ID!): SessionParticipant!

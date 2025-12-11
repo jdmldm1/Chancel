@@ -10,6 +10,8 @@ interface ScripturePassageCardProps {
   sessionId: string
   canComment: boolean
   onCommentChange?: () => void
+  onToggleCompletion?: () => void
+  showCompletionButton?: boolean
 }
 
 export default function ScripturePassageCard({
@@ -17,6 +19,8 @@ export default function ScripturePassageCard({
   sessionId,
   canComment,
   onCommentChange,
+  onToggleCompletion,
+  showCompletionButton,
 }: ScripturePassageCardProps) {
   return (
     <VerseByVersePassage
@@ -24,6 +28,8 @@ export default function ScripturePassageCard({
       sessionId={sessionId}
       canComment={canComment}
       onCommentChange={onCommentChange}
+      onToggleCompletion={onToggleCompletion}
+      showCompletionButton={showCompletionButton}
     />
   )
 }

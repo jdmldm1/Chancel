@@ -22,6 +22,7 @@ query GetMySessions {
       id
       book
       chapter
+      chapterEnd
       verseStart
       verseEnd
       content
@@ -61,6 +62,7 @@ query GetAllSessions {
       id
       book
       chapter
+      chapterEnd
       verseStart
       verseEnd
       content
@@ -94,6 +96,7 @@ mutation CreateSession($input: CreateSessionInput!) {
       id
       book
       chapter
+      chapterEnd
       verseStart
       verseEnd
       content

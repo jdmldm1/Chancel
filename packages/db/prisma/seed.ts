@@ -6,6 +6,130 @@ dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
 const prisma = new PrismaClient()
 
+// Year-long Bible Study Plan - 52 weeks covering the entire Bible
+const biblePlan = {
+  startDate: '2026-01-04T00:00:00.000Z', // First Sunday of 2026
+  series: [
+    {
+      title: 'Foundations: In the Beginning',
+      description: 'Journey through the origins of creation, humanity, and God\'s covenant with Israel. From the garden of Eden to the edge of the Promised Land, discover how God\'s redemptive plan began.',
+      imageUrl: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=800',
+      weeks: [
+        { week: 1, readings: [{ book: 'Genesis', start: 1, end: 11, note: 'Creation, Fall, and the Flood. Pay attention to how sin enters the world and God\'s response. Notice the pattern of human rebellion and divine grace that begins here.' }] },
+        { week: 2, readings: [{ book: 'Genesis', start: 12, end: 25, note: 'Abraham\'s call and covenant. This is foundational to understanding all of Scripture - God choosing a family to bless all nations. Notice Abraham\'s faith journey with its ups and downs.' }] },
+        { week: 3, readings: [{ book: 'Genesis', start: 26, end: 36, note: 'Isaac and Jacob. Watch how God\'s promises pass through imperfect people. Jacob\'s wrestling with God is a powerful picture of transformation.' }] },
+        { week: 4, readings: [{ book: 'Genesis', start: 37, end: 50, note: 'Joseph\'s story. A beautiful narrative of God\'s sovereignty through betrayal, suffering, and ultimately redemption. Genesis 50:20 is key.' }] },
+        { week: 5, readings: [{ book: 'Exodus', start: 1, end: 15, note: 'Israel\'s slavery and the great Exodus. The Passover is central to understanding Christ. Notice how God reveals His name and character to Moses.' }] },
+        { week: 6, readings: [{ book: 'Exodus', start: 16, end: 30, note: 'Journey to Sinai and the Ten Commandments. The giving of the Law is a marriage covenant between God and Israel. The tabernacle shows how God dwells with His people.' }] },
+        { week: 7, readings: [{ book: 'Exodus', start: 31, end: 40, note: 'The golden calf and restoration. A sobering reminder of human fickleness and God\'s patience. The tabernacle\'s completion shows God\'s glory dwelling among His people.' }] },
+        { week: 8, readings: [{ book: 'Leviticus', start: 1, end: 27, note: 'Holiness and sacrifice. While detailed, Leviticus teaches that a holy God requires proper approach. Every sacrifice points forward to Christ, the final sacrifice.' }] },
+        { week: 9, readings: [{ book: 'Numbers', start: 1, end: 21, note: 'Wilderness wanderings. A generation\'s failure to trust God. Notice the cycle of rebellion, judgment, and mercy. The bronze serpent (21:9) prefigures Christ.' }] },
+        { week: 10, readings: [{ book: 'Numbers', start: 22, end: 36, note: 'Balaam and the new generation. Even pagan prophets must acknowledge Israel\'s God. The new generation prepares to enter the land their parents rejected.' }] },
+        { week: 11, readings: [{ book: 'Deuteronomy', start: 1, end: 17, note: 'Moses\' first address. A retelling of the wilderness journey and renewed call to obedience. The Shema (6:4-9) is central to Jewish faith.' }] },
+        { week: 12, readings: [{ book: 'Deuteronomy', start: 18, end: 34, note: 'Covenant renewal and Moses\' farewell. The blessings and curses outline Israel\'s future. Moses glimpses the Promised Land but doesn\'t enter - a poignant ending.' }] },
+        { week: 13, readings: [{ book: 'Joshua', start: 1, end: 24, note: 'Conquest and inheritance. God fulfills His promises as Israel enters Canaan. Joshua 24:15 challenges every generation: "Choose this day whom you will serve."' }] },
+      ]
+    },
+    {
+      title: 'Kingdom & Wisdom: Judges to Songs',
+      description: 'From the chaos of the Judges to the glory of Solomon\'s kingdom, and through the wisdom literature that shaped Israel\'s worship and daily life. See how God works through flawed leaders and teaches His people to live wisely.',
+      imageUrl: 'https://images.unsplash.com/photo-1519791883288-dc8bd696e667?w=800',
+      weeks: [
+        { week: 14, readings: [{ book: 'Judges', start: 1, end: 21, note: 'The cycle of apostasy. "Everyone did what was right in their own eyes" - a dark period showing Israel\'s need for a true king. Yet God raises up deliverers.' }] },
+        { week: 15, readings: [{ book: 'Ruth', start: 1, end: 4, note: 'A beautiful story of loyalty and redemption during the judges period. Ruth, a foreigner, becomes part of the Messianic line. Boaz is a picture of Christ the Redeemer.' }] },
+        { week: 16, readings: [{ book: '1 Samuel', start: 1, end: 15, note: 'From Samuel to Saul. Israel demands a king "like the other nations." Saul starts well but his disobedience leads to rejection. Man looks at outward appearance; God looks at the heart.' }] },
+        { week: 17, readings: [{ book: '1 Samuel', start: 16, end: 31, note: 'David\'s rise and Saul\'s decline. David, a shepherd boy, defeats Goliath and becomes the man after God\'s own heart. Notice David\'s trust and Saul\'s jealousy.' }] },
+        { week: 18, readings: [{ book: '2 Samuel', start: 1, end: 24, note: 'David\'s reign. His greatest triumphs and his worst failures. The Davidic Covenant (ch 7) promises an eternal dynasty - ultimately fulfilled in Christ.' }] },
+        { week: 19, readings: [{ book: '1 Kings', start: 1, end: 11, note: 'Solomon\'s wisdom and folly. God grants him unparalleled wisdom and wealth, yet foreign wives lead his heart astray. The temple is built but the kingdom will divide.' }] },
+        { week: 20, readings: [{ book: '1 Kings', start: 12, end: 22, note: 'The divided kingdom. Israel splits into north and south. Elijah confronts Baal worship. Notice God\'s patience with rebellious people.' }] },
+        { week: 21, readings: [{ book: '2 Kings', start: 1, end: 17, note: 'Elisha\'s ministry and Israel\'s fall. Miracles abound through Elisha, but the northern kingdom continues in idolatry until Assyria conquers them (722 BC).' }] },
+        { week: 22, readings: [{ book: '2 Kings', start: 18, end: 25, note: 'Judah\'s last days. Some godly kings bring reform (Hezekiah, Josiah) but ultimately Babylon destroys Jerusalem and the temple (586 BC). A devastating end.' }] },
+        { week: 23, readings: [{ book: '1 Chronicles', start: 1, end: 29, note: 'Retelling of David\'s reign. Written after exile, Chronicles emphasizes worship, temple, and God\'s faithfulness. David prepares for the temple he cannot build.' }] },
+        { week: 24, readings: [{ book: '2 Chronicles', start: 1, end: 36, note: 'Solomon to exile. Chronicles focuses on Judah\'s kings, the temple, and religious reforms. Ends with Cyrus\' decree - a note of hope after judgment.' }] },
+        { week: 25, readings: [{ book: 'Ezra', start: 1, end: 10, book2: 'Nehemiah', start2: 1, end2: 13, note: 'Return from exile. Ezra leads spiritual renewal; Nehemiah rebuilds Jerusalem\'s walls. Despite opposition, God\'s people rebuild both physically and spiritually.' }] },
+        { week: 26, readings: [{ book: 'Esther', start: 1, end: 10, book2: 'Job', start2: 1, end2: 42, note: 'Providence and suffering. Esther: God\'s unseen hand protects His people. Job: Wrestling with suffering and God\'s sovereignty. Both books explore faith when God seems distant.' }] },
+      ]
+    },
+    {
+      title: 'Prophets: Voices of Warning & Hope',
+      description: 'The prophets called Israel back to God, warned of judgment, and promised restoration. Their messages of justice, mercy, and coming redemption echo through the ages, pointing toward the Messiah.',
+      imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800',
+      weeks: [
+        { week: 27, readings: [{ book: 'Psalms', start: 1, end: 50, note: 'Israel\'s hymnbook. Every human emotion is expressed here in worship. Notice the messianic psalms (2, 22, 110). Let these prayers become your prayers.' }] },
+        { week: 28, readings: [{ book: 'Psalms', start: 51, end: 100, note: 'From David\'s penitential psalm (51) through songs of praise. The psalms teach us to bring everything to God - confession, lament, thanksgiving, joy.' }] },
+        { week: 29, readings: [{ book: 'Psalms', start: 101, end: 150, note: 'Concluding with pure praise. The "Songs of Ascent" (120-134) were sung going up to Jerusalem. Book ends with "Let everything that has breath praise the Lord!"' }] },
+        { week: 30, readings: [{ book: 'Proverbs', start: 1, end: 31, note: 'Practical wisdom for daily life. "The fear of the Lord is the beginning of wisdom." These sayings teach how to live skillfully in God\'s world.' }] },
+        { week: 31, readings: [{ book: 'Ecclesiastes', start: 1, end: 12, book2: 'Song of Solomon', start2: 1, end2: 8, note: 'Two sides of life. Ecclesiastes: Life "under the sun" is meaningless without God. Song of Songs: Celebration of marital love as God designed it.' }] },
+        { week: 32, readings: [{ book: 'Isaiah', start: 1, end: 39, note: 'Judgment and holiness. Isaiah\'s vision of God\'s holiness (ch 6) transforms him. Prophecies against nations show God\'s sovereignty. The Messiah is promised (7:14, 9:6).' }] },
+        { week: 33, readings: [{ book: 'Isaiah', start: 40, end: 66, note: 'Comfort and restoration. "Comfort, comfort my people" begins a section of hope. The Suffering Servant songs (esp. ch 53) vividly portray Christ\'s sacrifice.' }] },
+        { week: 34, readings: [{ book: 'Jeremiah', start: 1, end: 29, note: 'The weeping prophet. Jeremiah warns Judah for decades before exile. Called to preach an unpopular message, he models faithfulness despite rejection.' }] },
+        { week: 35, readings: [{ book: 'Jeremiah', start: 30, end: 52, note: 'Fall of Jerusalem and hope beyond. The New Covenant promise (31:31-34) is foundational to Christianity. Even in judgment, God promises restoration.' }] },
+        { week: 36, readings: [{ book: 'Lamentations', start: 1, end: 5, book2: 'Ezekiel', start2: 1, end2: 24, note: 'Grief and visions. Lamentations: Poetic mourning over Jerusalem\'s fall. Ezekiel: Dramatic visions of God\'s glory and prophetic acts depicting judgment.' }] },
+        { week: 37, readings: [{ book: 'Ezekiel', start: 25, end: 48, note: 'Restoration promises. After judgment comes hope - dry bones live again (37), the new temple, and God\'s promise: "I will dwell among them forever."' }] },
+        { week: 38, readings: [{ book: 'Daniel', start: 1, end: 12, note: 'Faithfulness in exile. Daniel and friends remain faithful in Babylon. Apocalyptic visions reveal God\'s control over history and the coming eternal kingdom.' }] },
+        { week: 39, readings: [
+          { book: 'Hosea', start: 1, end: 14, note: 'God\'s faithful love despite unfaithfulness - portrayed through Hosea\'s marriage to an unfaithful wife.' },
+          { book: 'Joel', start: 1, end: 3, note: 'The Day of the Lord and the promise of the Spirit (2:28-32, quoted at Pentecost).' },
+          { book: 'Amos', start: 1, end: 9, note: 'Social justice and God\'s righteous judgment against oppression.' },
+          { book: 'Obadiah', start: 1, end: 1, note: 'Judgment on Edom for violence against Judah.' },
+          { book: 'Jonah', start: 1, end: 4, note: 'God\'s mercy extends even to enemies. Jonah\'s reluctance shows how narrow our hearts can be.' },
+          { book: 'Micah', start: 1, end: 7, note: 'Justice, mercy, humility (6:8). Messiah\'s birthplace predicted (5:2).' },
+          { book: 'Nahum', start: 1, end: 3, note: 'Nineveh\'s final judgment. God is patient but will not tolerate evil forever.' },
+          { book: 'Habakkuk', start: 1, end: 3, note: 'Wrestling with God about injustice. "The righteous will live by faith" (2:4).' },
+          { book: 'Zephaniah', start: 1, end: 3, note: 'The great Day of the Lord brings judgment but also restoration.' },
+          { book: 'Haggai', start: 1, end: 2, note: 'Rebuild the temple! Priorities matter - put God first.' },
+          { book: 'Zechariah', start: 1, end: 14, note: 'Messianic visions of the coming King who will be pierced (12:10).' },
+          { book: 'Malachi', start: 1, end: 4, note: 'The last OT prophet. Calls for faithfulness and promises Elijah will come before the Messiah. Then 400 years of silence.' }
+        ]}
+      ]
+    },
+    {
+      title: 'New Covenant: The Messiah & His Church',
+      description: 'The long-awaited Messiah arrives, bringing the Kingdom of God. Follow Jesus\' life, death, and resurrection, then see how His Spirit builds and guides the early church. End with visions of ultimate restoration.',
+      imageUrl: 'https://images.unsplash.com/photo-1476357471311-43c0db9fb2b4?w=800',
+      weeks: [
+        { week: 40, readings: [{ book: 'Matthew', start: 1, end: 28, note: 'Jesus as the Jewish Messiah-King. Notice fulfillment of OT prophecies. The Sermon on the Mount (5-7) and Great Commission (28:18-20) are central.' }] },
+        { week: 41, readings: [{ book: 'Mark', start: 1, end: 16, note: 'The suffering Servant. Fast-paced action showing Jesus as the Son of God who came to serve and give His life as a ransom. The cross is central to Mark\'s gospel.' }] },
+        { week: 42, readings: [{ book: 'Luke', start: 1, end: 24, note: 'Jesus the Savior of all people. Luke emphasizes Jesus\' compassion for outcasts, women, and Gentiles. Beautiful birth narrative and powerful resurrection account.' }] },
+        { week: 43, readings: [{ book: 'John', start: 1, end: 21, note: 'Jesus as the eternal Word made flesh. John\'s Gospel is theological and intimate. The "I AM" statements reveal Jesus\' deity. Belief leads to eternal life.' }] },
+        { week: 44, readings: [{ book: 'Acts', start: 1, end: 28, note: 'The Spirit-empowered church. From Jerusalem to Rome, the Gospel spreads. Notice the role of the Holy Spirit, prayer, and bold witness despite persecution.' }] },
+        { week: 45, readings: [{ book: 'Romans', start: 1, end: 16, note: 'The Gospel explained. Paul\'s masterpiece on justification by faith. All have sinned, Christ died for us, now we live by the Spirit. Chapters 1-8 are crucial.' }] },
+        { week: 46, readings: [
+          { book: '1 Corinthians', start: 1, end: 16, note: 'Church problems addressed. Divisions, immorality, lawsuits, worship issues, spiritual gifts. Love (ch 13) and resurrection (ch 15) are key.' },
+          { book: '2 Corinthians', start: 1, end: 13, note: 'Paul defends his ministry. Suffering for Christ, the new covenant, generosity, and strength in weakness are themes.' }
+        ]},
+        { week: 47, readings: [
+          { book: 'Galatians', start: 1, end: 6, note: 'Freedom in Christ vs. slavery to law. Justification is by faith alone, not works. Walk by the Spirit and bear His fruit (5:22-23).' },
+          { book: 'Ephesians', start: 1, end: 6, note: 'The church as Christ\'s body. Rich theology of our identity in Christ and practical teaching on unity, spiritual warfare, and relationships.' },
+          { book: 'Philippians', start: 1, end: 4, note: 'Joy in Christ despite circumstances. Christ\'s humility (2:5-11) is our model. "Rejoice in the Lord always!"' },
+          { book: 'Colossians', start: 1, end: 4, note: 'The supremacy of Christ. He is over all creation and the church. Don\'t be deceived by false teaching or empty philosophy.' }
+        ]},
+        { week: 48, readings: [
+          { book: '1 Thessalonians', start: 1, end: 5, note: 'Encouragement and Christ\'s return. Model church, holy living, and hope in the second coming.' },
+          { book: '2 Thessalonians', start: 1, end: 3, note: 'Correction about the Day of the Lord. Stand firm while waiting for Christ\'s return.' },
+          { book: '1 Timothy', start: 1, end: 6, note: 'Instructions for church leadership. Qualifications for elders and deacons, sound doctrine, and godly living.' },
+          { book: '2 Timothy', start: 1, end: 4, note: 'Paul\'s final letter. "Fight the good fight, finish the race, keep the faith." Guard the Gospel and endure suffering.' },
+          { book: 'Titus', start: 1, end: 3, note: 'Church order in Crete. Good works flow from sound doctrine and God\'s grace.' },
+          { book: 'Philemon', start: 1, end: 1, note: 'A slave becomes a brother. Beautiful picture of reconciliation and Christian fellowship.' }
+        ]},
+        { week: 49, readings: [{ book: 'Hebrews', start: 1, end: 13, note: 'Jesus is better than everything in the old covenant. Better than angels, Moses, and the priesthood. He is the final sacrifice. Hold fast to faith!' }] },
+        { week: 50, readings: [
+          { book: 'James', start: 1, end: 5, note: 'Faith produces works. Practical wisdom on trials, speech, pride, patience, and prayer. Faith without works is dead.' },
+          { book: '1 Peter', start: 1, end: 5, note: 'Hope in suffering. Living as exiles, endure trials knowing Christ suffered for us. Submit, resist the devil, trust God\'s grace.' },
+          { book: '2 Peter', start: 1, end: 3, note: 'Grow in knowledge and beware false teachers. The Day of the Lord will come - live holy lives as you wait.' }
+        ]},
+        { week: 51, readings: [
+          { book: '1 John', start: 1, end: 5, note: 'Walking in the light and love. Test the spirits, love one another, know that you have eternal life in Christ.' },
+          { book: '2 John', start: 1, end: 1, note: 'Walk in truth and love. Do not welcome false teachers.' },
+          { book: '3 John', start: 1, end: 1, note: 'Support faithful teachers of the truth.' },
+          { book: 'Jude', start: 1, end: 1, note: 'Contend for the faith. Warning against false teachers who pervert grace into license.' }
+        ]},
+        { week: 52, readings: [{ book: 'Revelation', start: 1, end: 22, note: 'The grand finale. Letters to churches (1-3), throne room visions (4-5), judgments (6-19), and ultimate victory - Satan defeated, death destroyed, new creation (21-22). "Come, Lord Jesus!"' }] }
+      ]
+    }
+  ]
+}
+
 async function main() {
   console.log('🌱 Starting database seed...')
 
@@ -54,622 +178,131 @@ async function main() {
 
   console.log('✅ Created test users')
 
-  // Create Series
-  const gospelOfJohn = await prisma.series.create({
-    data: {
-      title: 'Gospel of John: Believe and Have Life',
-      description: 'A deep dive into the Gospel of John, exploring the identity of Jesus as the Son of God and the path to eternal life.',
-      imageUrl: 'https://images.unsplash.com/photo-1504052434569-70ad5836ab65?w=400',
-      leaderId: leader.id,
-    },
-  })
+  // Start date: First Sunday of 2026 (January 4, 2026)
+  const startDate = new Date(biblePlan.startDate)
 
-  const romans = await prisma.series.create({
-    data: {
-      title: 'Romans: The Gospel Explained',
-      description: 'Understanding Paul\'s systematic presentation of the gospel, grace, and Christian living.',
-      imageUrl: 'https://images.unsplash.com/photo-1506157786151-b8491531f063?w=400',
-      leaderId: leader.id,
-    },
-  })
-
-  const genesis = await prisma.series.create({
-    data: {
-      title: 'Genesis: In the Beginning',
-      description: 'Exploring the foundations of faith through the book of beginnings.',
-      imageUrl: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400',
-      leaderId: leader.id,
-    },
-  })
-
-  const psalms = await prisma.series.create({
-    data: {
-      title: 'Psalms of Praise and Lament',
-      description: 'Learning to pray through the Psalms in times of joy and sorrow.',
-      imageUrl: 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400',
-      leaderId: leader.id,
-    },
-  })
-
-  const wisdom = await prisma.series.create({
-    data: {
-      title: 'Wisdom Literature: Living Skillfully',
-      description: 'Practical wisdom from Proverbs, Ecclesiastes, and James for daily living.',
-      imageUrl: 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=400',
-      leaderId: leader.id,
-    },
-  })
-
-  const prophets = await prisma.series.create({
-    data: {
-      title: 'Major Prophets: God\'s Messengers',
-      description: 'Understanding God\'s heart through Isaiah, Jeremiah, and Daniel.',
-      imageUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=400',
-      leaderId: leader.id,
-    },
-  })
-
-  const bibleRecap = await prisma.series.create({
-    data: {
-      title: 'The Bible Recap: Year-Long Journey',
-      description: 'Read through the entire Bible in chronological order with daily recaps and study notes. Based on The Bible Recap reading plan.',
-      imageUrl: 'https://www.bible.com/_next/image?url=https%3A%2F%2Fimageproxy.youversionapi.com%2Fhttps%3A%2F%2Fs3.amazonaws.com%2Fyvplans%2F17553%2F1280x720.jpg&w=3840&q=75',
-      leaderId: leader.id,
-    },
-  })
-
-  console.log('✅ Created series')
-
-  const today = new Date()
-  const getDate = (daysFromNow: number) => {
-    const date = new Date(today)
-    date.setDate(date.getDate() + daysFromNow)
-    return date
+  // Helper function to get week start/end dates
+  const getWeekDates = (weekNumber: number) => {
+    const weekStart = new Date(startDate)
+    weekStart.setDate(startDate.getDate() + (weekNumber - 1) * 7)
+    const weekEnd = new Date(weekStart)
+    weekEnd.setDate(weekStart.getDate() + 6)
+    return { weekStart, weekEnd }
   }
 
-  // Gospel of John Sessions (8 sessions)
-  const johnSessions = [
-    {
-      title: 'The Word Became Flesh (Current)',
-      description: 'Understanding the prologue and the incarnation of Christ.',
-      passages: [
-        { book: 'John', chapter: 1, verseStart: 1, verseEnd: 18, note: 'Notice the parallels to Genesis 1. How does John present Jesus as both fully God and fully human?' }
-      ],
-      startDate: getDate(-2),
-      endDate: getDate(2)
-    },
-    {
-      title: 'The First Disciples and First Miracle (Past)',
-      description: 'Jesus calls His first followers and reveals His glory at Cana.',
-      passages: [
-        { book: 'John', chapter: 1, verseStart: 35, verseEnd: 51, note: 'What does it mean that Jesus is the Lamb of God?' },
-        { book: 'John', chapter: 2, verseStart: 1, verseEnd: 11, note: "How does this miracle reveal Jesus' glory?" }
-      ],
-      startDate: getDate(-10),
-      endDate: getDate(-8)
-    },
-    {
-      title: 'You Must Be Born Again (Future)',
-      description: 'Jesus teaches Nicodemus about spiritual rebirth.',
-      passages: [
-        { book: 'John', chapter: 3, verseStart: 1, verseEnd: 21, note: 'What does it mean to be born again? How does this relate to verse 16?' }
-      ],
-      startDate: getDate(8),
-      endDate: getDate(10)
-    },
-  ]
+  console.log('📖 Creating year-long Bible study series...')
 
-  for (const sessionData of johnSessions) {
-    await prisma.session.create({
+  let sessionCount = 0
+
+  // Create each series with its sessions
+  for (const seriesData of biblePlan.series) {
+    const series = await prisma.series.create({
       data: {
-        title: sessionData.title,
-        description: sessionData.description,
-        startDate: sessionData.startDate,
-        endDate: sessionData.endDate,
+        title: seriesData.title,
+        description: seriesData.description,
+        imageUrl: seriesData.imageUrl,
         leaderId: leader.id,
-        seriesId: gospelOfJohn.id,
-        visibility: SessionVisibility.PUBLIC,
-        scripturePassages: {
-          create: sessionData.passages.map((p, i) => ({
-            ...p,
-            content: '',
-            order: i,
-          })),
-        },
       },
     })
-  }
+    console.log(`✅ Created series: ${seriesData.title}`)
 
-  console.log('✅ Created Gospel of John sessions')
+    // Create sessions for this series
+    for (const weekData of seriesData.weeks) {
+      const { weekStart, weekEnd } = getWeekDates(weekData.week)
 
-  // Romans Sessions (6 sessions)
-  const romansSessions = [
-    {
-      title: 'The Power of the Gospel',
-      description: 'Paul introduces his letter and the theme of righteousness through faith.',
-      passages: [
-        { book: 'Romans', chapter: 1, verseStart: 1, verseEnd: 17, note: 'What is the gospel? Why is Paul not ashamed of it?' }
-      ],
-      day: 56
-    },
-    {
-      title: 'All Have Sinned',
-      description: 'Understanding universal sinfulness and God\'s judgment.',
-      passages: [
-        { book: 'Romans', chapter: 3, verseStart: 9, verseEnd: 31, note: 'How does Paul prove that all have sinned? What is the solution?' }
-      ],
-      day: 63
-    },
-    {
-      title: 'Justified by Faith',
-      description: 'Abraham as the example of justification through faith.',
-      passages: [
-        { book: 'Romans', chapter: 4, verseStart: 1, verseEnd: 25, note: 'How was Abraham justified? What does this teach us about faith?' }
-      ],
-      day: 70
-    },
-    {
-      title: 'Peace with God',
-      description: 'The blessings of justification and hope through Christ.',
-      passages: [
-        { book: 'Romans', chapter: 5, verseStart: 1, verseEnd: 21, note: 'List the benefits of justification. How does Adam compare to Christ?' }
-      ],
-      day: 77
-    },
-    {
-      title: 'Dead to Sin, Alive in Christ',
-      description: 'Understanding our union with Christ in His death and resurrection.',
-      passages: [
-        { book: 'Romans', chapter: 6, verseStart: 1, verseEnd: 23, note: 'What does it mean to be dead to sin? How should this affect our daily lives?' }
-      ],
-      day: 84
-    },
-    {
-      title: 'Life in the Spirit',
-      description: 'The Spirit\'s role in the Christian life and assurance of salvation.',
-      passages: [
-        { book: 'Romans', chapter: 8, verseStart: 1, verseEnd: 39, note: 'This is one of the greatest chapters in the Bible. What assurances does it give?' }
-      ],
-      day: 91
-    },
-  ]
+      // Build session title from readings
+      let sessionTitle = `Week ${weekData.week}: `
+      const readingTitles: string[] = []
 
-  for (const sessionData of romansSessions) {
-    await prisma.session.create({
-      data: {
-        title: sessionData.title,
-        description: sessionData.description,
-        startDate: getDate(sessionData.day),
-        endDate: getDate(sessionData.day + 7),
-        leaderId: leader.id,
-        seriesId: romans.id,
-        visibility: SessionVisibility.PUBLIC,
-        scripturePassages: {
-          create: sessionData.passages.map((p, i) => ({
-            ...p,
+      for (const reading of weekData.readings) {
+        let title = ''
+        if (reading.end && reading.end > reading.start) {
+          title = `${reading.book} ${reading.start}-${reading.end}`
+        } else {
+          title = `${reading.book} ${reading.start}`
+        }
+        readingTitles.push(title)
+
+        // Add second book if present (for weeks with multiple books)
+        if (reading.book2) {
+          let title2 = ''
+          if (reading.end2 && reading.end2 > reading.start2!) {
+            title2 = `${reading.book2} ${reading.start2}-${reading.end2}`
+          } else {
+            title2 = `${reading.book2} ${reading.start2}`
+          }
+          readingTitles.push(title2)
+        }
+      }
+
+      sessionTitle += readingTitles.join(', ')
+
+      // Create scripture passages for this session - one passage per chapter
+      const passages: any[] = []
+      let passageOrder = 0
+
+      for (const reading of weekData.readings) {
+        // Create one passage record for each chapter in the range
+        for (let chapter = reading.start; chapter <= reading.end; chapter++) {
+          passages.push({
+            book: reading.book,
+            chapter: chapter,
+            verseStart: 1,
+            verseEnd: null, // Full chapter
             content: '',
-            order: i,
-          })),
+            note: chapter === reading.start ? reading.note : '', // Only put note on first chapter
+            order: passageOrder++,
+          })
+        }
+
+        // Add second book if present
+        if (reading.book2 && reading.start2 && reading.end2) {
+          for (let chapter = reading.start2; chapter <= reading.end2; chapter++) {
+            passages.push({
+              book: reading.book2,
+              chapter: chapter,
+              verseStart: 1,
+              verseEnd: null,
+              content: '',
+              note: '', // Note is typically for the first reading
+              order: passageOrder++,
+            })
+          }
+        }
+      }
+
+      await prisma.session.create({
+        data: {
+          title: sessionTitle,
+          description: `Weekly Bible reading for ${seriesData.title}`,
+          startDate: weekStart,
+          endDate: weekEnd,
+          leaderId: leader.id,
+          seriesId: series.id,
+          visibility: SessionVisibility.PUBLIC,
+          imageUrl: seriesData.imageUrl,
+          scripturePassages: {
+            create: passages,
+          },
         },
-      },
-    })
+      })
+
+      sessionCount++
+    }
+    console.log(`✅ Created ${seriesData.weeks.length} sessions for ${seriesData.title}`)
   }
 
-  console.log('✅ Created Romans sessions')
+  console.log(`✅ Created all ${sessionCount} weekly sessions`)
 
-  // Genesis Sessions (5 sessions)
-  const genesisSessions = [
-    {
-      title: 'In the Beginning God Created',
-      description: 'The creation account and God\'s design for the world.',
-      passages: [
-        { book: 'Genesis', chapter: 1, verseStart: 1, verseEnd: 31, note: 'Notice the pattern: God speaks and it happens. What does this teach about God\'s power?' },
-        { book: 'Genesis', chapter: 2, verseStart: 1, verseEnd: 25, note: 'How does chapter 2 complement chapter 1? What is humanity\'s unique role?' }
-      ],
-      day: 98
-    },
-    {
-      title: 'The Fall and the Promise',
-      description: 'Sin enters the world, but God provides a promise of redemption.',
-      passages: [
-        { book: 'Genesis', chapter: 3, verseStart: 1, verseEnd: 24, note: 'What are the consequences of sin? Where do you see grace in this chapter?' }
-      ],
-      day: 105
-    },
-    {
-      title: 'Noah and the Flood',
-      description: 'God\'s judgment and salvation through the ark.',
-      passages: [
-        { book: 'Genesis', chapter: 6, verseStart: 5, verseEnd: 22, note: 'What does it mean that Noah found favor with God?' },
-        { book: 'Genesis', chapter: 9, verseStart: 1, verseEnd: 17, note: 'God makes a covenant with Noah. What does this teach about God\'s character?' }
-      ],
-      day: 112
-    },
-    {
-      title: 'The Call of Abraham',
-      description: 'God calls Abram and makes a covenant with him.',
-      passages: [
-        { book: 'Genesis', chapter: 12, verseStart: 1, verseEnd: 9, note: 'God\'s promise has three parts: land, descendants, and blessing. How is this fulfilled?' }
-      ],
-      day: 119
-    },
-    {
-      title: 'Joseph: From Pit to Palace',
-      description: 'God\'s sovereignty in Joseph\'s life and the preservation of His people.',
-      passages: [
-        { book: 'Genesis', chapter: 50, verseStart: 15, verseEnd: 26, note: 'What does Joseph mean in verse 20? How does God use evil for good?' }
-      ],
-      day: 126
-    },
-  ]
-
-  for (const sessionData of genesisSessions) {
-    await prisma.session.create({
-      data: {
-        title: sessionData.title,
-        description: sessionData.description,
-        startDate: getDate(sessionData.day),
-        endDate: getDate(sessionData.day + 7),
-        leaderId: leader.id,
-        seriesId: genesis.id,
-        visibility: SessionVisibility.PUBLIC,
-        scripturePassages: {
-          create: sessionData.passages.map((p, i) => ({
-            ...p,
-            content: '',
-            order: i,
-          })),
-        },
-      },
-    })
-  }
-
-  console.log('✅ Created Genesis sessions')
-
-  // Psalms Sessions (4 sessions)
-  const psalmsSessions = [
-    {
-      title: 'The Lord is My Shepherd',
-      description: 'Finding comfort and guidance in God\'s care.',
-      passages: [
-        { book: 'Psalm', chapter: 23, verseStart: 1, verseEnd: 6, note: 'This is the most famous psalm. What imagery does David use to describe God\'s care?' }
-      ],
-      day: 133
-    },
-    {
-      title: 'Create in Me a Clean Heart',
-      description: 'David\'s prayer of repentance after his sin with Bathsheba.',
-      passages: [
-        { book: 'Psalm', chapter: 51, verseStart: 1, verseEnd: 19, note: 'This is a model prayer of repentance. What does David ask for? What does he promise?' }
-      ],
-      day: 140
-    },
-    {
-      title: 'The Majesty of God',
-      description: 'Praising God for His creation and care for humanity.',
-      passages: [
-        { book: 'Psalm', chapter: 8, verseStart: 1, verseEnd: 9, note: 'How does David contrast God\'s majesty with humanity\'s insignificance? What is humanity\'s role?' }
-      ],
-      day: 147
-    },
-    {
-      title: 'Waiting on the Lord',
-      description: 'Learning patience and trust during difficult times.',
-      passages: [
-        { book: 'Psalm', chapter: 27, verseStart: 1, verseEnd: 14, note: 'What does it mean to wait on the Lord? How can we apply this today?' }
-      ],
-      day: 154
-    },
-  ]
-
-  for (const sessionData of psalmsSessions) {
-    await prisma.session.create({
-      data: {
-        title: sessionData.title,
-        description: sessionData.description,
-        startDate: getDate(sessionData.day),
-        endDate: getDate(sessionData.day + 7),
-        leaderId: leader.id,
-        seriesId: psalms.id,
-        visibility: SessionVisibility.PUBLIC,
-        scripturePassages: {
-          create: sessionData.passages.map((p, i) => ({
-            ...p,
-            content: '',
-            order: i,
-          })),
-        },
-      },
-    })
-  }
-
-  console.log('✅ Created Psalms sessions')
-
-  // Wisdom Literature Sessions (4 sessions)
-  const wisdomSessions = [
-    {
-      title: 'The Fear of the Lord',
-      description: 'Understanding the beginning of wisdom.',
-      passages: [
-        { book: 'Proverbs', chapter: 1, verseStart: 1, verseEnd: 7, note: 'What does it mean to fear the Lord? How is this the beginning of knowledge?' },
-        { book: 'Proverbs', chapter: 9, verseStart: 10, verseEnd: 12, note: 'The fear of the Lord appears again. Why is this so important?' }
-      ],
-      day: 161
-    },
-    {
-      title: 'The Power of Words',
-      description: 'Proverbs on the tongue and its impact.',
-      passages: [
-        { book: 'Proverbs', chapter: 18, verseStart: 21, verseEnd: 21, note: 'How can the tongue bring life or death?' },
-        { book: 'James', chapter: 3, verseStart: 1, verseEnd: 12, note: 'James builds on Proverbs. How can we tame our tongue?' }
-      ],
-      day: 168
-    },
-    {
-      title: 'Everything is Meaningless?',
-      description: 'Ecclesiastes and the search for meaning.',
-      passages: [
-        { book: 'Ecclesiastes', chapter: 1, verseStart: 1, verseEnd: 11, note: 'What is the Teacher\'s problem? How does life under the sun feel meaningless?' },
-        { book: 'Ecclesiastes', chapter: 12, verseStart: 9, verseEnd: 14, note: 'How does the Teacher conclude? What gives life meaning?' }
-      ],
-      day: 175
-    },
-    {
-      title: 'Faith and Works',
-      description: 'James on genuine faith that produces action.',
-      passages: [
-        { book: 'James', chapter: 2, verseStart: 14, verseEnd: 26, note: 'Can faith exist without works? How does James define genuine faith?' }
-      ],
-      day: 182
-    },
-  ]
-
-  for (const sessionData of wisdomSessions) {
-    await prisma.session.create({
-      data: {
-        title: sessionData.title,
-        description: sessionData.description,
-        startDate: getDate(sessionData.day),
-        endDate: getDate(sessionData.day + 7),
-        leaderId: leader.id,
-        seriesId: wisdom.id,
-        visibility: SessionVisibility.PUBLIC,
-        scripturePassages: {
-          create: sessionData.passages.map((p, i) => ({
-            ...p,
-            content: '',
-            order: i,
-          })),
-        },
-      },
-    })
-  }
-
-  console.log('✅ Created Wisdom Literature sessions')
-
-  // Major Prophets Sessions (3 sessions)
-  const prophetsSessions = [
-    {
-      title: 'Here Am I, Send Me',
-      description: 'Isaiah\'s call and vision of God\'s holiness.',
-      passages: [
-        { book: 'Isaiah', chapter: 6, verseStart: 1, verseEnd: 13, note: 'How does Isaiah respond to God\'s holiness? What is his mission?' }
-      ],
-      day: 189
-    },
-    {
-      title: 'The Suffering Servant',
-      description: 'Isaiah\'s prophecy of the Messiah who would bear our sins.',
-      passages: [
-        { book: 'Isaiah', chapter: 53, verseStart: 1, verseEnd: 12, note: 'This prophecy was written 700 years before Christ. How was it fulfilled in Jesus?' }
-      ],
-      day: 196
-    },
-    {
-      title: 'Daniel in the Lions\' Den',
-      description: 'Faithfulness to God despite persecution.',
-      passages: [
-        { book: 'Daniel', chapter: 6, verseStart: 1, verseEnd: 28, note: 'What can we learn from Daniel\'s courage and faith? How does God deliver him?' }
-      ],
-      day: 203
-    },
-  ]
-
-  for (const sessionData of prophetsSessions) {
-    await prisma.session.create({
-      data: {
-        title: sessionData.title,
-        description: sessionData.description,
-        startDate: getDate(sessionData.day),
-        endDate: getDate(sessionData.day + 7),
-        leaderId: leader.id,
-        seriesId: prophets.id,
-        visibility: SessionVisibility.PUBLIC,
-        scripturePassages: {
-          create: sessionData.passages.map((p, i) => ({
-            ...p,
-            content: '',
-            order: i,
-          })),
-        },
-      },
-    })
-  }
-
-  console.log('✅ Created Major Prophets sessions')
-
-  // The Bible Recap Sessions (30 sessions - first month)
-  const bibleRecapReadings = [
-    { day: 1, title: 'Day 1: In the Beginning', passages: [{ book: 'Genesis', chapter: 1, verseStart: 1, verseEnd: 31, note: 'God creates everything good. Notice the pattern and purpose in creation.' }, { book: 'Genesis', chapter: 2, verseStart: 1, verseEnd: 25, note: 'A closer look at humanity\'s creation and purpose.' }, { book: 'Genesis', chapter: 3, verseStart: 1, verseEnd: 24, note: 'The fall changes everything. How does sin affect relationships?' }] },
-    { day: 2, title: 'Day 2: Sin Spreads', passages: [{ book: 'Genesis', chapter: 4, verseStart: 1, verseEnd: 26, note: 'Cain and Abel - the first murder' }, { book: 'Genesis', chapter: 5, verseStart: 1, verseEnd: 32, note: 'Genealogy from Adam to Noah' }, { book: 'Genesis', chapter: 6, verseStart: 1, verseEnd: 22, note: 'God\'s grief over sin and Noah\'s obedience' }, { book: 'Genesis', chapter: 7, verseStart: 1, verseEnd: 24, note: 'The flood comes' }] },
-    { day: 3, title: 'Day 3: God\'s Covenant with Noah', passages: [{ book: 'Genesis', chapter: 8, verseStart: 1, verseEnd: 22, note: 'The waters recede' }, { book: 'Genesis', chapter: 9, verseStart: 1, verseEnd: 29, note: 'God\'s covenant and the rainbow' }, { book: 'Genesis', chapter: 10, verseStart: 1, verseEnd: 32, note: 'Table of nations' }, { book: 'Genesis', chapter: 11, verseStart: 1, verseEnd: 32, note: 'Tower of Babel and Abram\'s family' }] },
-    { day: 4, title: 'Day 4: Job\'s Suffering Begins', passages: [{ book: 'Job', chapter: 1, verseStart: 1, verseEnd: 22, note: 'Job loses everything but doesn\'t curse God' }, { book: 'Job', chapter: 2, verseStart: 1, verseEnd: 13, note: 'Physical suffering and friends arrive' }, { book: 'Job', chapter: 3, verseStart: 1, verseEnd: 26, note: 'Job\'s lament' }] },
-    { day: 5, title: 'Day 5: Job and His Friends Debate', passages: [{ book: 'Job', chapter: 6, verseStart: 1, verseEnd: 30, note: 'Job responds to Eliphaz' }, { book: 'Job', chapter: 7, verseStart: 1, verseEnd: 21, note: 'Job\'s complaint to God' }, { book: 'Job', chapter: 8, verseStart: 1, verseEnd: 22, note: 'Bildad speaks' }, { book: 'Job', chapter: 9, verseStart: 1, verseEnd: 35, note: 'Job responds - God\'s power and justice' }] },
-    { day: 6, title: 'Day 6: The Debate Continues', passages: [{ book: 'Job', chapter: 10, verseStart: 1, verseEnd: 22, note: 'Job questions God\'s purposes' }, { book: 'Job', chapter: 11, verseStart: 1, verseEnd: 20, note: 'Zophar accuses Job' }, { book: 'Job', chapter: 12, verseStart: 1, verseEnd: 25, note: 'Job defends his wisdom' }, { book: 'Job', chapter: 13, verseStart: 1, verseEnd: 28, note: 'Job desires to argue his case with God' }] },
-    { day: 7, title: 'Day 7: Life, Death, and Hope', passages: [{ book: 'Job', chapter: 14, verseStart: 1, verseEnd: 22, note: 'Meditation on mortality and hope' }, { book: 'Job', chapter: 15, verseStart: 1, verseEnd: 35, note: 'Eliphaz\'s second speech' }, { book: 'Job', chapter: 16, verseStart: 1, verseEnd: 22, note: 'Job\'s response - miserable comforters' }] },
-    { day: 8, title: 'Day 8: Job\'s Hope in His Redeemer', passages: [{ book: 'Job', chapter: 17, verseStart: 1, verseEnd: 16, note: 'Job\'s spirit is broken' }, { book: 'Job', chapter: 18, verseStart: 1, verseEnd: 21, note: 'Bildad\'s second speech' }, { book: 'Job', chapter: 19, verseStart: 1, verseEnd: 29, note: 'I know my Redeemer lives!' }, { book: 'Job', chapter: 20, verseStart: 1, verseEnd: 29, note: 'Zophar\'s second speech' }] },
-    { day: 9, title: 'Day 9: Why Do the Wicked Prosper?', passages: [{ book: 'Job', chapter: 21, verseStart: 1, verseEnd: 34, note: 'Job\'s response about the wicked' }, { book: 'Job', chapter: 22, verseStart: 1, verseEnd: 30, note: 'Eliphaz\'s third speech' }, { book: 'Job', chapter: 23, verseStart: 1, verseEnd: 17, note: 'Job longs to find God' }] },
-    { day: 10, title: 'Day 10: Where Can Wisdom Be Found?', passages: [{ book: 'Job', chapter: 24, verseStart: 1, verseEnd: 25, note: 'God seems distant from injustice' }, { book: 'Job', chapter: 25, verseStart: 1, verseEnd: 6, note: 'Bildad\'s third speech' }, { book: 'Job', chapter: 26, verseStart: 1, verseEnd: 14, note: 'Job\'s response about God\'s power' }, { book: 'Job', chapter: 27, verseStart: 1, verseEnd: 23, note: 'Job maintains his integrity' }, { book: 'Job', chapter: 28, verseStart: 1, verseEnd: 28, note: 'The source of wisdom' }] },
-    { day: 11, title: 'Day 11: Job Remembers Better Days', passages: [{ book: 'Job', chapter: 29, verseStart: 1, verseEnd: 25, note: 'Job\'s former blessings' }, { book: 'Job', chapter: 30, verseStart: 1, verseEnd: 31, note: 'Job\'s current suffering' }, { book: 'Job', chapter: 31, verseStart: 1, verseEnd: 40, note: 'Job\'s final defense' }] },
-    { day: 12, title: 'Day 12: Elihu Speaks', passages: [{ book: 'Job', chapter: 32, verseStart: 1, verseEnd: 22, note: 'Elihu\'s introduction' }, { book: 'Job', chapter: 33, verseStart: 1, verseEnd: 33, note: 'Elihu\'s first speech to Job' }, { book: 'Job', chapter: 34, verseStart: 1, verseEnd: 37, note: 'God cannot do wrong' }] },
-    { day: 13, title: 'Day 13: God\'s Justice Defended', passages: [{ book: 'Job', chapter: 35, verseStart: 1, verseEnd: 16, note: 'Elihu continues about God\'s justice' }, { book: 'Job', chapter: 36, verseStart: 1, verseEnd: 33, note: 'God is mighty and just' }, { book: 'Job', chapter: 37, verseStart: 1, verseEnd: 24, note: 'God\'s power in nature' }] },
-    { day: 14, title: 'Day 14: The Lord Answers Job', passages: [{ book: 'Job', chapter: 38, verseStart: 1, verseEnd: 41, note: 'God speaks from the whirlwind' }, { book: 'Job', chapter: 39, verseStart: 1, verseEnd: 30, note: 'God\'s questions about creation continue' }] },
-    { day: 15, title: 'Day 15: Job\'s Restoration', passages: [{ book: 'Job', chapter: 40, verseStart: 1, verseEnd: 24, note: 'Job humbles himself; Behemoth' }, { book: 'Job', chapter: 41, verseStart: 1, verseEnd: 34, note: 'Leviathan and God\'s power' }, { book: 'Job', chapter: 42, verseStart: 1, verseEnd: 17, note: 'Job repents and is restored' }] },
-    { day: 16, title: 'Day 16: The Call of Abram', passages: [{ book: 'Genesis', chapter: 12, verseStart: 1, verseEnd: 20, note: 'God calls Abram to leave his homeland' }, { book: 'Genesis', chapter: 13, verseStart: 1, verseEnd: 18, note: 'Abram and Lot separate' }, { book: 'Genesis', chapter: 14, verseStart: 1, verseEnd: 24, note: 'Abram rescues Lot' }, { book: 'Genesis', chapter: 15, verseStart: 1, verseEnd: 21, note: 'God\'s covenant with Abram' }] },
-    { day: 17, title: 'Day 17: Hagar and Ishmael', passages: [{ book: 'Genesis', chapter: 16, verseStart: 1, verseEnd: 16, note: 'Hagar and Ishmael' }, { book: 'Genesis', chapter: 17, verseStart: 1, verseEnd: 27, note: 'Covenant of circumcision' }, { book: 'Genesis', chapter: 18, verseStart: 1, verseEnd: 33, note: 'Three visitors and Sodom\'s fate' }] },
-    { day: 18, title: 'Day 18: Sodom and Gomorrah', passages: [{ book: 'Genesis', chapter: 19, verseStart: 1, verseEnd: 38, note: 'Destruction of Sodom' }, { book: 'Genesis', chapter: 20, verseStart: 1, verseEnd: 18, note: 'Abraham and Abimelech' }, { book: 'Genesis', chapter: 21, verseStart: 1, verseEnd: 34, note: 'Isaac is born' }] },
-    { day: 19, title: 'Day 19: The Ultimate Test', passages: [{ book: 'Genesis', chapter: 22, verseStart: 1, verseEnd: 24, note: 'Abraham tested - offering of Isaac' }, { book: 'Genesis', chapter: 23, verseStart: 1, verseEnd: 20, note: 'Sarah\'s death' }, { book: 'Genesis', chapter: 24, verseStart: 1, verseEnd: 67, note: 'Finding a wife for Isaac' }] },
-    { day: 20, title: 'Day 20: Jacob and Esau', passages: [{ book: 'Genesis', chapter: 25, verseStart: 1, verseEnd: 34, note: 'Abraham\'s death; Jacob and Esau born' }, { book: 'Genesis', chapter: 26, verseStart: 1, verseEnd: 35, note: 'Isaac and Abimelech' }] },
-    { day: 21, title: 'Day 21: The Stolen Blessing', passages: [{ book: 'Genesis', chapter: 27, verseStart: 1, verseEnd: 46, note: 'Jacob deceives Isaac' }, { book: 'Genesis', chapter: 28, verseStart: 1, verseEnd: 22, note: 'Jacob\'s ladder' }, { book: 'Genesis', chapter: 29, verseStart: 1, verseEnd: 35, note: 'Jacob marries Leah and Rachel' }] },
-    { day: 22, title: 'Day 22: Jacob\'s Family Grows', passages: [{ book: 'Genesis', chapter: 30, verseStart: 1, verseEnd: 43, note: 'More children born to Jacob' }, { book: 'Genesis', chapter: 31, verseStart: 1, verseEnd: 55, note: 'Jacob flees from Laban' }] },
-    { day: 23, title: 'Day 23: Wrestling with God', passages: [{ book: 'Genesis', chapter: 32, verseStart: 1, verseEnd: 32, note: 'Jacob wrestles with God' }, { book: 'Genesis', chapter: 33, verseStart: 1, verseEnd: 20, note: 'Jacob meets Esau' }, { book: 'Genesis', chapter: 34, verseStart: 1, verseEnd: 31, note: 'Dinah and Shechem' }] },
-    { day: 24, title: 'Day 24: Return to Bethel', passages: [{ book: 'Genesis', chapter: 35, verseStart: 1, verseEnd: 29, note: 'Return to Bethel; Rachel dies' }, { book: 'Genesis', chapter: 36, verseStart: 1, verseEnd: 43, note: 'Esau\'s descendants' }, { book: 'Genesis', chapter: 37, verseStart: 1, verseEnd: 36, note: 'Joseph\'s dreams; sold into slavery' }] },
-    { day: 25, title: 'Day 25: Joseph in Egypt', passages: [{ book: 'Genesis', chapter: 38, verseStart: 1, verseEnd: 30, note: 'Judah and Tamar' }, { book: 'Genesis', chapter: 39, verseStart: 1, verseEnd: 23, note: 'Joseph and Potiphar\'s wife' }, { book: 'Genesis', chapter: 40, verseStart: 1, verseEnd: 23, note: 'Joseph interprets dreams in prison' }] },
-    { day: 26, title: 'Day 26: Pharaoh\'s Dreams', passages: [{ book: 'Genesis', chapter: 41, verseStart: 1, verseEnd: 57, note: 'Joseph interprets Pharaoh\'s dreams and rises to power' }, { book: 'Genesis', chapter: 42, verseStart: 1, verseEnd: 38, note: 'Joseph\'s brothers come to Egypt' }] },
-    { day: 27, title: 'Day 27: The Brothers Return', passages: [{ book: 'Genesis', chapter: 43, verseStart: 1, verseEnd: 34, note: 'The second journey to Egypt' }, { book: 'Genesis', chapter: 44, verseStart: 1, verseEnd: 34, note: 'Joseph\'s silver cup' }, { book: 'Genesis', chapter: 45, verseStart: 1, verseEnd: 28, note: 'Joseph reveals himself' }] },
-    { day: 28, title: 'Day 28: Jacob Goes to Egypt', passages: [{ book: 'Genesis', chapter: 46, verseStart: 1, verseEnd: 34, note: 'Jacob\'s family moves to Egypt' }, { book: 'Genesis', chapter: 47, verseStart: 1, verseEnd: 31, note: 'Jacob blesses Pharaoh' }] },
-    { day: 29, title: 'Day 29: Jacob\'s Final Blessings', passages: [{ book: 'Genesis', chapter: 48, verseStart: 1, verseEnd: 22, note: 'Jacob blesses Joseph\'s sons' }, { book: 'Genesis', chapter: 49, verseStart: 1, verseEnd: 33, note: 'Jacob blesses his sons' }, { book: 'Genesis', chapter: 50, verseStart: 1, verseEnd: 26, note: 'Jacob and Joseph die' }] },
-    { day: 30, title: 'Day 30: The Birth of Moses', passages: [{ book: 'Exodus', chapter: 1, verseStart: 1, verseEnd: 22, note: 'Israel oppressed in Egypt' }, { book: 'Exodus', chapter: 2, verseStart: 1, verseEnd: 25, note: 'Moses born and flees to Midian' }, { book: 'Exodus', chapter: 3, verseStart: 1, verseEnd: 22, note: 'The burning bush' }] },
-    { day: 31, title: 'Day 31: Exodus 4-6', passages: [{ book: 'Exodus', chapter: 4, verseStart: 1, verseEnd: null, note: 'Day 31 reading from Exodus 4-6' }, { book: 'Exodus', chapter: 5, verseStart: 1, verseEnd: null, note: 'Day 31 reading from Exodus 4-6' }, { book: 'Exodus', chapter: 6, verseStart: 1, verseEnd: null, note: 'Day 31 reading from Exodus 4-6' }] },
-    { day: 32, title: 'Day 32: Exodus 7-9', passages: [{ book: 'Exodus', chapter: 7, verseStart: 1, verseEnd: null, note: 'Day 32 reading from Exodus 7-9' }, { book: 'Exodus', chapter: 8, verseStart: 1, verseEnd: null, note: 'Day 32 reading from Exodus 7-9' }, { book: 'Exodus', chapter: 9, verseStart: 1, verseEnd: null, note: 'Day 32 reading from Exodus 7-9' }] },
-    { day: 33, title: 'Day 33: Exodus 10-12', passages: [{ book: 'Exodus', chapter: 10, verseStart: 1, verseEnd: null, note: 'Day 33 reading from Exodus 10-12' }, { book: 'Exodus', chapter: 11, verseStart: 1, verseEnd: null, note: 'Day 33 reading from Exodus 10-12' }, { book: 'Exodus', chapter: 12, verseStart: 1, verseEnd: null, note: 'Day 33 reading from Exodus 10-12' }] },
-    { day: 34, title: 'Day 34: Exodus 13-15', passages: [{ book: 'Exodus', chapter: 13, verseStart: 1, verseEnd: null, note: 'Day 34 reading from Exodus 13-15' }, { book: 'Exodus', chapter: 14, verseStart: 1, verseEnd: null, note: 'Day 34 reading from Exodus 13-15' }, { book: 'Exodus', chapter: 15, verseStart: 1, verseEnd: null, note: 'Day 34 reading from Exodus 13-15' }] },
-    { day: 35, title: 'Day 35: Exodus 16-18', passages: [{ book: 'Exodus', chapter: 16, verseStart: 1, verseEnd: null, note: 'Day 35 reading from Exodus 16-18' }, { book: 'Exodus', chapter: 17, verseStart: 1, verseEnd: null, note: 'Day 35 reading from Exodus 16-18' }, { book: 'Exodus', chapter: 18, verseStart: 1, verseEnd: null, note: 'Day 35 reading from Exodus 16-18' }] },
-    { day: 36, title: 'Day 36: Exodus 19-21', passages: [{ book: 'Exodus', chapter: 19, verseStart: 1, verseEnd: null, note: 'Day 36 reading from Exodus 19-21' }, { book: 'Exodus', chapter: 20, verseStart: 1, verseEnd: null, note: 'Day 36 reading from Exodus 19-21' }, { book: 'Exodus', chapter: 21, verseStart: 1, verseEnd: null, note: 'Day 36 reading from Exodus 19-21' }] },
-    { day: 37, title: 'Day 37: Exodus 22-24', passages: [{ book: 'Exodus', chapter: 22, verseStart: 1, verseEnd: null, note: 'Day 37 reading from Exodus 22-24' }, { book: 'Exodus', chapter: 23, verseStart: 1, verseEnd: null, note: 'Day 37 reading from Exodus 22-24' }, { book: 'Exodus', chapter: 24, verseStart: 1, verseEnd: null, note: 'Day 37 reading from Exodus 22-24' }] },
-    { day: 38, title: 'Day 38: Exodus 25-27', passages: [{ book: 'Exodus', chapter: 25, verseStart: 1, verseEnd: null, note: 'Day 38 reading from Exodus 25-27' }, { book: 'Exodus', chapter: 26, verseStart: 1, verseEnd: null, note: 'Day 38 reading from Exodus 25-27' }, { book: 'Exodus', chapter: 27, verseStart: 1, verseEnd: null, note: 'Day 38 reading from Exodus 25-27' }] },
-    { day: 39, title: 'Day 39: Exodus 28-29', passages: [{ book: 'Exodus', chapter: 28, verseStart: 1, verseEnd: null, note: 'Day 39 reading from Exodus 28-29' }, { book: 'Exodus', chapter: 29, verseStart: 1, verseEnd: null, note: 'Day 39 reading from Exodus 28-29' }] },
-    { day: 40, title: 'Day 40: Exodus 30-32', passages: [{ book: 'Exodus', chapter: 30, verseStart: 1, verseEnd: null, note: 'Day 40 reading from Exodus 30-32' }, { book: 'Exodus', chapter: 31, verseStart: 1, verseEnd: null, note: 'Day 40 reading from Exodus 30-32' }, { book: 'Exodus', chapter: 32, verseStart: 1, verseEnd: null, note: 'Day 40 reading from Exodus 30-32' }] },
-    { day: 41, title: 'Day 41: Exodus 33-35', passages: [{ book: 'Exodus', chapter: 33, verseStart: 1, verseEnd: null, note: 'Day 41 reading from Exodus 33-35' }, { book: 'Exodus', chapter: 34, verseStart: 1, verseEnd: null, note: 'Day 41 reading from Exodus 33-35' }, { book: 'Exodus', chapter: 35, verseStart: 1, verseEnd: null, note: 'Day 41 reading from Exodus 33-35' }] },
-    { day: 42, title: 'Day 42: Exodus 36-38', passages: [{ book: 'Exodus', chapter: 36, verseStart: 1, verseEnd: null, note: 'Day 42 reading from Exodus 36-38' }, { book: 'Exodus', chapter: 37, verseStart: 1, verseEnd: null, note: 'Day 42 reading from Exodus 36-38' }, { book: 'Exodus', chapter: 38, verseStart: 1, verseEnd: null, note: 'Day 42 reading from Exodus 36-38' }] },
-    { day: 43, title: 'Day 43: Exodus 39-40', passages: [{ book: 'Exodus', chapter: 39, verseStart: 1, verseEnd: null, note: 'Day 43 reading from Exodus 39-40' }, { book: 'Exodus', chapter: 40, verseStart: 1, verseEnd: null, note: 'Day 43 reading from Exodus 39-40' }] },
-    { day: 44, title: 'Day 44: Leviticus 1-4', passages: [{ book: 'Leviticus', chapter: 1, verseStart: 1, verseEnd: null, note: 'Day 44 reading from Leviticus 1-4' }, { book: 'Leviticus', chapter: 2, verseStart: 1, verseEnd: null, note: 'Day 44 reading from Leviticus 1-4' }, { book: 'Leviticus', chapter: 3, verseStart: 1, verseEnd: null, note: 'Day 44 reading from Leviticus 1-4' }, { book: 'Leviticus', chapter: 4, verseStart: 1, verseEnd: null, note: 'Day 44 reading from Leviticus 1-4' }] },
-    { day: 45, title: 'Day 45: Leviticus 5-7', passages: [{ book: 'Leviticus', chapter: 5, verseStart: 1, verseEnd: null, note: 'Day 45 reading from Leviticus 5-7' }, { book: 'Leviticus', chapter: 6, verseStart: 1, verseEnd: null, note: 'Day 45 reading from Leviticus 5-7' }, { book: 'Leviticus', chapter: 7, verseStart: 1, verseEnd: null, note: 'Day 45 reading from Leviticus 5-7' }] },
-    { day: 46, title: 'Day 46: Leviticus 8-10', passages: [{ book: 'Leviticus', chapter: 8, verseStart: 1, verseEnd: null, note: 'Day 46 reading from Leviticus 8-10' }, { book: 'Leviticus', chapter: 9, verseStart: 1, verseEnd: null, note: 'Day 46 reading from Leviticus 8-10' }, { book: 'Leviticus', chapter: 10, verseStart: 1, verseEnd: null, note: 'Day 46 reading from Leviticus 8-10' }] },
-    { day: 47, title: 'Day 47: Leviticus 11-13', passages: [{ book: 'Leviticus', chapter: 11, verseStart: 1, verseEnd: null, note: 'Day 47 reading from Leviticus 11-13' }, { book: 'Leviticus', chapter: 12, verseStart: 1, verseEnd: null, note: 'Day 47 reading from Leviticus 11-13' }, { book: 'Leviticus', chapter: 13, verseStart: 1, verseEnd: null, note: 'Day 47 reading from Leviticus 11-13' }] },
-    { day: 48, title: 'Day 48: Leviticus 14-15', passages: [{ book: 'Leviticus', chapter: 14, verseStart: 1, verseEnd: null, note: 'Day 48 reading from Leviticus 14-15' }, { book: 'Leviticus', chapter: 15, verseStart: 1, verseEnd: null, note: 'Day 48 reading from Leviticus 14-15' }] },
-    { day: 49, title: 'Day 49: Leviticus 16-18', passages: [{ book: 'Leviticus', chapter: 16, verseStart: 1, verseEnd: null, note: 'Day 49 reading from Leviticus 16-18' }, { book: 'Leviticus', chapter: 17, verseStart: 1, verseEnd: null, note: 'Day 49 reading from Leviticus 16-18' }, { book: 'Leviticus', chapter: 18, verseStart: 1, verseEnd: null, note: 'Day 49 reading from Leviticus 16-18' }] },
-    { day: 50, title: 'Day 50: Leviticus 19-21', passages: [{ book: 'Leviticus', chapter: 19, verseStart: 1, verseEnd: null, note: 'Day 50 reading from Leviticus 19-21' }, { book: 'Leviticus', chapter: 20, verseStart: 1, verseEnd: null, note: 'Day 50 reading from Leviticus 19-21' }, { book: 'Leviticus', chapter: 21, verseStart: 1, verseEnd: null, note: 'Day 50 reading from Leviticus 19-21' }] },
-    { day: 51, title: 'Day 51: Leviticus 22-23', passages: [{ book: 'Leviticus', chapter: 22, verseStart: 1, verseEnd: null, note: 'Day 51 reading from Leviticus 22-23' }, { book: 'Leviticus', chapter: 23, verseStart: 1, verseEnd: null, note: 'Day 51 reading from Leviticus 22-23' }] },
-    { day: 52, title: 'Day 52: Leviticus 24-25', passages: [{ book: 'Leviticus', chapter: 24, verseStart: 1, verseEnd: null, note: 'Day 52 reading from Leviticus 24-25' }, { book: 'Leviticus', chapter: 25, verseStart: 1, verseEnd: null, note: 'Day 52 reading from Leviticus 24-25' }] },
-    { day: 53, title: 'Day 53: Leviticus 26-27', passages: [{ book: 'Leviticus', chapter: 26, verseStart: 1, verseEnd: null, note: 'Day 53 reading from Leviticus 26-27' }, { book: 'Leviticus', chapter: 27, verseStart: 1, verseEnd: null, note: 'Day 53 reading from Leviticus 26-27' }] },
-    { day: 54, title: 'Day 54: Numbers 1-2', passages: [{ book: 'Numbers', chapter: 1, verseStart: 1, verseEnd: null, note: 'Day 54 reading from Numbers 1-2' }, { book: 'Numbers', chapter: 2, verseStart: 1, verseEnd: null, note: 'Day 54 reading from Numbers 1-2' }] },
-    { day: 55, title: 'Day 55: Numbers 3-4', passages: [{ book: 'Numbers', chapter: 3, verseStart: 1, verseEnd: null, note: 'Day 55 reading from Numbers 3-4' }, { book: 'Numbers', chapter: 4, verseStart: 1, verseEnd: null, note: 'Day 55 reading from Numbers 3-4' }] },
-    { day: 56, title: 'Day 56: Numbers 5-6', passages: [{ book: 'Numbers', chapter: 5, verseStart: 1, verseEnd: null, note: 'Day 56 reading from Numbers 5-6' }, { book: 'Numbers', chapter: 6, verseStart: 1, verseEnd: null, note: 'Day 56 reading from Numbers 5-6' }] },
-    { day: 57, title: 'Day 57: Numbers 7', passages: [{ book: 'Numbers', chapter: 7, verseStart: 1, verseEnd: null, note: 'Day 57 reading from Numbers 7' }] },
-    { day: 58, title: 'Day 58: Numbers 8-10', passages: [{ book: 'Numbers', chapter: 8, verseStart: 1, verseEnd: null, note: 'Day 58 reading from Numbers 8-10' }, { book: 'Numbers', chapter: 9, verseStart: 1, verseEnd: null, note: 'Day 58 reading from Numbers 8-10' }, { book: 'Numbers', chapter: 10, verseStart: 1, verseEnd: null, note: 'Day 58 reading from Numbers 8-10' }] },
-    { day: 59, title: 'Day 59: Numbers 11-13', passages: [{ book: 'Numbers', chapter: 11, verseStart: 1, verseEnd: null, note: 'Day 59 reading from Numbers 11-13' }, { book: 'Numbers', chapter: 12, verseStart: 1, verseEnd: null, note: 'Day 59 reading from Numbers 11-13' }, { book: 'Numbers', chapter: 13, verseStart: 1, verseEnd: null, note: 'Day 59 reading from Numbers 11-13' }] },
-    { day: 60, title: 'Day 60: Numbers 14-15, Psalm 90', passages: [{ book: 'Numbers', chapter: 14, verseStart: 1, verseEnd: null, note: 'Day 60 reading from Numbers 14-15, Psalm 90' }, { book: 'Numbers', chapter: 15, verseStart: 1, verseEnd: null, note: 'Day 60 reading from Numbers 14-15, Psalm 90' }, { book: 'Psalm', chapter: 90, verseStart: 1, verseEnd: null, note: 'Day 60 reading from Numbers 14-15, Psalm 90' }] },
-    { day: 61, title: 'Day 61: Numbers 16-17', passages: [{ book: 'Numbers', chapter: 16, verseStart: 1, verseEnd: null, note: 'Day 61 reading from Numbers 16-17' }, { book: 'Numbers', chapter: 17, verseStart: 1, verseEnd: null, note: 'Day 61 reading from Numbers 16-17' }] },
-    { day: 62, title: 'Day 62: Numbers 18-20', passages: [{ book: 'Numbers', chapter: 18, verseStart: 1, verseEnd: null, note: 'Day 62 reading from Numbers 18-20' }, { book: 'Numbers', chapter: 19, verseStart: 1, verseEnd: null, note: 'Day 62 reading from Numbers 18-20' }, { book: 'Numbers', chapter: 20, verseStart: 1, verseEnd: null, note: 'Day 62 reading from Numbers 18-20' }] },
-    { day: 63, title: 'Day 63: Numbers 21-22', passages: [{ book: 'Numbers', chapter: 21, verseStart: 1, verseEnd: null, note: 'Day 63 reading from Numbers 21-22' }, { book: 'Numbers', chapter: 22, verseStart: 1, verseEnd: null, note: 'Day 63 reading from Numbers 21-22' }] },
-    { day: 64, title: 'Day 64: Numbers 23-25', passages: [{ book: 'Numbers', chapter: 23, verseStart: 1, verseEnd: null, note: 'Day 64 reading from Numbers 23-25' }, { book: 'Numbers', chapter: 24, verseStart: 1, verseEnd: null, note: 'Day 64 reading from Numbers 23-25' }, { book: 'Numbers', chapter: 25, verseStart: 1, verseEnd: null, note: 'Day 64 reading from Numbers 23-25' }] },
-    { day: 65, title: 'Day 65: Numbers 26-27', passages: [{ book: 'Numbers', chapter: 26, verseStart: 1, verseEnd: null, note: 'Day 65 reading from Numbers 26-27' }, { book: 'Numbers', chapter: 27, verseStart: 1, verseEnd: null, note: 'Day 65 reading from Numbers 26-27' }] },
-    { day: 66, title: 'Day 66: Numbers 28-30', passages: [{ book: 'Numbers', chapter: 28, verseStart: 1, verseEnd: null, note: 'Day 66 reading from Numbers 28-30' }, { book: 'Numbers', chapter: 29, verseStart: 1, verseEnd: null, note: 'Day 66 reading from Numbers 28-30' }, { book: 'Numbers', chapter: 30, verseStart: 1, verseEnd: null, note: 'Day 66 reading from Numbers 28-30' }] },
-    { day: 67, title: 'Day 67: Numbers 31-32', passages: [{ book: 'Numbers', chapter: 31, verseStart: 1, verseEnd: null, note: 'Day 67 reading from Numbers 31-32' }, { book: 'Numbers', chapter: 32, verseStart: 1, verseEnd: null, note: 'Day 67 reading from Numbers 31-32' }] },
-    { day: 68, title: 'Day 68: Numbers 33-34', passages: [{ book: 'Numbers', chapter: 33, verseStart: 1, verseEnd: null, note: 'Day 68 reading from Numbers 33-34' }, { book: 'Numbers', chapter: 34, verseStart: 1, verseEnd: null, note: 'Day 68 reading from Numbers 33-34' }] },
-    { day: 69, title: 'Day 69: Numbers 35-36', passages: [{ book: 'Numbers', chapter: 35, verseStart: 1, verseEnd: null, note: 'Day 69 reading from Numbers 35-36' }, { book: 'Numbers', chapter: 36, verseStart: 1, verseEnd: null, note: 'Day 69 reading from Numbers 35-36' }] },
-    { day: 70, title: 'Day 70: Deuteronomy 1-2', passages: [{ book: 'Deuteronomy', chapter: 1, verseStart: 1, verseEnd: null, note: 'Day 70 reading from Deuteronomy 1-2' }, { book: 'Deuteronomy', chapter: 2, verseStart: 1, verseEnd: null, note: 'Day 70 reading from Deuteronomy 1-2' }] },
-    { day: 71, title: 'Day 71: Deuteronomy 3-4', passages: [{ book: 'Deuteronomy', chapter: 3, verseStart: 1, verseEnd: null, note: 'Day 71 reading from Deuteronomy 3-4' }, { book: 'Deuteronomy', chapter: 4, verseStart: 1, verseEnd: null, note: 'Day 71 reading from Deuteronomy 3-4' }] },
-    { day: 72, title: 'Day 72: Deuteronomy 5-7', passages: [{ book: 'Deuteronomy', chapter: 5, verseStart: 1, verseEnd: null, note: 'Day 72 reading from Deuteronomy 5-7' }, { book: 'Deuteronomy', chapter: 6, verseStart: 1, verseEnd: null, note: 'Day 72 reading from Deuteronomy 5-7' }, { book: 'Deuteronomy', chapter: 7, verseStart: 1, verseEnd: null, note: 'Day 72 reading from Deuteronomy 5-7' }] },
-    { day: 73, title: 'Day 73: Deuteronomy 8-10', passages: [{ book: 'Deuteronomy', chapter: 8, verseStart: 1, verseEnd: null, note: 'Day 73 reading from Deuteronomy 8-10' }, { book: 'Deuteronomy', chapter: 9, verseStart: 1, verseEnd: null, note: 'Day 73 reading from Deuteronomy 8-10' }, { book: 'Deuteronomy', chapter: 10, verseStart: 1, verseEnd: null, note: 'Day 73 reading from Deuteronomy 8-10' }] },
-    { day: 74, title: 'Day 74: Deuteronomy 11-13', passages: [{ book: 'Deuteronomy', chapter: 11, verseStart: 1, verseEnd: null, note: 'Day 74 reading from Deuteronomy 11-13' }, { book: 'Deuteronomy', chapter: 12, verseStart: 1, verseEnd: null, note: 'Day 74 reading from Deuteronomy 11-13' }, { book: 'Deuteronomy', chapter: 13, verseStart: 1, verseEnd: null, note: 'Day 74 reading from Deuteronomy 11-13' }] },
-    { day: 75, title: 'Day 75: Deuteronomy 14-16', passages: [{ book: 'Deuteronomy', chapter: 14, verseStart: 1, verseEnd: null, note: 'Day 75 reading from Deuteronomy 14-16' }, { book: 'Deuteronomy', chapter: 15, verseStart: 1, verseEnd: null, note: 'Day 75 reading from Deuteronomy 14-16' }, { book: 'Deuteronomy', chapter: 16, verseStart: 1, verseEnd: null, note: 'Day 75 reading from Deuteronomy 14-16' }] },
-    { day: 76, title: 'Day 76: Deuteronomy 17-20', passages: [{ book: 'Deuteronomy', chapter: 17, verseStart: 1, verseEnd: null, note: 'Day 76 reading from Deuteronomy 17-20' }, { book: 'Deuteronomy', chapter: 18, verseStart: 1, verseEnd: null, note: 'Day 76 reading from Deuteronomy 17-20' }, { book: 'Deuteronomy', chapter: 19, verseStart: 1, verseEnd: null, note: 'Day 76 reading from Deuteronomy 17-20' }, { book: 'Deuteronomy', chapter: 20, verseStart: 1, verseEnd: null, note: 'Day 76 reading from Deuteronomy 17-20' }] },
-    { day: 77, title: 'Day 77: Deuteronomy 21-23', passages: [{ book: 'Deuteronomy', chapter: 21, verseStart: 1, verseEnd: null, note: 'Day 77 reading from Deuteronomy 21-23' }, { book: 'Deuteronomy', chapter: 22, verseStart: 1, verseEnd: null, note: 'Day 77 reading from Deuteronomy 21-23' }, { book: 'Deuteronomy', chapter: 23, verseStart: 1, verseEnd: null, note: 'Day 77 reading from Deuteronomy 21-23' }] },
-    { day: 78, title: 'Day 78: Deuteronomy 24-27', passages: [{ book: 'Deuteronomy', chapter: 24, verseStart: 1, verseEnd: null, note: 'Day 78 reading from Deuteronomy 24-27' }, { book: 'Deuteronomy', chapter: 25, verseStart: 1, verseEnd: null, note: 'Day 78 reading from Deuteronomy 24-27' }, { book: 'Deuteronomy', chapter: 26, verseStart: 1, verseEnd: null, note: 'Day 78 reading from Deuteronomy 24-27' }, { book: 'Deuteronomy', chapter: 27, verseStart: 1, verseEnd: null, note: 'Day 78 reading from Deuteronomy 24-27' }] },
-    { day: 79, title: 'Day 79: Deuteronomy 28-29', passages: [{ book: 'Deuteronomy', chapter: 28, verseStart: 1, verseEnd: null, note: 'Day 79 reading from Deuteronomy 28-29' }, { book: 'Deuteronomy', chapter: 29, verseStart: 1, verseEnd: null, note: 'Day 79 reading from Deuteronomy 28-29' }] },
-    { day: 80, title: 'Day 80: Deuteronomy 30-31', passages: [{ book: 'Deuteronomy', chapter: 30, verseStart: 1, verseEnd: null, note: 'Day 80 reading from Deuteronomy 30-31' }, { book: 'Deuteronomy', chapter: 31, verseStart: 1, verseEnd: null, note: 'Day 80 reading from Deuteronomy 30-31' }] },
-    { day: 81, title: 'Day 81: Deuteronomy 32-34, Psalm 91', passages: [{ book: 'Deuteronomy', chapter: 32, verseStart: 1, verseEnd: null, note: 'Day 81 reading from Deuteronomy 32-34, Psalm 91' }, { book: 'Deuteronomy', chapter: 33, verseStart: 1, verseEnd: null, note: 'Day 81 reading from Deuteronomy 32-34, Psalm 91' }, { book: 'Deuteronomy', chapter: 34, verseStart: 1, verseEnd: null, note: 'Day 81 reading from Deuteronomy 32-34, Psalm 91' }, { book: 'Psalm', chapter: 91, verseStart: 1, verseEnd: null, note: 'Day 81 reading from Deuteronomy 32-34, Psalm 91' }] },
-    { day: 82, title: 'Day 82: Joshua 1-4', passages: [{ book: 'Joshua', chapter: 1, verseStart: 1, verseEnd: null, note: 'Day 82 reading from Joshua 1-4' }, { book: 'Joshua', chapter: 2, verseStart: 1, verseEnd: null, note: 'Day 82 reading from Joshua 1-4' }, { book: 'Joshua', chapter: 3, verseStart: 1, verseEnd: null, note: 'Day 82 reading from Joshua 1-4' }, { book: 'Joshua', chapter: 4, verseStart: 1, verseEnd: null, note: 'Day 82 reading from Joshua 1-4' }] },
-    { day: 83, title: 'Day 83: Joshua 5-8', passages: [{ book: 'Joshua', chapter: 5, verseStart: 1, verseEnd: null, note: 'Day 83 reading from Joshua 5-8' }, { book: 'Joshua', chapter: 6, verseStart: 1, verseEnd: null, note: 'Day 83 reading from Joshua 5-8' }, { book: 'Joshua', chapter: 7, verseStart: 1, verseEnd: null, note: 'Day 83 reading from Joshua 5-8' }, { book: 'Joshua', chapter: 8, verseStart: 1, verseEnd: null, note: 'Day 83 reading from Joshua 5-8' }] },
-    { day: 84, title: 'Day 84: Joshua 9-11', passages: [{ book: 'Joshua', chapter: 9, verseStart: 1, verseEnd: null, note: 'Day 84 reading from Joshua 9-11' }, { book: 'Joshua', chapter: 10, verseStart: 1, verseEnd: null, note: 'Day 84 reading from Joshua 9-11' }, { book: 'Joshua', chapter: 11, verseStart: 1, verseEnd: null, note: 'Day 84 reading from Joshua 9-11' }] },
-    { day: 85, title: 'Day 85: Joshua 12-15', passages: [{ book: 'Joshua', chapter: 12, verseStart: 1, verseEnd: null, note: 'Day 85 reading from Joshua 12-15' }, { book: 'Joshua', chapter: 13, verseStart: 1, verseEnd: null, note: 'Day 85 reading from Joshua 12-15' }, { book: 'Joshua', chapter: 14, verseStart: 1, verseEnd: null, note: 'Day 85 reading from Joshua 12-15' }, { book: 'Joshua', chapter: 15, verseStart: 1, verseEnd: null, note: 'Day 85 reading from Joshua 12-15' }] },
-    { day: 86, title: 'Day 86: Joshua 16-18', passages: [{ book: 'Joshua', chapter: 16, verseStart: 1, verseEnd: null, note: 'Day 86 reading from Joshua 16-18' }, { book: 'Joshua', chapter: 17, verseStart: 1, verseEnd: null, note: 'Day 86 reading from Joshua 16-18' }, { book: 'Joshua', chapter: 18, verseStart: 1, verseEnd: null, note: 'Day 86 reading from Joshua 16-18' }] },
-    { day: 87, title: 'Day 87: Joshua 19-21', passages: [{ book: 'Joshua', chapter: 19, verseStart: 1, verseEnd: null, note: 'Day 87 reading from Joshua 19-21' }, { book: 'Joshua', chapter: 20, verseStart: 1, verseEnd: null, note: 'Day 87 reading from Joshua 19-21' }, { book: 'Joshua', chapter: 21, verseStart: 1, verseEnd: null, note: 'Day 87 reading from Joshua 19-21' }] },
-    { day: 88, title: 'Day 88: Joshua 22-24', passages: [{ book: 'Joshua', chapter: 22, verseStart: 1, verseEnd: null, note: 'Day 88 reading from Joshua 22-24' }, { book: 'Joshua', chapter: 23, verseStart: 1, verseEnd: null, note: 'Day 88 reading from Joshua 22-24' }, { book: 'Joshua', chapter: 24, verseStart: 1, verseEnd: null, note: 'Day 88 reading from Joshua 22-24' }] },
-    { day: 89, title: 'Day 89: Judges 1-2', passages: [{ book: 'Judges', chapter: 1, verseStart: 1, verseEnd: null, note: 'Day 89 reading from Judges 1-2' }, { book: 'Judges', chapter: 2, verseStart: 1, verseEnd: null, note: 'Day 89 reading from Judges 1-2' }] },
-    { day: 90, title: 'Day 90: Judges 3-5', passages: [{ book: 'Judges', chapter: 3, verseStart: 1, verseEnd: null, note: 'Day 90 reading from Judges 3-5' }, { book: 'Judges', chapter: 4, verseStart: 1, verseEnd: null, note: 'Day 90 reading from Judges 3-5' }, { book: 'Judges', chapter: 5, verseStart: 1, verseEnd: null, note: 'Day 90 reading from Judges 3-5' }] },
-    { day: 91, title: 'Day 91: Judges 6-7', passages: [{ book: 'Judges', chapter: 6, verseStart: 1, verseEnd: null, note: 'Day 91 reading from Judges 6-7' }, { book: 'Judges', chapter: 7, verseStart: 1, verseEnd: null, note: 'Day 91 reading from Judges 6-7' }] },
-  ]
-
-  // Map of day numbers to YouTube video IDs (Days 1-91)
-  const videoIds: { [key: number]: string } = {
-    1: 'CRUkCdeNyx4', 2: '4tO6lLJIupU', 3: 'GbcOo32jzKI', 4: 'LPzYYTBHQxM', 5: '9GsCXGB4k1E',
-    6: 'F544F5PDY8s', 7: '3yEZTtGVt5s', 8: '1OfvtCxWZlM', 9: 'bLYmgYQ-PJM', 10: '2KUHTE6go0M',
-    11: 'CHYwdj6GA4A', 12: 'E_wLePwUcnw', 13: 'FBt52ZiT2NE', 14: '74Qpl1zM16I', 15: '8B5fw8-BDl0',
-    16: 'cIwDz3RwA0I', 17: 'eN2_MupAa9w', 18: 'beFeQ7skfFA', 19: 'F3OsPJH9ZCs', 20: 'EyMBGsXbUb0',
-    21: '6H476Kc25uA', 22: '0fMukHdZUMg', 23: '5yauOVwPbko', 24: '1-PkQpbxAUI', 25: '5pdhaYUyrM0',
-    26: '6_J7CC5RD78', 27: 'BlMOnn2gevg', 28: 'cntFbqOXNYg', 29: '7EG9AJt1IM8', 30: '4myOX0CH1ZQ',
-    31: 'MWXH-0z3Cbw', 32: 'iSwChMM410I', 33: '6_J7CC5RD78', 34: 'yUxdhmI8gXU', 35: 'gRR1_T8_zZc',
-    36: 'rW5ipVQEHHA', 37: 'kP6OeXvpyBg', 38: 'ViE64XslAHk', 39: 'eWvwYistR1w', 40: '1cuONAUU9ck',
-    41: '6H476Kc25uA', 42: 'gya8QydxYzw', 43: 'Llh8ZbDanMU', 44: 'm0gpthW4ov8', 45: 'UNVkfWeb8Xs',
-    46: 'Rt8wxhoO9Xo', 47: 'STyaHxVu0NM', 48: 'mXvp8tEOYDc', 49: '-WrJWmeYIHo', 50: 'JxWVCOFE3zM',
-    51: '9GsCXGB4k1E', 52: '_t8ejRLqlCo', 53: 's5evtCy2ms4', 54: '5yauOVwPbko', 55: 'qoCObsPw5l4',
-    56: 'beFeQ7skfFA', 57: 'FOubrQmfURU', 58: 'E_wLePwUcnw', 59: 'pmXfvFiJs3s', 60: 'kjI6wqvLSXQ',
-    61: '3yEZTtGVt5s', 62: '1OfvtCxWZlM', 63: 'CfJym4yUN5k', 64: '5pdhaYUyrM0', 65: '2YUCYZzi3yA',
-    66: 'QK__bM73iK8', 67: 'BlMOnn2gevg', 68: 'MK6oySTvdJE', 69: 'cntFbqOXNYg', 70: 'X9AO6SZGyYk',
-    71: 'rEvj51548rI', 72: 'rS3NKQqXLjQ', 73: '0fMukHdZUMg', 74: 'z0n9KqRlsUI', 75: 'IOohqxkhsi4',
-    76: '8B5fw8-BDl0', 77: 'FObrQ8Euzao', 78: 'Itv-UYbwff4', 79: 'rTd2kfSE7B4', 80: '4myOX0CH1ZQ',
-    81: '6ncLqdQv6nc', 82: 'bLYmgYQ-PJM', 83: '7EG9AJt1IM8', 84: 's2Ao1a3Otxw', 85: 'Uu4FnTCBoP8',
-    86: 'GnFB6qwNDVU', 87: 'VaXiyR2kFaY', 88: '1ppaMnI7MGI', 89: 'CHYwdj6GA4A', 90: 'wth3Plwy0jY',
-    91: 'ihlwOKyaKyA'
-  }
-
-  for (const reading of bibleRecapReadings) {
-    await prisma.session.create({
-      data: {
-        title: reading.title,
-        description: `Day ${reading.day} of The Bible Recap chronological reading plan.`,
-        startDate: getDate(reading.day - 6),
-        endDate: getDate(reading.day - 5),
-        visibility: SessionVisibility.PUBLIC,
-        imageUrl: 'https://www.bible.com/_next/image?url=https%3A%2F%2Fimageproxy.youversionapi.com%2Fhttps%3A%2F%2Fs3.amazonaws.com%2Fyvplans%2F17553%2F1280x720.jpg&w=3840&q=75',
-        leaderId: leader.id,
-        seriesId: bibleRecap.id,
-        scripturePassages: {
-          create: reading.passages.map((passage, index) => ({
-            book: passage.book,
-            chapter: passage.chapter,
-            verseStart: passage.verseStart,
-            verseEnd: passage.verseEnd,
-            content: '',
-            note: passage.note,
-            order: index,
-          })),
-        },
-        resources: {
-          create: [{
-            fileName: `The Bible Recap - Day ${String(reading.day).padStart(3, '0')}`,
-            fileUrl: `https://www.youtube.com/watch?v=${videoIds[reading.day]}&list=PLkgWIAVOhHuAVwyG587rctAbAuWFtAv1D`,
-            fileType: 'video/url',
-            resourceType: 'VIDEO_YOUTUBE',
-            videoId: videoIds[reading.day],
-            description: 'Watch Tara-Leigh Cobble\'s daily recap and study notes for today\'s reading.',
-            uploadedBy: leader.id,
-          }],
-        },
-      },
-    })
-  }
-
-  console.log('✅ Created Bible Recap sessions (91 days)')
-
-  console.log('🎉 Chancel database seeded successfully with 121 sessions!')
   console.log('\n📖 Sacred space. Shared study.')
   console.log('\nTest Credentials:')
   console.log('Leader: leader@example.com / password')
   console.log('Member 1: member1@example.com / password')
   console.log('Member 2: member2@example.com / password')
-  console.log('\nSeries Created:')
-  console.log('- Gospel of John (8 sessions)')
-  console.log('- Romans (6 sessions)')
-  console.log('- Genesis (5 sessions)')
-  console.log('- Psalms (4 sessions)')
-  console.log('- Wisdom Literature (4 sessions)')
-  console.log('- Major Prophets (3 sessions)')
-  console.log('- The Bible Recap (91 sessions - through Judges)')
-  console.log('Total: 121 sessions')
+  console.log('\n📚 One Year Canonical Bible Study')
+  console.log(`Total: ${sessionCount} weekly sessions across ${biblePlan.series.length} quarterly series`)
+  console.log('Starting: January 4, 2026 (Week 1)')
+  console.log('Ending: December 27, 2026 (Week 52)')
 }
 
 main()

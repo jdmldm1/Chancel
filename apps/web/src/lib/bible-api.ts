@@ -4,8 +4,15 @@
  * This service provides access to Bible verses using bible-api.com
  * which is a free, open-source Bible API with no authentication required.
  *
+ * Requests are proxied through the Next.js /api/bible route to avoid CORS issues
+ * when fetching from the browser.
+ *
+ * All requests are queued to avoid rate limiting (429 errors).
+ *
  * For future enhancement, you can switch to API.Bible for multiple translations.
  */
+
+import { bibleApiQueue } from './request-queue'
 
 export interface BibleVerse {
   book_id: string
@@ -27,6 +34,42 @@ export interface BiblePassage {
 export interface BibleApiError {
   error: string
   message: string
+}
+
+/**
+ * Retry helper function for API requests
+ */
+async function retryFetch(
+  url: string,
+  options: RequestInit,
+  maxRetries: number = 3,
+  retryDelay: number = 1000
+): Promise<Response> {
+  let lastError: Error | null = null
+
+  for (let attempt = 0; attempt < maxRetries; attempt++) {
+    try {
+      const response = await fetch(url, options)
+
+      // If successful or client error (4xx), return immediately
+      // Only retry on server errors (5xx) or network errors
+      if (response.ok || (response.status >= 400 && response.status < 500)) {
+        return response
+      }
+
+      // Server error, retry
+      lastError = new Error(`Server error: ${response.status}`)
+    } catch (error) {
+      lastError = error as Error
+    }
+
+    // Wait before retrying (exponential backoff)
+    if (attempt < maxRetries - 1) {
+      await new Promise(resolve => setTimeout(resolve, retryDelay * Math.pow(2, attempt)))
+    }
+  }
+
+  throw lastError || new Error('Failed to fetch after retries')
 }
 
 /**
@@ -53,34 +96,51 @@ export async function fetchBiblePassage(
   verseEnd?: number,
   translation: string = 'web'
 ): Promise<BiblePassage> {
-  try {
-    // Build the reference string (e.g., "John 3:16" or "John 3:16-18")
-    const verseRange = verseEnd ? `${verseStart}-${verseEnd}` : `${verseStart}`
-    const reference = `${book} ${chapter}:${verseRange}`
+  // Queue the request to avoid rate limiting
+  return bibleApiQueue.enqueue(async () => {
+    try {
+      // Build the reference string
+      // If verseEnd is provided, fetch a range (e.g., "John 3:16-18")
+      // If only verseStart is 1 and no verseEnd, fetch entire chapter (e.g., "John 3")
+      // Otherwise fetch a single verse (e.g., "John 3:16")
+      let reference: string
+      if (verseEnd) {
+        // Verse range
+        reference = `${book} ${chapter}:${verseStart}-${verseEnd}`
+      } else if (verseStart === 1) {
+        // Entire chapter (when verseStart is 1 and no verseEnd)
+        reference = `${book} ${chapter}`
+      } else {
+        // Single verse
+        reference = `${book} ${chapter}:${verseStart}`
+      }
 
-    // bible-api.com uses a simple REST endpoint
-    // For other translations, you can append ?translation=kjv, etc.
-    const url = `https://bible-api.com/${encodeURIComponent(reference)}?translation=${translation}`
+      // Use the Next.js API proxy to avoid CORS issues
+      // The proxy forwards requests to bible-api.com from the server side
+      const url = `/api/bible?reference=${encodeURIComponent(reference)}&translation=${translation}`
 
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      },
-      // Cache for 1 hour (Bible text doesn't change)
-      next: { revalidate: 3600 }
-    })
+      const response = await retryFetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+        // Use default cache but allow revalidation on errors
+        // This prevents caching failed requests
+        cache: 'default',
+      })
 
-    if (!response.ok) {
-      throw new Error(`Failed to fetch Bible passage: ${response.statusText}`)
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(`Failed to fetch Bible passage (${response.status}): ${errorText || response.statusText}`)
+      }
+
+      const data: BiblePassage = await response.json()
+      return data
+    } catch (error) {
+      console.error('Error fetching Bible passage:', error)
+      throw error
     }
-
-    const data: BiblePassage = await response.json()
-    return data
-  } catch (error) {
-    console.error('Error fetching Bible passage:', error)
-    throw error
-  }
+  })
 }
 
 /**

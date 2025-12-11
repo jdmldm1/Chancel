@@ -25,6 +25,24 @@ const MY_SERIES_QUERY = `
   }
 `
 
+const ALL_SERIES_QUERY = `
+  query AllSeries {
+    allSeries {
+      id
+      title
+      description
+      imageUrl
+      createdAt
+      sessions {
+        id
+        title
+        startDate
+        endDate
+      }
+    }
+  }
+`
+
 const CREATE_SERIES_MUTATION = `
   mutation CreateSeries($input: CreateSeriesInput!) {
     createSeries(input: $input) {
@@ -70,7 +88,12 @@ export default function SeriesPage() {
     imageUrl: '',
   })
 
-  const { data, loading, refetch } = useGraphQLQuery<{ mySeries: Series[] }>(MY_SERIES_QUERY)
+  const isLeader = session?.user?.role === 'LEADER'
+
+  // Leaders see their series, members see all series
+  const { data, loading, refetch } = useGraphQLQuery<{ mySeries?: Series[], allSeries?: Series[] }>(
+    isLeader ? MY_SERIES_QUERY : ALL_SERIES_QUERY
+  )
   const [createSeries, { loading: creating }] = useGraphQLMutation(CREATE_SERIES_MUTATION)
   const [deleteSeries] = useGraphQLMutation(DELETE_SERIES_MUTATION)
 
@@ -90,9 +113,7 @@ export default function SeriesPage() {
     return null
   }
 
-  const isLeader = session.user.role === 'LEADER'
-
-  const allSeries = data?.mySeries || []
+  const allSeries = isLeader ? (data?.mySeries || []) : (data?.allSeries || [])
 
   // Helper function to determine if a series is active, past, or future
   const getSeriesStatus = (series: Series) => {

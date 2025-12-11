@@ -28,6 +28,7 @@ const GET_SESSION = `
       visibility
       sessionType
       videoCallUrl
+      imageUrl
       joinCode
       series {
         id
@@ -38,38 +39,6 @@ const GET_SESSION = `
         id
         name
         email
-      }
-      scripturePassages {
-        id
-        book
-        chapter
-        verseStart
-        verseEnd
-        content
-        note
-        order
-        comments {
-          id
-          content
-          verseNumber
-          createdAt
-          user {
-            id
-            name
-          }
-          parentId
-          replies {
-            id
-            content
-            verseNumber
-            createdAt
-            parentId
-            user {
-              id
-              name
-            }
-          }
-        }
       }
       participants {
         id
@@ -95,6 +64,60 @@ const GET_SESSION = `
           name
         }
       }
+    }
+  }
+`
+
+const GET_PAGINATED_PASSAGES = `
+  query GetPaginatedPassages($sessionId: ID!, $limit: Int, $offset: Int, $includeCompleted: Boolean) {
+    paginatedPassages(sessionId: $sessionId, limit: $limit, offset: $offset, includeCompleted: $includeCompleted) {
+      passages {
+        id
+        book
+        chapter
+        verseStart
+        verseEnd
+        content
+        note
+        order
+        isCompleted
+        comments {
+          id
+          content
+          verseNumber
+          createdAt
+          user {
+            id
+            name
+          }
+          parentId
+          replies {
+            id
+            content
+            verseNumber
+            createdAt
+            parentId
+            user {
+              id
+              name
+            }
+          }
+        }
+      }
+      totalCount
+      hasMore
+      completedCount
+      progressPercentage
+    }
+  }
+`
+
+const TOGGLE_PASSAGE_COMPLETION = `
+  mutation TogglePassageCompletion($passageId: ID!) {
+    togglePassageCompletion(passageId: $passageId) {
+      id
+      passageId
+      userId
     }
   }
 `
@@ -149,10 +172,41 @@ export default function SessionDetailPage() {
   const [participantsCollapsed, setParticipantsCollapsed] = useState(false)
   const [isChatOpen, setIsChatOpen] = useState(false)
   const [isJoinCodeModalOpen, setIsJoinCodeModalOpen] = useState(false)
+  const [showCompletedPassages, setShowCompletedPassages] = useState(false)
+  const [passagesOffset, setPassagesOffset] = useState(0)
+  const [completedPassagesOffset, setCompletedPassagesOffset] = useState(0)
+  const passagesLimit = 10
 
   const { data, loading, error, refetch } = useGraphQLQuery<GetSessionQuery>(GET_SESSION, {
     variables: { id: sessionId },
   })
+
+  // Query for active (not completed) passages
+  const { data: activePassagesData, loading: loadingActive, refetch: refetchActive } = useGraphQLQuery(
+    GET_PAGINATED_PASSAGES,
+    {
+      variables: {
+        sessionId,
+        limit: passagesLimit,
+        offset: passagesOffset,
+        includeCompleted: false,
+      },
+    }
+  )
+
+  // Query for completed passages
+  const { data: completedPassagesData, loading: loadingCompleted, refetch: refetchCompleted } = useGraphQLQuery(
+    GET_PAGINATED_PASSAGES,
+    {
+      variables: {
+        sessionId,
+        limit: passagesLimit,
+        offset: completedPassagesOffset,
+        includeCompleted: showCompletedPassages,
+      },
+      skip: !showCompletedPassages,
+    }
+  )
 
   const [joinSession, { loading: joining }] = useGraphQLMutation<JoinSessionMutation, JoinSessionMutationVariables>(
     JOIN_SESSION,
@@ -174,6 +228,27 @@ export default function SessionDetailPage() {
       },
     }
   )
+
+  const [toggleCompletion] = useGraphQLMutation(TOGGLE_PASSAGE_COMPLETION, {
+    onCompleted: () => {
+      refetchActive()
+      if (showCompletedPassages) {
+        refetchCompleted()
+      }
+      addToast({
+        type: 'success',
+        message: 'Progress updated',
+        description: 'Passage completion status toggled.',
+      })
+    },
+    onError: (error) => {
+      addToast({
+        type: 'error',
+        message: 'Failed to update progress',
+        description: error.message,
+      })
+    },
+  })
 
   // TODO: Re-enable subscriptions once WebSocket is properly configured
   // For now, real-time comments will use polling via cache-and-network fetchPolicy
@@ -455,22 +530,139 @@ export default function SessionDetailPage() {
 
       {/* Scripture Passages */}
       <div className="space-y-6">
-        <h2 className="text-2xl font-semibold text-gray-900">Scripture Passages</h2>
-        {sessionData.scripturePassages.length === 0 ? (
-          <p className="text-gray-500">No scripture passages added yet.</p>
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-semibold text-gray-900">Scripture Passages</h2>
+        </div>
+
+        {/* Progress Indicator */}
+        {activePassagesData?.paginatedPassages && (
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 border border-blue-100 shadow-sm">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <h3 className="text-lg font-semibold text-blue-900">Study Progress</h3>
+              </div>
+              <span className="text-2xl font-bold text-blue-600">
+                {Math.round(activePassagesData.paginatedPassages.progressPercentage)}%
+              </span>
+            </div>
+            <div className="w-full bg-blue-200 rounded-full h-3 overflow-hidden shadow-inner">
+              <div
+                className="bg-gradient-to-r from-blue-500 to-indigo-600 h-3 rounded-full transition-all duration-500 ease-out shadow-md"
+                style={{ width: `${activePassagesData.paginatedPassages.progressPercentage}%` }}
+              />
+            </div>
+            <p className="mt-3 text-sm text-blue-700 font-medium">
+              {activePassagesData.paginatedPassages.completedCount} of {activePassagesData.paginatedPassages.totalCount} passages completed
+            </p>
+          </div>
+        )}
+
+        {/* Active Passages */}
+        {loadingActive ? (
+          <p className="text-gray-500">Loading passages...</p>
+        ) : !activePassagesData?.paginatedPassages?.passages?.length && passagesOffset === 0 ? (
+          <p className="text-gray-500">No more passages to study! Great job! 🎉</p>
         ) : (
           <div className="space-y-6">
-            {[...sessionData.scripturePassages]
-              .sort((a, b) => a.order - b.order)
-              .map((passage) => (
-                <ScripturePassageCard
-                  key={passage.id}
-                  passage={passage}
-                  sessionId={sessionId}
-                  canComment={isParticipant || isLeader}
-                  onCommentChange={refetch}
-                />
-              ))}
+            {activePassagesData?.paginatedPassages?.passages.map((passage: any) => (
+              <ScripturePassageCard
+                key={passage.id}
+                passage={passage}
+                sessionId={sessionId}
+                canComment={isParticipant || isLeader}
+                onCommentChange={() => {
+                  refetchActive()
+                  refetch()
+                }}
+                onToggleCompletion={() => toggleCompletion({ passageId: passage.id })}
+                showCompletionButton={isParticipant || isLeader}
+              />
+            ))}
+
+            {/* Load More Active Passages */}
+            {activePassagesData?.paginatedPassages?.hasMore && (
+              <div className="flex justify-center mt-6">
+                <button
+                  onClick={() => setPassagesOffset(prev => prev + passagesLimit)}
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-md"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                  Load More Passages
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Completed Passages Section */}
+        {activePassagesData?.paginatedPassages?.completedCount > 0 && (
+          <div className="mt-8">
+            <button
+              onClick={() => setShowCompletedPassages(!showCompletedPassages)}
+              className="w-full px-6 py-4 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors flex items-center justify-between text-gray-700 font-medium"
+            >
+              <span className="flex items-center gap-2">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                Show Completed Passages ({activePassagesData.paginatedPassages.completedCount})
+              </span>
+              <svg
+                className={`w-5 h-5 transition-transform ${showCompletedPassages ? 'rotate-180' : ''}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+
+            {showCompletedPassages && (
+              <div className="mt-6 space-y-6 opacity-75">
+                {loadingCompleted ? (
+                  <p className="text-gray-500">Loading completed passages...</p>
+                ) : (
+                  <>
+                    {completedPassagesData?.paginatedPassages?.passages
+                      ?.filter((p: any) => p.isCompleted)
+                      .map((passage: any) => (
+                        <ScripturePassageCard
+                          key={passage.id}
+                          passage={passage}
+                          sessionId={sessionId}
+                          canComment={isParticipant || isLeader}
+                          onCommentChange={() => {
+                            refetchCompleted()
+                            refetch()
+                          }}
+                          onToggleCompletion={() => toggleCompletion({ passageId: passage.id })}
+                          showCompletionButton={isParticipant || isLeader}
+                        />
+                      ))}
+
+                    {/* Load More Completed Passages */}
+                    {completedPassagesData?.paginatedPassages?.hasMore && (
+                      <div className="flex justify-center mt-6">
+                        <button
+                          onClick={() => setCompletedPassagesOffset(prev => prev + passagesLimit)}
+                          className="px-6 py-3 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors flex items-center gap-2 shadow-md"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
+                          Load More Completed
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

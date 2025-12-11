@@ -65,6 +65,7 @@ model User {
   leadingGroups         Group[]              @relation("GroupLeader")
   groupMemberships      GroupMember[]
   groupChatMessages     GroupChatMessage[]
+  passageCompletions    PassageCompletion[]
 
   @@index([email])
 }
@@ -145,7 +146,8 @@ model ScripturePassage {
   id         String   @id @default(cuid())
   sessionId  String
   book       String
-  chapter    Int
+  chapter    Int      // Starting chapter
+  chapterEnd Int?     // Optional ending chapter for chapter ranges (e.g., Genesis 1-25)
   verseStart Int
   verseEnd   Int?
   content    String
@@ -154,11 +156,28 @@ model ScripturePassage {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  session  Session   @relation(fields: [sessionId], references: [id], onDelete: Cascade)
-  comments Comment[]
+  session     Session              @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  comments    Comment[]
+  completions PassageCompletion[]
 
   @@index([sessionId])
   @@index([book, chapter])
+}
+
+// Track which passages users have marked as complete
+model PassageCompletion {
+  id         String   @id @default(cuid())
+  passageId  String
+  userId     String
+  createdAt  DateTime @default(now())
+
+  passage ScripturePassage @relation(fields: [passageId], references: [id], onDelete: Cascade)
+  user    User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([passageId, userId])
+  @@index([passageId])
+  @@index([userId])
+  @@index([userId, passageId])
 }
 
 model Comment {

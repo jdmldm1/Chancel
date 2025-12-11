@@ -29,7 +29,10 @@
       "Bash(cat:*)",
       "Bash(docker logs:*)",
       "Bash(find:*)",
-      "Bash(rm:*)"
+      "Bash(rm:*)",
+      "Bash(node check_sessions.js:*)",
+      "Bash(npx prisma db push:*)",
+      "Bash(docker cp:*)"
     ],
     "deny": [],
     "ask": []

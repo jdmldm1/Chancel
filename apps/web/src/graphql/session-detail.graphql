@@ -24,6 +24,7 @@ query GetSession($id: ID!) {
       id
       book
       chapter
+      chapterEnd
       verseStart
       verseEnd
       content

@@ -174,72 +174,27 @@ export default function SessionList({ viewMode, timeFilter = 'current' }: Sessio
   const sessionsToDisplay = allSessions.length > 0 ? allSessions :
     (viewMode === 'my' ? (myData?.mySessions || []) : (allData?.publicSessions || []))
 
-  // DEBUG: Log what we're getting
-  console.log('SessionList Debug:', {
-    viewMode,
-    timeFilter,
-    allSessionsCount: allSessions.length,
-    sessionsToDisplayCount: sessionsToDisplay.length,
-    myDataExists: !!myData,
-    allDataExists: !!allData,
-    publicSessionsCount: allData?.publicSessions?.length,
-    mySessionsCount: myData?.mySessions?.length,
-    loading,
-    error: error?.message
-  })
-
   // Filter by time (current, past, future)
   const now = new Date()
   const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0)
   const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)
 
-  console.log('Time filter debug:', {
-    now: now.toISOString(),
-    startOfToday: startOfToday.toISOString(),
-    endOfToday: endOfToday.toISOString(),
-    timeFilter
-  })
-
   const timeFilteredSessions = sessionsToDisplay.filter(s => {
     const startDate = new Date(s.startDate)
     const endDate = new Date(s.endDate)
 
-    // Debug: Log first 3 sessions to see what we're working with
-    const sessionIndex = sessionsToDisplay.indexOf(s)
-    if (sessionIndex < 3) {
-      console.log(`Session ${sessionIndex} (${s.title}):`, {
-        startDate: s.startDate,
-        endDate: s.endDate,
-        startDateParsed: startDate.toISOString(),
-        endDateParsed: endDate.toISOString(),
-        startOfToday: startOfToday.toISOString(),
-        endOfToday: endOfToday.toISOString(),
-        timeFilter,
-      })
-    }
-
     if (timeFilter === 'current') {
       // Session is "current" if it overlaps with today at all
-      const isCurrent = startDate <= endOfToday && endDate >= startOfToday
-      if (sessionIndex < 3) {
-        console.log(`  -> Current filter: ${isCurrent} (${startDate <= endOfToday} && ${endDate >= startOfToday})`)
-      }
-      return isCurrent
+      return startDate <= endOfToday && endDate >= startOfToday
     } else if (timeFilter === 'past') {
       // Session is "past" if it ended before today started
-      const isPast = endDate < startOfToday
-      if (sessionIndex < 3) {
-        console.log(`  -> Past filter: ${isPast} (${endDate.toISOString()} < ${startOfToday.toISOString()})`)
-      }
-      return isPast
+      return endDate < startOfToday
     } else if (timeFilter === 'future') {
       // Session is "future" if it starts after today ends
       return startDate > endOfToday
     }
     return true
   })
-
-  console.log('After time filter:', timeFilteredSessions.length, 'sessions')
 
   // Filter, search, and sort sessions
   let sessions = sessionTypeFilter === 'all'

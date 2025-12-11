@@ -1,0 +1,869 @@
+{
+  "bible_study_plan": {
+    "title": "One Year Canonical Bible Study",
+    "series": [
+      {
+        "series_number": 1,
+        "title": "Foundations of the Covenant",
+        "image_url": "http://googleusercontent.com/image_collection/image_retrieval/16701327052090922906_0",
+        "description": "The Law & Early History",
+        "sessions": [
+          {
+            "week": 1,
+            "readings": [
+              {
+                "book": "Genesis",
+                "start_chapter": 1,
+                "end_chapter": 25,
+                "leaders_note": "Discussion: Compare the 'Tower of Babel' incident (man reaching up to God) with the 'Call of Abraham' immediately following (God reaching down to man). How does this shift define the rest of the Old Testament?"
+              }
+            ]
+          },
+          {
+            "week": 2,
+            "readings": [
+              {
+                "book": "Genesis",
+                "start_chapter": 26,
+                "end_chapter": 50,
+                "leaders_note": "Context: Note the theme of 'providence' in Joseph's life. Despite family betrayal and false imprisonment, Genesis 50:20 summarizes the book: 'You intended to harm me, but God intended it for good.'"
+              }
+            ]
+          },
+          {
+            "week": 3,
+            "readings": [
+              {
+                "book": "Exodus",
+                "start_chapter": 1,
+                "end_chapter": 19,
+                "leaders_note": "Context: The plagues were not just random disasters; many scholars believe they were specifically targeted attacks against Egyptian deities (e.g., darkness challenging Ra, the sun god)."
+              }
+            ]
+          },
+          {
+            "week": 4,
+            "readings": [
+              {
+                "book": "Exodus",
+                "start_chapter": 20,
+                "end_chapter": 40,
+                "leaders_note": "Discussion: Why does the Tabernacle take up so much textual space (Ch 25-40)? Discuss the idea that God desires to dwell *among* His people, not just rule from afar."
+              }
+            ]
+          },
+          {
+            "week": 5,
+            "readings": [
+              {
+                "book": "Leviticus",
+                "start_chapter": 1,
+                "end_chapter": 15,
+                "leaders_note": "Context: Leviticus can be dry, but focus on the word 'Holy'. It appears over 80 times. The laws were designed to make Israel distinct (set apart) from the surrounding Canaanite culture."
+              }
+            ]
+          },
+          {
+            "week": 6,
+            "readings": [
+              {
+                "book": "Leviticus",
+                "start_chapter": 16,
+                "end_chapter": 27,
+                "leaders_note": "Discussion: Read Leviticus 19:18 ('love your neighbor as yourself'). Jesus quotes this as the second greatest commandment. How does finding it here, amidst ritual laws, change your view of the Law?"
+              },
+              {
+                "book": "Numbers",
+                "start_chapter": 1,
+                "end_chapter": 6,
+                "leaders_note": "Context: The 'Nazarite Vow' in Chapter 6 is significant because it allowed a layperson (non-Levite) to dedicate themselves wholly to God for a specific period."
+              }
+            ]
+          },
+          {
+            "week": 7,
+            "readings": [
+              {
+                "book": "Numbers",
+                "start_chapter": 7,
+                "end_chapter": 21,
+                "leaders_note": "Discussion: The Israelites complain repeatedly despite miraculous provision. Discuss the psychology of 'forgetfulness' in the spiritual life—how quickly do we forget past deliverances when new problems arise?"
+              }
+            ]
+          },
+          {
+            "week": 8,
+            "readings": [
+              {
+                "book": "Numbers",
+                "start_chapter": 22,
+                "end_chapter": 36,
+                "leaders_note": "Context: Balaam is a fascinating historical figure. Though not an Israelite, he is forced to speak God's truth. This shows God's sovereignty extends beyond the borders of Israel."
+              }
+            ]
+          },
+          {
+            "week": 9,
+            "readings": [
+              {
+                "book": "Deuteronomy",
+                "start_chapter": 1,
+                "end_chapter": 17,
+                "leaders_note": "Discussion: The 'Shema' (Deut 6:4-9) is the centerpiece of Jewish prayer. How does the command to 'impress them on your children' challenge our modern approach to discipleship?"
+              }
+            ]
+          },
+          {
+            "week": 10,
+            "readings": [
+              {
+                "book": "Deuteronomy",
+                "start_chapter": 18,
+                "end_chapter": 34,
+                "leaders_note": "Context: Deuteronomy is essentially a 'suzerainty treaty'—a contract between a Great King (God) and a vassal state (Israel). The blessings and curses (Ch 28) follow the standard legal format of the ancient Near East."
+              }
+            ]
+          },
+          {
+            "week": 11,
+            "readings": [
+              {
+                "book": "Joshua",
+                "start_chapter": 1,
+                "end_chapter": 24,
+                "leaders_note": "Discussion: Rahab the prostitute is saved while Achan the soldier is destroyed. What does this reversal tell us about how faith operates versus ethnic heritage in God's kingdom?"
+              }
+            ]
+          },
+          {
+            "week": 12,
+            "readings": [
+              {
+                "book": "Judges",
+                "start_chapter": 1,
+                "end_chapter": 21,
+                "leaders_note": "Context: The recurring phrase 'In those days Israel had no king; everyone did as they saw fit' explains the moral chaos. It serves as a theological argument for why the Monarchy (coming next) was necessary."
+              }
+            ]
+          },
+          {
+            "week": 13,
+            "readings": [
+              {
+                "book": "Ruth",
+                "start_chapter": 1,
+                "end_chapter": 4,
+                "leaders_note": "Discussion: Contrast the loyalty of Ruth (a Moabite) with the chaos of the Judges period. How does this quiet story of faithfulness prepare the way for King David?"
+              },
+              {
+                "book": "1 Samuel",
+                "start_chapter": 1,
+                "end_chapter": 15,
+                "leaders_note": "Context: Saul's failure is often attributed to fear of man (1 Sam 15:24). This is the key differentiator between Saul and David: Saul feared the people; David feared God."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "series_number": 2,
+        "title": "The Throne & The Wisdom",
+        "image_url": "http://googleusercontent.com/image_collection/image_retrieval/8925930399526185000_0",
+        "description": "The Kingdom & Wisdom Literature",
+        "sessions": [
+          {
+            "week": 14,
+            "readings": [
+              {
+                "book": "1 Samuel",
+                "start_chapter": 16,
+                "end_chapter": 31,
+                "leaders_note": "Discussion: Why does David refuse to kill Saul when he has the chance? Discuss the principle of respecting the 'office' even when the person holding it is flawed."
+              },
+              {
+                "book": "2 Samuel",
+                "start_chapter": 1,
+                "end_chapter": 5,
+                "leaders_note": "Context: David conquers Jerusalem (Zion) in Ch 5. This city was previously a Jebusite stronghold. This moment shifts the spiritual center of the world to this specific geographic location."
+              }
+            ]
+          },
+          {
+            "week": 15,
+            "readings": [
+              {
+                "book": "2 Samuel",
+                "start_chapter": 6,
+                "end_chapter": 24,
+                "leaders_note": "Discussion: The Davidic Covenant (Ch 7) promises an eternal throne, yet David's family immediately falls apart (Amnon, Absalom). How do we reconcile God's promises with human failure?"
+              }
+            ]
+          },
+          {
+            "week": 16,
+            "readings": [
+              {
+                "book": "1 Kings",
+                "start_chapter": 1,
+                "end_chapter": 15,
+                "leaders_note": "Context: The kingdom splits in Ch 12 not just because of tax policy, but because Rehoboam listened to young, foolish peers rather than the elders. A lesson in leadership and counsel."
+              }
+            ]
+          },
+          {
+            "week": 17,
+            "readings": [
+              {
+                "book": "1 Kings",
+                "start_chapter": 16,
+                "end_chapter": 22,
+                "leaders_note": "Discussion: Elijah battles the prophets of Baal on Carmel. Why is 'syncretism' (mixing religions) often more dangerous to faith than outright atheism?"
+              },
+              {
+                "book": "2 Kings",
+                "start_chapter": 1,
+                "end_chapter": 10,
+                "leaders_note": "Context: Elisha asks for a 'double portion' of Elijah's spirit. In inheritance law, the double portion went to the firstborn son. Elisha was asking to be Elijah's spiritual successor and heir."
+              }
+            ]
+          },
+          {
+            "week": 18,
+            "readings": [
+              {
+                "book": "2 Kings",
+                "start_chapter": 11,
+                "end_chapter": 25,
+                "leaders_note": "Discussion: Hezekiah and Josiah are good kings, yet the exile still happens. Discuss the concept of 'generational consequences' versus individual righteousness."
+              }
+            ]
+          },
+          {
+            "week": 19,
+            "readings": [
+              {
+                "book": "1 Chronicles",
+                "start_chapter": 1,
+                "end_chapter": 21,
+                "leaders_note": "Context: Chronicles was written *after* the exile. The lengthy genealogies (Ch 1-9) were crucial for the returning exiles to prove their lineage, land rights, and right to serve in the Temple."
+              }
+            ]
+          },
+          {
+            "week": 20,
+            "readings": [
+              {
+                "book": "1 Chronicles",
+                "start_chapter": 22,
+                "end_chapter": 29,
+                "leaders_note": "Context: Unlike Kings, Chronicles cleans up David's image (omitting Bathsheba). The author's goal was not a cover-up, but to present David as the ideal Messianic prototype for the discouraged post-exilic community."
+              },
+              {
+                "book": "2 Chronicles",
+                "start_chapter": 1,
+                "end_chapter": 18,
+                "leaders_note": "Discussion: Solomon's temple dedication (Ch 7) ends with God saying, 'If my people... will humble themselves.' Why is humility the prerequisite for healing the land?"
+              }
+            ]
+          },
+          {
+            "week": 21,
+            "readings": [
+              {
+                "book": "2 Chronicles",
+                "start_chapter": 19,
+                "end_chapter": 36,
+                "leaders_note": "Context: King Uzziah is a tragic figure who started well but became proud and entered the temple unlawfully. It reminds leaders that a strong start does not guarantee a strong finish."
+              }
+            ]
+          },
+          {
+            "week": 22,
+            "readings": [
+              {
+                "book": "Ezra",
+                "start_chapter": 1,
+                "end_chapter": 10,
+                "leaders_note": "Discussion: The older generation wept while the younger generation cheered at the new temple foundation (Ch 3). How do we handle generational differences in expectations of what 'church' should look like?"
+              },
+              {
+                "book": "Nehemiah",
+                "start_chapter": 1,
+                "end_chapter": 7,
+                "leaders_note": "Context: Nehemiah was a cupbearer, a high political office. He used his secular position to advance spiritual goals. A great case study for integrating faith and work."
+              }
+            ]
+          },
+          {
+            "week": 23,
+            "readings": [
+              {
+                "book": "Nehemiah",
+                "start_chapter": 8,
+                "end_chapter": 13,
+                "leaders_note": "Discussion: In Ch 8, when the Law is read, the people weep, but Nehemiah tells them, 'The joy of the Lord is your strength.' When is repentance enough, and when should we move to celebration?"
+              },
+              {
+                "book": "Esther",
+                "start_chapter": 1,
+                "end_chapter": 10,
+                "leaders_note": "Context: God is never mentioned by name in Esther. This book illustrates God's 'hidden providence'—working behind the scenes in secular politics to save His people."
+              }
+            ]
+          },
+          {
+            "week": 24,
+            "readings": [
+              {
+                "book": "Job",
+                "start_chapter": 1,
+                "end_chapter": 24,
+                "leaders_note": "Discussion: Job's friends offer 'correct' theology but incorrect application. Discuss how we can be technically right about God but wrong in how we comfort those who are suffering."
+              }
+            ]
+          },
+          {
+            "week": 25,
+            "readings": [
+              {
+                "book": "Job",
+                "start_chapter": 25,
+                "end_chapter": 42,
+                "leaders_note": "Context: God never answers Job's question ('Why?'). Instead, He reveals His majesty (Ch 38-41). The answer to suffering is not an explanation, but an encounter with the Creator."
+              },
+              {
+                "book": "Psalms",
+                "start_chapter": 1,
+                "end_chapter": 10,
+                "leaders_note": "Discussion: Psalm 1 contrasts the 'Tree' (rooted) with 'Chaff' (blown away). In a digital age of constant movement and distraction, what does it look like to be a 'Tree'?"
+              }
+            ]
+          },
+          {
+            "week": 26,
+            "readings": [
+              {
+                "book": "Psalms",
+                "start_chapter": 11,
+                "end_chapter": 41,
+                "leaders_note": "Context: Psalm 22 is known as the 'Psalm of the Cross.' Written 1,000 years before Christ, it opens with 'My God, my God, why have you forsaken me?' and details crucifixion-like suffering."
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "series_number": 3,
+        "title": "Voices of Warning & Hope",
+        "image_url": "http://googleusercontent.com/image_collection/image_retrieval/12627573010873953212_0",
+        "description": "Poetry & The Prophets",
+        "sessions": [
+          {
+            "week": 27,
+            "readings": [
+              {
+                "book": "Psalms",
+                "start_chapter": 42,
+                "end_chapter": 72,
+                "leaders_note": "Discussion: The Sons of Korah (who wrote Ps 42-49) were descendants of a man who rebelled against Moses (Num 16). Their presence in the Psalter is a testimony to God's grace restoring a family line."
+              }
+            ]
+          },
+          {
+            "week": 28,
+            "readings": [
+              {
+                "book": "Psalms",
+                "start_chapter": 73,
+                "end_chapter": 106,
+                "leaders_note": "Context: Psalm 90 is the only psalm attributed to Moses. It provides a stark contrast between God's eternity ('from everlasting to everlasting') and human frailty."
+              }
+            ]
+          },
+          {
+            "week": 29,
+            "readings": [
+              {
+                "book": "Psalms",
+                "start_chapter": 107,
+                "end_chapter": 150,
+                "leaders_note": "Discussion: The 'Psalms of Ascent' (120-134) were sung by pilgrims traveling up to Jerusalem. How does viewing life as a 'pilgrimage' change how we view hardships along the way?"
+              }
+            ]
+          },
+          {
+            "week": 30,
+            "readings": [
+              {
+                "book": "Proverbs",
+                "start_chapter": 1,
+                "end_chapter": 22,
+                "leaders_note": "Context: Proverbs are principles, not promises. (e.g., 'Train up a child... he will not depart'). Treating them as legal guarantees often leads to disappointment; they describe how life *generally* works under God's order."
+              }
+            ]
+          },
+          {
+            "week": 31,
+            "readings": [
+              {
+                "book": "Proverbs",
+                "start_chapter": 23,
+                "end_chapter": 31,
+                "leaders_note": "Discussion: The 'Proverbs 31 Woman' is often used to pressure women. Discuss how this passage is actually an acrostic poem praising wisdom in action, rather than just a to-do list."
+              },
+              {
+                "book": "Ecclesiastes",
+                "start_chapter": 1,
+                "end_chapter": 12,
+                "leaders_note": "Context: The keyword 'Hevel' (Meaningless/Vanity) literally means 'vapor' or 'smoke'. Life isn't pointless; it's just ungraspable and fleeting. We cannot control it."
+              },
+              {
+                "book": "Song of Solomon",
+                "start_chapter": 1,
+                "end_chapter": 8,
+                "leaders_note": "Context: Historically interpreted as an allegory of God and Israel (or Christ and the Church), but also clearly a celebration of marital intimacy. Both layers are valid."
+              }
+            ]
+          },
+          {
+            "week": 32,
+            "readings": [
+              {
+                "book": "Isaiah",
+                "start_chapter": 1,
+                "end_chapter": 22,
+                "leaders_note": "Discussion: Isaiah 6 ('Here am I, send me') comes immediately after the death of King Uzziah. When earthly structures fail, God often calls new leaders to point to His eternal throne."
+              }
+            ]
+          },
+          {
+            "week": 33,
+            "readings": [
+              {
+                "book": "Isaiah",
+                "start_chapter": 23,
+                "end_chapter": 44,
+                "leaders_note": "Context: Isaiah 40 marks a major shift from judgment (1-39) to comfort (40-66). 'Comfort, comfort my people' speaks to the future exiles who will need hope."
+              }
+            ]
+          },
+          {
+            "week": 34,
+            "readings": [
+              {
+                "book": "Isaiah",
+                "start_chapter": 45,
+                "end_chapter": 66,
+                "leaders_note": "Context: Isaiah 53 (The Suffering Servant) is so accurate to the crucifixion that critics once argued it must have been written after Christ. It is the clearest OT picture of substitutionary atonement."
+              }
+            ]
+          },
+          {
+            "week": 35,
+            "readings": [
+              {
+                "book": "Jeremiah",
+                "start_chapter": 1,
+                "end_chapter": 20,
+                "leaders_note": "Discussion: Jeremiah is the 'Weeping Prophet'. He complains to God often. Does our culture of 'victory' in church allow enough space for lament and honesty about pain?"
+              }
+            ]
+          },
+          {
+            "week": 36,
+            "readings": [
+              {
+                "book": "Jeremiah",
+                "start_chapter": 21,
+                "end_chapter": 40,
+                "leaders_note": "Context: Jeremiah 29:11 ('Plans to prosper you') is written to people who have just been exiled to Babylon for 70 years. The 'prosperity' wasn't immediate escape, but preservation *through* the trial."
+              }
+            ]
+          },
+          {
+            "week": 37,
+            "readings": [
+              {
+                "book": "Jeremiah",
+                "start_chapter": 41,
+                "end_chapter": 52,
+                "leaders_note": "Context: Jeremiah ends with the fall of Jerusalem. It is a tragedy, yet the preservation of Jehoiachin (the Davidic heir) at the very end offers a tiny glimmer of hope for the Messiah."
+              },
+              {
+                "book": "Lamentations",
+                "start_chapter": 1,
+                "end_chapter": 5,
+                "leaders_note": "Discussion: 'Great is Thy Faithfulness' (Lam 3:23) is found in the dead center of this book of misery. How can we find God's mercy even when our world is literally falling apart?"
+              }
+            ]
+          },
+          {
+            "week": 38,
+            "readings": [
+              {
+                "book": "Ezekiel",
+                "start_chapter": 1,
+                "end_chapter": 24,
+                "leaders_note": "Context: Ezekiel's visions are bizarre (wheels within wheels). He is a prophet in exile (Babylon), showing that God's glory is mobile—He is not stuck in the Jerusalem temple."
+              }
+            ]
+          },
+          {
+            "week": 39,
+            "readings": [
+              {
+                "book": "Ezekiel",
+                "start_chapter": 25,
+                "end_chapter": 48,
+                "leaders_note": "Discussion: The 'Valley of Dry Bones' (Ch 37) is about the resurrection of Israel as a nation. How does this imagery speak to areas of our lives or communities that feel 'dead' and beyond hope?"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "series_number": 4,
+        "title": "The Messiah & The New Kingdom",
+        "image_url": "http://googleusercontent.com/image_collection/image_retrieval/16414248628232332294_0",
+        "description": "Minor Prophets & The New Testament",
+        "sessions": [
+          {
+            "week": 40,
+            "readings": [
+              {
+                "book": "Daniel",
+                "start_chapter": 1,
+                "end_chapter": 12,
+                "leaders_note": "Context: Daniel serves in the high courts of Babylon and Persia. Like Joseph, he shows how to remain faithful to God while living in the heart of a hostile empire."
+              },
+              {
+                "book": "Hosea",
+                "start_chapter": 1,
+                "end_chapter": 14,
+                "leaders_note": "Discussion: God commands Hosea to marry an unfaithful woman to illustrate His relationship with Israel. It is a shocking picture of God's scandalous grace toward spiritual adultery."
+              }
+            ]
+          },
+          {
+            "week": 41,
+            "readings": [
+              {
+                "book": "Joel",
+                "start_chapter": 1,
+                "end_chapter": 3,
+                "leaders_note": "Context: Joel predicts the pouring out of the Spirit (2:28), which Peter quotes at Pentecost (Acts 2). This bridges the gap between the Old prophetic hope and the New Testament church."
+              },
+              {
+                "book": "Amos",
+                "start_chapter": 1,
+                "end_chapter": 9,
+                "leaders_note": "Discussion: Amos was a shepherd, not a professional prophet. He railed against the rich for ignoring the poor. Why is social justice so inextricably linked to true worship in his message?"
+              },
+              {
+                "book": "Obadiah",
+                "start_chapter": 1,
+                "end_chapter": 1,
+                "leaders_note": "Context: Obadiah condemns Edom (descendants of Esau) for cheering when Jerusalem fell. It highlights the ancient family feud between Jacob and Esau concluding in judgment."
+              },
+              {
+                "book": "Jonah",
+                "start_chapter": 1,
+                "end_chapter": 4,
+                "leaders_note": "Discussion: Jonah ends abruptly with him angry that God saved his enemies. It forces the reader to ask: 'Am I okay with God loving people I hate?'"
+              },
+              {
+                "book": "Micah",
+                "start_chapter": 1,
+                "end_chapter": 7,
+                "leaders_note": "Context: Micah 5:2 predicts the Messiah will be born in Bethlehem. This specific detail was used by the scribes to direct the Magi to Jesus."
+              },
+              {
+                "book": "Nahum",
+                "start_chapter": 1,
+                "end_chapter": 3,
+                "leaders_note": "Context: Nahum is the sequel to Jonah. Nineveh repented in Jonah, but 100 years later they returned to violence. Nahum declares their final destruction. God is patient, but justice eventually arrives."
+              }
+            ]
+          },
+          {
+            "week": 42,
+            "readings": [
+              {
+                "book": "Habakkuk",
+                "start_chapter": 1,
+                "end_chapter": 3,
+                "leaders_note": "Discussion: Habakkuk asks God why He uses wicked nations (Babylon) to judge His people. The answer 'The righteous shall live by faith' (2:4) becomes the rallying cry of the Reformation (Romans 1:17)."
+              },
+              {
+                "book": "Zephaniah",
+                "start_chapter": 1,
+                "end_chapter": 3,
+                "leaders_note": "Context: Zephaniah 3:17 portrays God not as a judge, but as a warrior who 'sings' over His people. A rare and beautiful image of God's emotional delight in the remnant."
+              },
+              {
+                "book": "Haggai",
+                "start_chapter": 1,
+                "end_chapter": 2,
+                "leaders_note": "Discussion: The people were building their own paneled houses while the Temple lay in ruins. Discuss the concept of 'misplaced priorities' in our own stewardship of time and money."
+              },
+              {
+                "book": "Zechariah",
+                "start_chapter": 1,
+                "end_chapter": 14,
+                "leaders_note": "Context: Contains more Messianic prophecies than any minor prophet (Entry on a donkey, betrayal for 30 pieces of silver, the pierces side). It is heavily apocalyptic."
+              },
+              {
+                "book": "Malachi",
+                "start_chapter": 1,
+                "end_chapter": 4,
+                "leaders_note": "Context: The last word of the OT is a promise of Elijah coming (fulfilled in John the Baptist). Then, 400 years of silence follow before the first cry in Bethlehem."
+              }
+            ]
+          },
+          {
+            "week": 43,
+            "readings": [
+              {
+                "book": "Matthew",
+                "start_chapter": 1,
+                "end_chapter": 20,
+                "leaders_note": "Context: Matthew writes for a Jewish audience. Note how often he uses the phrase 'that it might be fulfilled.' He is meticulously proving Jesus is the continuation of the OT story."
+              }
+            ]
+          },
+          {
+            "week": 44,
+            "readings": [
+              {
+                "book": "Matthew",
+                "start_chapter": 21,
+                "end_chapter": 28,
+                "leaders_note": "Discussion: The Great Commission (28:19) is the climax of the book. The authority given to Jesus is now delegated to the disciples. How does this command define the purpose of the church?"
+              },
+              {
+                "book": "Mark",
+                "start_chapter": 1,
+                "end_chapter": 10,
+                "leaders_note": "Context: Mark is the action gospel. He uses the word 'immediately' (euthus) over 40 times. It depicts Jesus as a servant on an urgent mission."
+              }
+            ]
+          },
+          {
+            "week": 45,
+            "readings": [
+              {
+                "book": "Mark",
+                "start_chapter": 11,
+                "end_chapter": 16,
+                "leaders_note": "Discussion: The original ending of Mark (16:8) ends in fear and silence. Why might the author (or Peter, his source) want to leave the reader with an uneasy challenge rather than a neat conclusion?"
+              },
+              {
+                "book": "Luke",
+                "start_chapter": 1,
+                "end_chapter": 12,
+                "leaders_note": "Context: Luke emphasizes the outcasts: women, Samaritans, Gentiles, and the poor. Note how the birth narrative focuses on Mary, while Matthew focused on Joseph."
+              }
+            ]
+          },
+          {
+            "week": 46,
+            "readings": [
+              {
+                "book": "Luke",
+                "start_chapter": 13,
+                "end_chapter": 24,
+                "leaders_note": "Discussion: The Road to Emmaus (Ch 24) shows Jesus interpreting 'all the Scriptures' concerning Himself. How does this validate the study of the Old Testament for Christians today?"
+              },
+              {
+                "book": "John",
+                "start_chapter": 1,
+                "end_chapter": 5,
+                "leaders_note": "Context: John omits the birth and starts in eternity past ('In the beginning was the Word'). He focuses on the Deity of Christ, using the 'I AM' statements."
+              }
+            ]
+          },
+          {
+            "week": 47,
+            "readings": [
+              {
+                "book": "John",
+                "start_chapter": 6,
+                "end_chapter": 21,
+                "leaders_note": "Discussion: In Ch 13, Jesus washes the disciples' feet. Peter resists. Why is it sometimes harder to *receive* service/grace than to give it?"
+              }
+            ]
+          },
+          {
+            "week": 48,
+            "readings": [
+              {
+                "book": "Acts",
+                "start_chapter": 1,
+                "end_chapter": 20,
+                "leaders_note": "Context: Acts 15 (The Jerusalem Council) is the most critical turning point in church history. It decided that Gentiles did not need to become Jews to follow Jesus, opening the door to the world."
+              }
+            ]
+          },
+          {
+            "week": 49,
+            "readings": [
+              {
+                "book": "Acts",
+                "start_chapter": 21,
+                "end_chapter": 28,
+                "leaders_note": "Discussion: Paul spends the end of Acts in prison, yet the book ends saying the gospel went out 'unhindered.' How does this challenge our view of what 'successful ministry' looks like?"
+              },
+              {
+                "book": "Romans",
+                "start_chapter": 1,
+                "end_chapter": 16,
+                "leaders_note": "Context: Romans is the systematic theology of the Bible. Chapters 1-11 explain what God did (doctrine), and 12-16 explain how we live (ethics), hinged on the word 'Therefore' in 12:1."
+              }
+            ]
+          },
+          {
+            "week": 50,
+            "readings": [
+              {
+                "book": "1 Corinthians",
+                "start_chapter": 1,
+                "end_chapter": 16,
+                "leaders_note": "Discussion: The Corinthian church was gifted but immature. Paul argues that 'love' (Ch 13) is superior to all spiritual gifts. Why is character more important than talent in the church?"
+              },
+              {
+                "book": "2 Corinthians",
+                "start_chapter": 1,
+                "end_chapter": 13,
+                "leaders_note": "Context: Paul defends his ministry not by boasting of victories, but of sufferings (Ch 11). This 'theology of weakness' teaches that God's power is made perfect in our weakness."
+              }
+            ]
+          },
+          {
+            "week": 51,
+            "readings": [
+              {
+                "book": "Galatians",
+                "start_chapter": 1,
+                "end_chapter": 6,
+                "leaders_note": "Context: Galatians is a fiery letter against legalism. Paul argues that adding *anything* to the gospel (like circumcision) actually destroys the gospel."
+              },
+              {
+                "book": "Ephesians",
+                "start_chapter": 1,
+                "end_chapter": 6,
+                "leaders_note": "Discussion: Ephesians 2:8-10 states we are saved *by* grace, *for* good works. How do we keep the order right—working from salvation, not for it?"
+              },
+              {
+                "book": "Philippians",
+                "start_chapter": 1,
+                "end_chapter": 4,
+                "leaders_note": "Context: The 'Kenosis' hymn (2:5-11) describes Jesus emptying Himself to become human. It is the model for Christian humility and conflict resolution."
+              },
+              {
+                "book": "Colossians",
+                "start_chapter": 1,
+                "end_chapter": 4,
+                "leaders_note": "Context: Addresses Gnosticism (secret knowledge). Paul asserts that all fullness dwells in Christ alone; we don't need 'extra' spiritual secrets."
+              },
+              {
+                "book": "1 Thessalonians",
+                "start_chapter": 1,
+                "end_chapter": 5,
+                "leaders_note": "Discussion: Written to new believers worried about those who died before Jesus returned. Paul offers the Rapture/Return as a source of comfort, not just a timeline chart."
+              },
+              {
+                "book": "2 Thessalonians",
+                "start_chapter": 1,
+                "end_chapter": 3,
+                "leaders_note": "Context: Corrects the idea that Jesus had already returned. Also warns against idleness—if you don't work, you don't eat. Eschatology should lead to responsibility, not laziness."
+              },
+              {
+                "book": "1 Timothy",
+                "start_chapter": 1,
+                "end_chapter": 6,
+                "leaders_note": "Context: A pastoral epistle. Paul instructs Timothy on church structure (Elders/Deacons). It shows that the church needs both organic life and organized structure to survive."
+              }
+            ]
+          },
+          {
+            "week": 52,
+            "readings": [
+              {
+                "book": "2 Timothy",
+                "start_chapter": 1,
+                "end_chapter": 4,
+                "leaders_note": "Discussion: Paul's last letter. He says 'I have fought the good fight.' What does it look like to leave a spiritual legacy for the next generation?"
+              },
+              {
+                "book": "Titus",
+                "start_chapter": 1,
+                "end_chapter": 3,
+                "leaders_note": "Context: Similar to Timothy but written to Crete, a difficult culture. It emphasizes that sound doctrine must lead to good works."
+              },
+              {
+                "book": "Philemon",
+                "start_chapter": 1,
+                "end_chapter": 1,
+                "leaders_note": "Context: Paul asks a slave owner to welcome back a runaway slave as a 'brother.' It subtly undermines the institution of slavery by changing the relationship from master/slave to family."
+              },
+              {
+                "book": "Hebrews",
+                "start_chapter": 1,
+                "end_chapter": 13,
+                "leaders_note": "Discussion: The keyword is 'Better'. Jesus is better than angels, Moses, and the High Priests. Why are we tempted to return to 'shadows' when we have the substance in Christ?"
+              },
+              {
+                "book": "James",
+                "start_chapter": 1,
+                "end_chapter": 5,
+                "leaders_note": "Context: The Proverbs of the NT. James focuses on practical religion: controlling the tongue, caring for orphans, and faith that produces action."
+              },
+              {
+                "book": "1 Peter",
+                "start_chapter": 1,
+                "end_chapter": 5,
+                "leaders_note": "Context: Written to suffering Christians. Peter calls them 'exiles'. It encourages us that this world is not our home, which gives us courage to endure persecution."
+              },
+              {
+                "book": "2 Peter",
+                "start_chapter": 1,
+                "end_chapter": 3,
+                "leaders_note": "Discussion: Warns against false teachers and scoffers who say 'Where is this coming?' Peter reminds us that God's delay is actually patience, allowing time for repentance."
+              },
+              {
+                "book": "1 John",
+                "start_chapter": 1,
+                "end_chapter": 5,
+                "leaders_note": "Context: Emphasizes 'assurance'. We can *know* we have eternal life (5:13) by checking our lives for love, obedience, and truth."
+              },
+              {
+                "book": "2 John",
+                "start_chapter": 1,
+                "end_chapter": 1,
+                "leaders_note": "Context: Warns against hospitality to false teachers. Love does not mean accepting lies."
+              },
+              {
+                "book": "3 John",
+                "start_chapter": 1,
+                "end_chapter": 1,
+                "leaders_note": "Context: Commends Gaius for hospitality and condemns Diotrephes for arrogance. A case study in church politics."
+              },
+              {
+                "book": "Jude",
+                "start_chapter": 1,
+                "end_chapter": 1,
+                "leaders_note": "Context: Contend for the faith. Jude cites extra-biblical sources (Enoch), showing his wide knowledge of literature to make his point about judgment."
+              },
+              {
+                "book": "Revelation",
+                "start_chapter": 1,
+                "end_chapter": 22,
+                "leaders_note": "Discussion: While the symbols are complex, the message is simple: God Wins. How does the final vision of the New Jerusalem (Garden City) resolve the problem that started in Eden?"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
