@@ -46,6 +46,7 @@ Chancel enables Bible study leaders to organize study sessions with scripture pa
 - **Scripture Display** - Verse-level commenting and annotations
 - **AI Insights** - Optional Ollama integration for scripture analysis
 - **Real-time Discussions** - GraphQL subscriptions for live updates
+- **Email Notifications** - Automatic notifications for sessions, comments, and prayers
 - **File Sharing** - Share study materials and resources
 - **Threaded Comments** - Nested discussions on scripture passages
 
@@ -127,6 +128,11 @@ JWT_SECRET="your-jwt-secret-change-in-production"
 # Optional: AI Insights (requires Ollama)
 OLLAMA_HOST="localhost"
 OLLAMA_PORT="11434"
+
+# Optional: Email Notifications (requires Resend API key)
+RESEND_API_KEY="re_your_key_here"
+EMAIL_FROM="Chancel <noreply@yourdomain.com>"
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
 
 ### 4. Initialize Database
@@ -200,6 +206,138 @@ docker compose down      # Stop services
 cd infra/kubernetes
 kubectl apply -f .       # Deploy to cluster
 ```
+
+## Email Notifications Setup
+
+Chancel includes a built-in email notification system that alerts users about important events:
+- Session invitations when joining a study
+- Replies to their comments
+- Prayer request reactions
+
+### Features
+
+**Automatic Notifications:**
+- Users receive emails when someone joins their session
+- Comment authors get notified of replies
+- Prayer request authors are notified when someone prays for them
+
+**User Preferences:**
+- Users can toggle email notifications in their profile settings
+- Separate controls for email, comment, and prayer notifications
+- Notifications respect user preferences automatically
+
+**Development Mode:**
+- Without an API key, emails are logged to the console
+- All functionality works normally for testing
+- No email service required for local development
+
+### Setup Instructions
+
+**1. Sign Up for Resend (Free Tier)**
+
+Visit [resend.com](https://resend.com) and create a free account:
+- Free tier: 100 emails/day, 3,000/month
+- No credit card required
+- Simple API integration
+
+**2. Get Your API Key**
+
+After signing up:
+1. Go to API Keys in your Resend dashboard
+2. Click "Create API Key"
+3. Copy your API key (starts with `re_`)
+
+**3. Configure Environment Variables**
+
+Add these variables to your `.env` file:
+
+```env
+# Email Configuration (Resend)
+RESEND_API_KEY="re_your_actual_api_key_here"
+EMAIL_FROM="Chancel <noreply@yourdomain.com>"
+NEXT_PUBLIC_APP_URL="http://localhost:3000"
+```
+
+**Important:**
+- Replace `re_your_actual_api_key_here` with your real API key
+- Update `EMAIL_FROM` with your verified domain or use the test domain
+- Set `NEXT_PUBLIC_APP_URL` to your frontend URL
+
+**4. Domain Verification (Production)**
+
+For production use:
+1. Add your domain in Resend dashboard
+2. Add DNS records (SPF, DKIM) provided by Resend
+3. Wait for verification (usually 5-10 minutes)
+4. Update `EMAIL_FROM` to use your verified domain
+
+For development/testing, you can skip domain verification and use Resend's test mode.
+
+**5. Restart the API Server**
+
+```bash
+# Stop the server (Ctrl+C)
+# Restart with new environment variables
+npm run dev
+```
+
+**6. Test Email Notifications**
+
+Verify emails are working:
+1. Join a session → Check email inbox
+2. Reply to a comment → Original author receives email
+3. React to a prayer request → Author receives notification
+
+Check server logs for email confirmation:
+```bash
+✅ Email sent: { id: 're_xxxxx' }
+```
+
+### Email Templates
+
+Chancel includes professionally designed HTML email templates:
+
+- **Session Invitations** - Purple gradient, session details
+- **Comment Replies** - Blue gradient, comment preview
+- **Prayer Updates** - Red gradient, prayer content
+- **Group Invitations** - Green gradient, group info
+
+All templates are mobile-responsive and include direct links back to the app.
+
+### Troubleshooting
+
+**Emails not sending:**
+- Check `RESEND_API_KEY` is set correctly in `.env`
+- Verify API server restarted after adding variables
+- Check server console for error messages
+- Ensure user has email notifications enabled in profile
+
+**Emails going to spam:**
+- Verify your domain in Resend (production)
+- Add SPF and DKIM DNS records
+- Use a professional `EMAIL_FROM` address
+- Avoid spam trigger words in content
+
+**API key not working:**
+- Ensure no quotes or spaces in `.env` value
+- Regenerate API key in Resend dashboard
+- Check API key starts with `re_`
+
+### Cost & Limits
+
+**Free Tier:**
+- 100 emails per day
+- 3,000 emails per month
+- Perfect for small to medium groups
+
+**Paid Plans:**
+- Start at $20/month for 50,000 emails
+- Volume discounts available
+- 99.9% uptime SLA
+
+For most Bible study groups, the free tier is more than sufficient.
+
+---
 
 ## Project Structure
 

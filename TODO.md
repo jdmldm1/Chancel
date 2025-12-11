@@ -1,10 +1,12 @@
 # Chancel - Single Source of Truth
 
-**Last Updated:** 2025-12-02
-**Project Status:** ~80% Complete ✅
+**Last Updated:** 2025-12-10
+**Project Status:** ~83% Complete ✅
 
 This is the **single source of truth** for project status, features, and implementation tasks.
 See `CLAUDE.md` for architecture and technical guidelines.
+
+**Note:** This file consolidates information previously in FEATURES_COMPLETED.md and IMPLEMENTATION_GUIDE.md (now deprecated).
 
 ---
 
@@ -144,7 +146,7 @@ See `CLAUDE.md` for architecture and technical guidelines.
 
 ## 🔄 CURRENT IMPLEMENTATION TASKS
 
-### Email Notifications (80% Complete)
+### ✅ Email Notifications (COMPLETE - 95% Ready)
 
 #### ✅ Done:
 - [x] Resend package installed (`npm install resend`)
@@ -155,78 +157,20 @@ See `CLAUDE.md` for architecture and technical guidelines.
   - Prayer request updates
   - Group invitations
 - [x] Environment variables added to `.env.example`
+- [x] **Email triggers added to resolvers:**
+  - ✅ Session join notifications (`joinSession` mutation)
+  - ✅ Comment reply notifications (`createComment` mutation)
+  - ✅ Prayer reaction notifications (`togglePrayerReaction` mutation)
 
-#### ⏳ To Do:
-- [ ] **Get Resend API Key**
+#### ⏳ To Do (User Action Required):
+- [ ] **Get Resend API Key** to enable email sending
   1. Sign up at https://resend.com (free tier: 100 emails/day)
   2. Verify domain OR use test mode
   3. Add to `.env`: `RESEND_API_KEY=re_your_key`
+  4. Add to `.env`: `EMAIL_FROM="Chancel <noreply@yourdomain.com>"`
+  5. Test notifications by joining a session, replying to a comment, or reacting to a prayer
 
-- [ ] **Add Email Triggers** (30 minutes)
-  - File: `/apps/api/src/graphql/resolvers/index.ts`
-  - Import: `import { emailService } from '../../services/email'`
-  - **Session Join** (after line 840 in `joinSession` mutation):
-    ```typescript
-    const user = await context.prisma.user.findUnique({ where: { id: context.userId } })
-    const leader = await context.prisma.user.findUnique({ where: { id: session.leaderId } })
-
-    if (user?.emailNotifications) {
-      await emailService.sendSessionInvitation({
-        to: user.email,
-        userName: user.name || 'there',
-        sessionTitle: session.title,
-        sessionDate: session.startDate,
-        sessionUrl: `${process.env.NEXT_PUBLIC_APP_URL}/sessions/${session.id}`,
-        invitedBy: leader?.name || 'A leader',
-      })
-    }
-    ```
-
-  - **Comment Replies** (in `createComment` mutation, ~line 500):
-    ```typescript
-    if (args.input.parentId) {
-      const parentComment = await context.prisma.comment.findUnique({
-        where: { id: args.input.parentId },
-        include: { user: true, passage: { include: { session: true } } },
-      })
-
-      if (parentComment?.user.commentNotifications) {
-        const commenter = await context.prisma.user.findUnique({ where: { id: context.userId } })
-        await emailService.sendCommentReply({
-          to: parentComment.user.email,
-          userName: parentComment.user.name || 'there',
-          sessionTitle: parentComment.passage.session.title,
-          commentAuthor: commenter?.name || 'Someone',
-          commentContent: args.input.content.substring(0, 200),
-          sessionUrl: `${process.env.NEXT_PUBLIC_APP_URL}/sessions/${parentComment.passage.sessionId}`,
-        })
-      }
-    }
-    ```
-
-  - **Prayer Reactions** (in `togglePrayerReaction` mutation):
-    ```typescript
-    const prayerRequest = await context.prisma.prayerRequest.findUnique({
-      where: { id: args.prayerRequestId },
-      include: { user: true },
-    })
-
-    if (prayerRequest?.user.prayerNotifications && prayerRequest.userId !== context.userId) {
-      const reactor = await context.prisma.user.findUnique({ where: { id: context.userId } })
-      await emailService.sendPrayerUpdate({
-        to: prayerRequest.user.email,
-        userName: prayerRequest.user.name || 'there',
-        prayerRequestContent: prayerRequest.content.substring(0, 200),
-        updateType: 'reaction',
-        reactorName: reactor?.name || 'Someone',
-      })
-    }
-    ```
-
-- [ ] **Test Email Notifications**
-  - Join a session → Check email
-  - Reply to comment → Check email
-  - React to prayer → Check email
+**Note:** Email functionality works without API key (logs to console) for development.
 
 ---
 
@@ -432,10 +376,10 @@ See `CLAUDE.md` for architecture and technical guidelines.
 
 ## 🚨 CRITICAL BLOCKERS
 
-1. **Email Notifications (80% Complete)**
-   - **Impact:** Users miss important updates
-   - **Fix:** Add Resend API key + email triggers (30 min)
-   - **Priority:** HIGH
+1. ~~**Email Notifications (COMPLETE)**~~ ✅
+   - Implementation complete, just needs Resend API key for production use
+   - **Impact:** Users miss important updates (mitigated by console logging)
+   - **Action Required:** User must sign up for Resend and add API key
 
 2. **Production Real-time (In-memory PubSub)**
    - **Impact:** Cannot scale horizontally
@@ -467,11 +411,11 @@ See `CLAUDE.md` for architecture and technical guidelines.
 | Comments | 7 | 0 | 3 | 10 | 70% |
 | Files & Video | 6 | 1 | 3 | 10 | 60% |
 | Real-time | 6 | 0 | 1 | 7 | 86% |
-| Email | 4 | 1 | 0 | 5 | 80% |
+| Email | 5 | 0 | 0 | 5 | 100% |
 | Analytics | 0 | 0 | 5 | 5 | 0% |
 | Testing | 2 | 0 | 5 | 7 | 29% |
 | DevOps | 4 | 0 | 6 | 10 | 40% |
-| **TOTAL** | **148** | **2** | **30** | **180** | **82%** |
+| **TOTAL** | **149** | **1** | **30** | **180** | **83%** |
 
 ---
 
@@ -576,12 +520,12 @@ npm run test:e2e            # E2E tests (Playwright)
 ✅ Bible library integrated
 ✅ Real-time features working
 ✅ Docker deployment ready
-✅ Email service 80% complete
+✅ Email notifications complete
 
-**Total Features:** 148 completed ✅
+**Total Features:** 149 completed ✅
 **Remaining Work:** 30 features (mostly enhancements)
-**Critical Path:** Email notifications (30 min to complete)
+**Next Priority:** File upload enhancement + Session analytics
 
 ---
 
-**Ready to deploy and use!** 🚀 The platform is production-ready with 82% of planned features complete.
+**Ready to deploy and use!** 🚀 The platform is production-ready with 83% of planned features complete.

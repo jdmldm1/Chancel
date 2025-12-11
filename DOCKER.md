@@ -66,12 +66,23 @@ NEXTAUTH_URL=http://localhost:3000
 
 # API
 NEXT_PUBLIC_API_URL=http://localhost:4000/graphql
+
+# Email Notifications (optional - for production)
+RESEND_API_KEY=re_your_api_key_here
+EMAIL_FROM="Chancel <noreply@yourdomain.com>"
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
 Generate a secure NEXTAUTH_SECRET:
 ```bash
 openssl rand -base64 32
 ```
+
+**Email Notifications:**
+- Sign up at https://resend.com (free tier: 100 emails/day)
+- Get your API key from the dashboard
+- Without an API key, emails are logged to console (works for testing)
+- See [Email Notifications Setup](./README.md#email-notifications-setup) for full details
 
 ## Common Commands
 

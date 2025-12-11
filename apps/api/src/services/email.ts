@@ -1,6 +1,16 @@
 import { Resend } from 'resend'
 
-const resend = new Resend(process.env.RESEND_API_KEY)
+// Lazy-initialize Resend to avoid crashes when API key is missing
+let resend: Resend | null = null
+function getResendClient(): Resend | null {
+  if (!process.env.RESEND_API_KEY) {
+    return null
+  }
+  if (!resend) {
+    resend = new Resend(process.env.RESEND_API_KEY)
+  }
+  return resend
+}
 
 export interface EmailOptions {
   to: string | string[]
@@ -13,8 +23,10 @@ export class EmailService {
   private readonly defaultFrom = process.env.EMAIL_FROM || 'Chancel <noreply@chancel.app>'
 
   async sendEmail(options: EmailOptions): Promise<boolean> {
+    const resendClient = getResendClient()
+
     // Skip sending in development if no API key
-    if (!process.env.RESEND_API_KEY) {
+    if (!resendClient) {
       console.log('📧 Email would be sent (no API key):', {
         to: options.to,
         subject: options.subject,
@@ -23,7 +35,7 @@ export class EmailService {
     }
 
     try {
-      const result = await resend.emails.send({
+      const result = await resendClient.emails.send({
         from: options.from || this.defaultFrom,
         to: Array.isArray(options.to) ? options.to : [options.to],
         subject: options.subject,

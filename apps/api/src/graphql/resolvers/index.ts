@@ -4,6 +4,7 @@ import { UserRole, ResourceType, SessionVisibility, JoinRequestStatus, ReactionT
 import bcrypt from 'bcryptjs'
 import { groupResolvers } from './groupResolvers.js'
 import { adminResolvers } from './adminResolvers.js'
+import { emailService } from '../../services/email.js'
 
 export interface Context {
   prisma: PrismaClient
@@ -700,6 +701,32 @@ const baseResolvers = {
         },
       })
 
+      // Send email notification for comment replies
+      if (args.input.parentId) {
+        const parentComment = await context.prisma.comment.findUnique({
+          where: { id: args.input.parentId },
+          include: {
+            user: true,
+            session: true,
+          },
+        })
+
+        if (parentComment && parentComment.user.commentNotifications && parentComment.userId !== context.userId) {
+          const commenter = await context.prisma.user.findUnique({
+            where: { id: context.userId },
+          })
+
+          await emailService.sendCommentReply({
+            to: parentComment.user.email,
+            userName: parentComment.user.name || 'there',
+            sessionTitle: parentComment.session.title,
+            commentAuthor: commenter?.name || 'Someone',
+            commentContent: args.input.content.substring(0, 200),
+            sessionUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/sessions/${parentComment.sessionId}`,
+          })
+        }
+      }
+
       // Publish the comment to subscribers
       const { pubsub } = await import('../../index.js')
       pubsub.publish(`COMMENT_ADDED_${args.input.sessionId}`, comment)
@@ -852,12 +879,33 @@ const baseResolvers = {
         }
       }
 
-      return context.prisma.sessionParticipant.create({
+      const participant = await context.prisma.sessionParticipant.create({
         data: {
           sessionId: args.sessionId,
           userId: context.userId,
         },
       })
+
+      // Send email notification
+      const user = await context.prisma.user.findUnique({
+        where: { id: context.userId },
+      })
+      const leader = await context.prisma.user.findUnique({
+        where: { id: session.leaderId },
+      })
+
+      if (user?.emailNotifications) {
+        await emailService.sendSessionInvitation({
+          to: user.email,
+          userName: user.name || 'there',
+          sessionTitle: session.title,
+          sessionDate: session.startDate,
+          sessionUrl: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/sessions/${session.id}`,
+          invitedBy: leader?.name || 'A leader',
+        })
+      }
+
+      return participant
     },
 
     joinSessionByCode: async (
@@ -1291,13 +1339,35 @@ const baseResolvers = {
         return null
       } else {
         // Add the reaction (toggle on)
-        return context.prisma.prayerReaction.create({
+        const reaction = await context.prisma.prayerReaction.create({
           data: {
             prayerRequestId: args.prayerRequestId,
             userId: context.userId,
             reactionType: args.reactionType,
           },
         })
+
+        // Send email notification for prayer reactions
+        const prayerRequest = await context.prisma.prayerRequest.findUnique({
+          where: { id: args.prayerRequestId },
+          include: { user: true },
+        })
+
+        if (prayerRequest && prayerRequest.user.prayerNotifications && prayerRequest.userId !== context.userId) {
+          const reactor = await context.prisma.user.findUnique({
+            where: { id: context.userId },
+          })
+
+          await emailService.sendPrayerUpdate({
+            to: prayerRequest.user.email,
+            userName: prayerRequest.user.name || 'there',
+            prayerRequestContent: prayerRequest.content.substring(0, 200),
+            updateType: 'reaction',
+            reactorName: reactor?.name || 'Someone',
+          })
+        }
+
+        return reaction
       }
     },
   },

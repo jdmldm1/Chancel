@@ -81,6 +81,24 @@ This starts:
    - **Dashboard**: http://localhost:3000/dashboard
    - **Browse Bible**: http://localhost:3000/bible (Leaders only)
 
+## Optional: Enable Email Notifications
+
+To receive email notifications for sessions, comments, and prayers:
+
+1. **Sign up for Resend** (free): https://resend.com
+2. **Get your API key** from the Resend dashboard
+3. **Add to `.env`:**
+   ```env
+   RESEND_API_KEY="re_your_actual_api_key"
+   EMAIL_FROM="Chancel <noreply@yourdomain.com>"
+   NEXT_PUBLIC_APP_URL="http://localhost:3000"
+   ```
+4. **Restart the server:** `npm run dev`
+
+Without an API key, emails are logged to console (perfect for testing).
+
+See the [Email Notifications Setup](./README.md#email-notifications-setup) section in README for full details.
+
 ## Features Overview
 
 ### Dashboard (`/dashboard`)

@@ -26,7 +26,8 @@
       "Bash(grep:*)",
       "Bash(chmod:*)",
       "Bash(python3:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "Bash(docker logs:*)"
     ],
     "deny": [],
     "ask": []
