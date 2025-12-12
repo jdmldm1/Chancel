@@ -32,7 +32,9 @@
       "Bash(rm:*)",
       "Bash(node check_sessions.js:*)",
       "Bash(npx prisma db push:*)",
-      "Bash(docker cp:*)"
+      "Bash(docker cp:*)",
+      "Bash(npx prisma:*)",
+      "Bash(npx tsx:*)"
     ],
     "deny": [],
     "ask": []

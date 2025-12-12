@@ -4,7 +4,9 @@ import { UserRole, ResourceType, SessionVisibility, JoinRequestStatus, ReactionT
 import bcrypt from 'bcryptjs'
 import { groupResolvers } from './groupResolvers.js'
 import { adminResolvers } from './adminResolvers.js'
+import { achievementResolvers } from './achievementResolvers.js'
 import { emailService } from '../../services/email.js'
+import { AchievementService } from '../../services/achievements.js'
 
 export interface Context {
   prisma: PrismaClient
@@ -337,6 +339,111 @@ const baseResolvers = {
           reactions: true,
         },
       })
+    },
+
+    dashboardStats: async (_parent: unknown, _args: unknown, context: Context) => {
+      if (!context.userId) {
+        throw new Error('Not authenticated')
+      }
+
+      // Get all sessions the user is part of (as leader or participant)
+      const allSessions = await context.prisma.session.findMany({
+        where: {
+          OR: [
+            { leaderId: context.userId },
+            { participants: { some: { userId: context.userId } } }
+          ]
+        },
+        include: {
+          scripturePassages: {
+            include: {
+              completions: {
+                where: { userId: context.userId }
+              }
+            }
+          }
+        }
+      })
+
+      // Calculate completed sessions (sessions where all passages are completed)
+      const completedSessions = allSessions.filter(session => {
+        if (session.scripturePassages.length === 0) return false
+        return session.scripturePassages.every(passage => passage.completions.length > 0)
+      })
+
+      // Get all series the user is part of
+      const allSeries = await context.prisma.series.findMany({
+        where: {
+          OR: [
+            { leaderId: context.userId },
+            {
+              sessions: {
+                some: {
+                  participants: {
+                    some: { userId: context.userId }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        include: {
+          sessions: {
+            include: {
+              scripturePassages: {
+                include: {
+                  completions: {
+                    where: { userId: context.userId }
+                  }
+                }
+              }
+            }
+          }
+        }
+      })
+
+      // Calculate completed series (series where all sessions have all passages completed)
+      const completedSeries = allSeries.filter(series => {
+        if (series.sessions.length === 0) return false
+        return series.sessions.every(session => {
+          if (session.scripturePassages.length === 0) return false
+          return session.scripturePassages.every(passage => passage.completions.length > 0)
+        })
+      })
+
+      // Get all groups the user is part of
+      const userGroups = await context.prisma.group.findMany({
+        where: {
+          OR: [
+            { leaderId: context.userId },
+            { members: { some: { userId: context.userId } } }
+          ]
+        }
+      })
+
+      // Count passage comments
+      const passageCommentCount = await context.prisma.comment.count({
+        where: { userId: context.userId }
+      })
+
+      // Count session chat messages
+      const sessionChatCount = await context.prisma.chatMessage.count({
+        where: { userId: context.userId }
+      })
+
+      // Count group chat messages
+      const groupChatCount = await context.prisma.groupChatMessage.count({
+        where: { userId: context.userId }
+      })
+
+      return {
+        totalSessions: allSessions.length,
+        completedSessions: completedSessions.length,
+        totalSeries: allSeries.length,
+        completedSeries: completedSeries.length,
+        totalGroups: userGroups.length,
+        totalComments: passageCommentCount + sessionChatCount + groupChatCount
+      }
     },
   },
 
@@ -790,6 +897,14 @@ const baseResolvers = {
       const { pubsub } = await import('../../index.js')
       pubsub.publish(`COMMENT_ADDED_${args.input.sessionId}`, comment)
 
+      // Check achievements asynchronously (fire and forget)
+      const achievementService = new AchievementService(context.prisma)
+      achievementService.updateStreak(context.userId).catch(console.error)
+      achievementService.checkHiddenAchievements(context.userId, 'FIRST_COMMENT').catch(console.error)
+      achievementService.checkHiddenAchievements(context.userId, 'EARLY_BIRD', { timestamp: new Date() }).catch(console.error)
+      achievementService.checkHiddenAchievements(context.userId, 'NIGHT_OWL', { timestamp: new Date() }).catch(console.error)
+      achievementService.checkAndUnlockAchievements(context.userId).catch(console.error)
+
       return comment
     },
 
@@ -932,12 +1047,19 @@ const baseResolvers = {
         return null
       } else {
         // Add completion (toggle on)
-        return context.prisma.passageCompletion.create({
+        const completion = await context.prisma.passageCompletion.create({
           data: {
             passageId: args.passageId,
             userId: context.userId,
           },
         })
+
+        // Check achievements asynchronously
+        const achievementService = new AchievementService(context.prisma)
+        achievementService.updateStreak(context.userId).catch(console.error)
+        achievementService.checkAndUnlockAchievements(context.userId).catch(console.error)
+
+        return completion
       }
     },
 
@@ -999,6 +1121,10 @@ const baseResolvers = {
           invitedBy: leader?.name || 'A leader',
         })
       }
+
+      // Check achievements asynchronously
+      const achievementService = new AchievementService(context.prisma)
+      achievementService.checkAndUnlockAchievements(context.userId).catch(console.error)
 
       return participant
     },
@@ -1084,6 +1210,10 @@ const baseResolvers = {
           }
         }
       }
+
+      // Check achievements asynchronously
+      const achievementService = new AchievementService(context.prisma)
+      achievementService.checkAndUnlockAchievements(context.userId).catch(console.error)
 
       return {
         participant,
@@ -1358,6 +1488,11 @@ const baseResolvers = {
       const { pubsub } = await import('../../index.js')
       pubsub.publish(`CHAT_MESSAGE_ADDED_${args.sessionId}`, chatMessage)
 
+      // Check achievements asynchronously
+      const achievementService = new AchievementService(context.prisma)
+      achievementService.updateStreak(context.userId).catch(console.error)
+      achievementService.checkAndUnlockAchievements(context.userId).catch(console.error)
+
       return chatMessage
     },
 
@@ -1370,7 +1505,7 @@ const baseResolvers = {
         throw new Error('Not authenticated')
       }
 
-      return context.prisma.prayerRequest.create({
+      const prayerRequest = await context.prisma.prayerRequest.create({
         data: {
           userId: context.userId,
           content: args.content,
@@ -1380,6 +1515,12 @@ const baseResolvers = {
           reactions: true,
         },
       })
+
+      // Check achievements asynchronously
+      const achievementService = new AchievementService(context.prisma)
+      achievementService.checkHiddenAchievements(context.userId, 'PRAYER_WARRIOR').catch(console.error)
+
+      return prayerRequest
     },
 
     deletePrayerRequest: async (
@@ -1791,11 +1932,13 @@ export const resolvers = {
     ...baseResolvers.Query,
     ...groupResolvers.Query,
     ...adminResolvers.Query,
+    ...achievementResolvers.Query,
   },
   Mutation: {
     ...baseResolvers.Mutation,
     ...groupResolvers.Mutation,
     ...adminResolvers.Mutation,
+    ...achievementResolvers.Mutation,
   },
   Subscription: {
     ...baseResolvers.Subscription,
@@ -1819,4 +1962,8 @@ export const resolvers = {
   GroupChatMessage: groupResolvers.GroupChatMessage,
   GroupSession: groupResolvers.GroupSession,
   GroupSeries: groupResolvers.GroupSeries,
+  Achievement: achievementResolvers.Achievement,
+  UserAchievement: achievementResolvers.UserAchievement,
+  UserStreak: achievementResolvers.UserStreak,
+  AchievementNotification: achievementResolvers.AchievementNotification,
 }

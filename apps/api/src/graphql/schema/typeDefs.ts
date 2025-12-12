@@ -470,6 +470,19 @@ export const typeDefs = `#graphql
     allSessions: [Session!]!
     allGroups: [Group!]!
     adminStats: AdminStats!
+
+    # Dashboard queries
+    dashboardStats: DashboardStats!
+
+    # Achievement queries
+    achievements: [Achievement!]!
+    achievement(id: ID!): Achievement
+    myAchievements: [UserAchievement!]!
+    userAchievements(userId: ID!): [UserAchievement!]!
+    achievementProgress: [AchievementProgress!]!
+    myStreak: UserStreak
+    achievementNotifications(unreadOnly: Boolean): [AchievementNotification!]!
+    achievementStats: AchievementStats!
   }
 
   type AdminStats {
@@ -480,6 +493,15 @@ export const typeDefs = `#graphql
     totalGroups: Int!
     totalComments: Int!
     totalPrayerRequests: Int!
+  }
+
+  type DashboardStats {
+    totalSessions: Int!
+    completedSessions: Int!
+    totalSeries: Int!
+    completedSeries: Int!
+    totalGroups: Int!
+    totalComments: Int!
   }
 
   type Mutation {
@@ -552,6 +574,13 @@ export const typeDefs = `#graphql
     adminDeleteSession(sessionId: ID!): Boolean!
     adminDeleteGroup(groupId: ID!): Boolean!
     adminDeleteSeries(seriesId: ID!): Boolean!
+
+    # Achievement mutations
+    checkAchievements: [UserAchievement!]!
+    awardAchievement(userId: ID!, achievementId: ID!): UserAchievement!
+    markAchievementNotificationRead(id: ID!): AchievementNotification!
+    markAllAchievementNotificationsRead: Boolean!
+    seedAchievements: Boolean!
   }
 
   type Subscription {
@@ -575,5 +604,97 @@ export const typeDefs = `#graphql
     userName: String!
     passageId: ID!
     isTyping: Boolean!
+  }
+
+  # Achievements - Gamification System
+  enum AchievementCategory {
+    SCRIPTURE_READING
+    SESSION_PARTICIPATION
+    SESSION_COMPLETION
+    COMMENTING
+    GROUP_PARTICIPATION
+    STREAK
+    SPECIAL_EVENT
+    HIDDEN
+  }
+
+  enum AchievementTier {
+    BRONZE
+    SILVER
+    GOLD
+    PLATINUM
+    DIAMOND
+  }
+
+  enum CriteriaType {
+    COUNT
+    STREAK
+    MANUAL
+    COMPOSITE
+  }
+
+  type Achievement {
+    id: ID!
+    code: String!
+    name: String!
+    description: String!
+    iconUrl: String
+    category: AchievementCategory!
+    tier: AchievementTier
+    criteriaType: CriteriaType!
+    criteriaValue: Int!
+    isHidden: Boolean!
+    createdAt: DateTime!
+    updatedAt: DateTime!
+  }
+
+  type UserAchievement {
+    id: ID!
+    userId: String!
+    achievementId: String!
+    progress: Int!
+    unlockedAt: DateTime!
+    notified: Boolean!
+    user: User!
+    achievement: Achievement!
+  }
+
+  type AchievementProgress {
+    achievement: Achievement!
+    currentValue: Int!
+    targetValue: Int!
+    percentage: Float!
+    isUnlocked: Boolean!
+    unlockedAt: DateTime
+  }
+
+  type UserStreak {
+    id: ID!
+    userId: String!
+    currentStreak: Int!
+    longestStreak: Int!
+    lastActivityDate: DateTime!
+    user: User!
+  }
+
+  type AchievementNotification {
+    id: ID!
+    userId: String!
+    achievement: Achievement!
+    read: Boolean!
+    createdAt: DateTime!
+  }
+
+  type AchievementStats {
+    totalUnlocked: Int!
+    totalAvailable: Int!
+    byCategory: [CategoryStats!]!
+    recentUnlocks: [UserAchievement!]!
+  }
+
+  type CategoryStats {
+    category: AchievementCategory!
+    unlocked: Int!
+    total: Int!
   }
 `

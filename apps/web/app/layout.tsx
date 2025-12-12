@@ -3,6 +3,7 @@ import { AuthSessionProvider } from "@/lib/session-provider"
 import { ToastProvider } from "@/components/ui/toast"
 import EnhancedNavigation from "@/components/EnhancedNavigation"
 import MainLayout from "@/components/MainLayout"
+import { AchievementNotificationToast } from "@/components/achievements/AchievementNotificationToast"
 import "./globals.css"
 
 export const metadata: Metadata = {
@@ -24,6 +25,7 @@ export default function RootLayout({
             <MainLayout>
               {children}
             </MainLayout>
+            <AchievementNotificationToast />
           </ToastProvider>
         </AuthSessionProvider>
       </body>

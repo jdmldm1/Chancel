@@ -1,5 +1,6 @@
 import { UserRole, GroupVisibility } from '@prisma/client'
 import type { Context } from './index.js'
+import { AchievementService } from '../../services/achievements.js'
 
 export const groupResolvers = {
   Query: {
@@ -261,13 +262,19 @@ export const groupResolvers = {
         throw new Error('You are already a member of this group')
       }
 
-      return context.prisma.groupMember.create({
+      const groupMember = await context.prisma.groupMember.create({
         data: {
           groupId: args.groupId,
           userId: context.userId,
           role: UserRole.MEMBER,
         },
       })
+
+      // Check achievements asynchronously
+      const achievementService = new AchievementService(context.prisma)
+      achievementService.checkAndUnlockAchievements(context.userId).catch(console.error)
+
+      return groupMember
     },
 
     addGroupMember: async (
@@ -306,13 +313,19 @@ export const groupResolvers = {
         throw new Error('User is already a member of this group')
       }
 
-      return context.prisma.groupMember.create({
+      const groupMember = await context.prisma.groupMember.create({
         data: {
           groupId: args.groupId,
           userId: args.userId,
           role: UserRole.MEMBER,
         },
       })
+
+      // Check achievements asynchronously for the added user
+      const achievementService = new AchievementService(context.prisma)
+      achievementService.checkAndUnlockAchievements(args.userId).catch(console.error)
+
+      return groupMember
     },
 
     removeGroupMember: async (
@@ -389,6 +402,11 @@ export const groupResolvers = {
       // Publish the message to subscribers
       const { pubsub } = await import('../../index.js')
       pubsub.publish(`GROUP_CHAT_MESSAGE_ADDED_${args.groupId}`, chatMessage)
+
+      // Check achievements asynchronously
+      const achievementService = new AchievementService(context.prisma)
+      achievementService.updateStreak(context.userId).catch(console.error)
+      achievementService.checkAndUnlockAchievements(context.userId).catch(console.error)
 
       return chatMessage
     },

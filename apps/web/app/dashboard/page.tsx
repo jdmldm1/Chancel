@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Users, BookOpen, Calendar } from 'lucide-react'
+import { BadgeWidget } from '@/components/achievements/BadgeWidget'
 
 const MY_SESSIONS_QUERY = `
   query MySessions($limit: Int, $offset: Int) {
@@ -68,6 +69,19 @@ const MY_GROUPS_QUERY = `
   }
 `
 
+const DASHBOARD_STATS_QUERY = `
+  query DashboardStats {
+    dashboardStats {
+      totalSessions
+      completedSessions
+      totalSeries
+      completedSeries
+      totalGroups
+      totalComments
+    }
+  }
+`
+
 interface Session {
   id: string
   title: string
@@ -114,6 +128,15 @@ interface Group {
   }
 }
 
+interface DashboardStats {
+  totalSessions: number
+  completedSessions: number
+  totalSeries: number
+  completedSeries: number
+  totalGroups: number
+  totalComments: number
+}
+
 export default function DashboardPage() {
   const router = useRouter()
   const { data: session, status } = useSession()
@@ -138,7 +161,13 @@ export default function DashboardPage() {
     skip: status === 'loading' || status === 'unauthenticated',
   })
 
-  if (status === 'loading' || sessionsLoading || seriesLoading || groupsLoading) {
+  const { data: statsData, loading: statsLoading } = useGraphQLQuery<{
+    dashboardStats: DashboardStats
+  }>(DASHBOARD_STATS_QUERY, {
+    skip: status === 'loading' || status === 'unauthenticated',
+  })
+
+  if (status === 'loading' || sessionsLoading || seriesLoading || groupsLoading || statsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -157,6 +186,7 @@ export default function DashboardPage() {
   const sessions: Session[] = sessionsData?.mySessions || []
   const series: Series[] = seriesData?.mySeries || []
   const groups: Group[] = groupsData?.myGroups || []
+  const stats = statsData?.dashboardStats
 
   const isLeader = session.user.role === 'LEADER'
   const now = new Date()
@@ -194,10 +224,6 @@ export default function DashboardPage() {
     })
   })
 
-  // Calculate stats
-  const totalComments = sessions.reduce((sum, s) => sum + s.comments.length, 0)
-  const totalParticipants = sessions.reduce((sum, s) => sum + s.participants.length, 0)
-
   return (
     <div className="min-h-screen bg-white py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -216,8 +242,8 @@ export default function DashboardPage() {
           <div className="bg-white rounded-xl border border-gray-200 p-6 hover:border-gray-300 transition-colors">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500">Sessions</p>
-                <p className="text-3xl font-semibold text-gray-900 mt-2">{sessions.length}</p>
+                <p className="text-sm font-medium text-gray-500">Completed Sessions</p>
+                <p className="text-3xl font-semibold text-gray-900 mt-2">{stats?.completedSessions ?? 0}</p>
               </div>
               <div className="w-11 h-11 bg-gray-100 rounded-lg flex items-center justify-center">
                 <Calendar className="w-5 h-5 text-gray-600" />
@@ -228,8 +254,8 @@ export default function DashboardPage() {
           <div className="bg-white rounded-xl border border-gray-200 p-6 hover:border-gray-300 transition-colors">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500">Series</p>
-                <p className="text-3xl font-semibold text-gray-900 mt-2">{series.length}</p>
+                <p className="text-sm font-medium text-gray-500">Completed Series</p>
+                <p className="text-3xl font-semibold text-gray-900 mt-2">{stats?.completedSeries ?? 0}</p>
               </div>
               <div className="w-11 h-11 bg-gray-100 rounded-lg flex items-center justify-center">
                 <BookOpen className="w-5 h-5 text-gray-600" />
@@ -241,7 +267,7 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-500">Groups</p>
-                <p className="text-3xl font-semibold text-gray-900 mt-2">{groups.length}</p>
+                <p className="text-3xl font-semibold text-gray-900 mt-2">{stats?.totalGroups ?? 0}</p>
               </div>
               <div className="w-11 h-11 bg-gray-100 rounded-lg flex items-center justify-center">
                 <Users className="w-5 h-5 text-gray-600" />
@@ -253,7 +279,7 @@ export default function DashboardPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-500">Comments</p>
-                <p className="text-3xl font-semibold text-gray-900 mt-2">{totalComments}</p>
+                <p className="text-3xl font-semibold text-gray-900 mt-2">{stats?.totalComments ?? 0}</p>
               </div>
               <div className="w-11 h-11 bg-gray-100 rounded-lg flex items-center justify-center">
                 <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -263,6 +289,9 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+
+        {/* Badge Widget */}
+        <BadgeWidget />
 
         {/* Three-column grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
