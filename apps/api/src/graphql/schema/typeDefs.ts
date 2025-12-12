@@ -434,6 +434,7 @@ export const typeDefs = `#graphql
     sessions(limit: Int, offset: Int): [Session!]!
     mySessions(limit: Int, offset: Int): [Session!]!
     publicSessions(limit: Int, offset: Int): [Session!]!
+    activeUpcomingSessions(limit: Int): [Session!]!
 
     # Comment queries
     comments(sessionId: ID!): [Comment!]!

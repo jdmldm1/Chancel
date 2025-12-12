@@ -3,10 +3,35 @@
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
+import { useGraphQLQuery } from '@/lib/graphql-client-new'
+import SessionCard from '@/components/ui/SessionCard'
+import GroupsPromotionSection from '@/components/ui/GroupsPromotionSection'
+
+const GET_ACTIVE_UPCOMING_SESSIONS = `
+  query GetActiveUpcomingSessions($limit: Int) {
+    activeUpcomingSessions(limit: $limit) {
+      id
+      title
+      description
+      startDate
+      endDate
+      sessionType
+      imageUrl
+      leader { id name }
+      series { id title imageUrl }
+      participants { id }
+    }
+  }
+`
 
 export default function Home() {
   const { data: session, status } = useSession()
   const router = useRouter()
+
+  // Fetch active and upcoming sessions for landing page
+  const { data, loading, error } = useGraphQLQuery(GET_ACTIVE_UPCOMING_SESSIONS, {
+    variables: { limit: 3 }
+  })
 
   // Redirect authenticated users to dashboard
   useEffect(() => {
@@ -95,7 +120,64 @@ export default function Home() {
           </div>
         </div>
 
-        <div className="mt-14 flex gap-4 justify-center animate-fade-in-up animation-delay-400">
+        {/* Active Bible Studies Section */}
+        <div className="mt-20 animate-fade-in-up animation-delay-500">
+          <h2 className="text-3xl font-bold text-gray-900 mb-3">
+            Join Active Bible Studies
+          </h2>
+          <p className="text-gray-600 mb-10">
+            Discover ongoing and upcoming study sessions from the community
+          </p>
+
+          {loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {/* Skeleton cards */}
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="bg-white border-2 border-gray-100 rounded-lg p-6 h-64 animate-pulse">
+                  <div className="h-4 bg-gray-200 rounded w-20 mb-4"></div>
+                  <div className="h-6 bg-gray-200 rounded w-full mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
+                  <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                </div>
+              ))}
+            </div>
+          ) : error || !data?.activeUpcomingSessions?.length ? (
+            <div className="text-center py-12 text-gray-500">
+              <p className="mb-2">No active sessions at the moment</p>
+              <a href="/auth/signup" className="text-gray-900 underline hover:text-gray-700">
+                Be the first to create a session
+              </a>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {data.activeUpcomingSessions.slice(0, 3).map((session: any, idx: number) => (
+                  <div key={session.id} className={`animate-fade-in animation-delay-${600 + idx * 50}`}>
+                    <SessionCard session={{
+                      ...session,
+                      participantCount: session.participants?.length || 0
+                    }} />
+                  </div>
+                ))}
+              </div>
+              <div className="mt-8 text-center">
+                <a
+                  href="/auth/signup?redirect=/sessions"
+                  className="text-gray-900 underline hover:text-gray-700 transition-colors"
+                >
+                  View all sessions →
+                </a>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Groups Promotion Section */}
+        <div className="mt-20 animate-fade-in-up animation-delay-600">
+          <GroupsPromotionSection />
+        </div>
+
+        <div className="mt-20 flex gap-4 justify-center animate-fade-in-up animation-delay-400">
           <a
             href="/auth/login"
             className="rounded-lg bg-gray-900 px-8 py-3 text-white font-medium hover:bg-gray-800 transition-all duration-200"

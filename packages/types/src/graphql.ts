@@ -339,6 +339,7 @@ export type Mutation = {
   sendChatMessage: ChatMessage;
   sendGroupChatMessage: GroupChatMessage;
   sendJoinRequest: JoinRequest;
+  sendVerificationEmail: Scalars['Boolean']['output'];
   signup: User;
   togglePassageCompletion?: Maybe<PassageCompletion>;
   togglePrayerReaction?: Maybe<PrayerReaction>;
@@ -347,6 +348,7 @@ export type Mutation = {
   updateSeries: Series;
   updateSession: Session;
   updateUser: User;
+  verifyEmail: User;
 };
 
 
@@ -554,10 +556,14 @@ export type MutationSendJoinRequestArgs = {
 
 
 export type MutationSignupArgs = {
+  displayName?: InputMaybe<Scalars['String']['input']>;
   email: Scalars['String']['input'];
+  formStartTime?: InputMaybe<Scalars['Float']['input']>;
+  honeypot?: InputMaybe<Scalars['String']['input']>;
   name: Scalars['String']['input'];
   password: Scalars['String']['input'];
   role: UserRole;
+  username: Scalars['String']['input'];
 };
 
 
@@ -598,6 +604,11 @@ export type MutationUpdateSessionArgs = {
 
 export type MutationUpdateUserArgs = {
   input: UpdateUserInput;
+};
+
+
+export type MutationVerifyEmailArgs = {
+  token: Scalars['String']['input'];
 };
 
 export type Notification = {
@@ -663,6 +674,7 @@ export type Query = {
   achievementProgress: Array<AchievementProgress>;
   achievementStats: AchievementStats;
   achievements: Array<Achievement>;
+  activeUpcomingSessions: Array<Session>;
   adminStats: AdminStats;
   allGroups: Array<Group>;
   allSeries: Array<Series>;
@@ -710,6 +722,11 @@ export type QueryAchievementArgs = {
 
 export type QueryAchievementNotificationsArgs = {
   unreadOnly?: InputMaybe<Scalars['Boolean']['input']>;
+};
+
+
+export type QueryActiveUpcomingSessionsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -1026,6 +1043,7 @@ export type UpdateUserInput = {
   bibleTranslation?: InputMaybe<Scalars['String']['input']>;
   bio?: InputMaybe<Scalars['String']['input']>;
   commentNotifications?: InputMaybe<Scalars['Boolean']['input']>;
+  displayName?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   emailNotifications?: InputMaybe<Scalars['Boolean']['input']>;
   location?: InputMaybe<Scalars['String']['input']>;
@@ -1033,6 +1051,7 @@ export type UpdateUserInput = {
   phoneNumber?: InputMaybe<Scalars['String']['input']>;
   prayerNotifications?: InputMaybe<Scalars['Boolean']['input']>;
   profilePicture?: InputMaybe<Scalars['String']['input']>;
+  username?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type User = {
@@ -1042,8 +1061,10 @@ export type User = {
   commentNotifications: Scalars['Boolean']['output'];
   comments: Array<Comment>;
   createdAt: Scalars['DateTime']['output'];
+  displayName?: Maybe<Scalars['String']['output']>;
   email: Scalars['String']['output'];
   emailNotifications: Scalars['Boolean']['output'];
+  emailVerified?: Maybe<Scalars['DateTime']['output']>;
   id: Scalars['ID']['output'];
   location?: Maybe<Scalars['String']['output']>;
   name?: Maybe<Scalars['String']['output']>;
@@ -1053,6 +1074,7 @@ export type User = {
   role: UserRole;
   sessions: Array<Session>;
   updatedAt: Scalars['DateTime']['output'];
+  username?: Maybe<Scalars['String']['output']>;
 };
 
 export type UserAchievement = {

@@ -86,6 +86,25 @@ const baseResolvers = {
       })
     },
 
+    activeUpcomingSessions: async (_parent: unknown, args: { limit?: number }, context: Context) => {
+      const limit = Math.min(args.limit || 3, 10)
+      const now = new Date()
+
+      return context.prisma.session.findMany({
+        where: {
+          visibility: SessionVisibility.PUBLIC,
+          endDate: { gte: now }
+        },
+        take: limit,
+        orderBy: { startDate: 'asc' },
+        include: {
+          leader: { select: { id: true, name: true } },
+          series: { select: { id: true, title: true, imageUrl: true } },
+          participants: { select: { id: true } }
+        }
+      })
+    },
+
     mySessions: async (_parent: unknown, args: { limit?: number; offset?: number }, context: Context) => {
       if (!context.userId) {
         throw new Error('Not authenticated')
