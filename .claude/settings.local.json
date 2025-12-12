@@ -34,7 +34,8 @@
       "Bash(npx prisma db push:*)",
       "Bash(docker cp:*)",
       "Bash(npx prisma:*)",
-      "Bash(npx tsx:*)"
+      "Bash(npx tsx:*)",
+      "Bash(npm install:*)"
     ],
     "deny": [],
     "ask": []

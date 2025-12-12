@@ -15,6 +15,68 @@ export type Scalars = {
   DateTime: { input: any; output: any; }
 };
 
+export type Achievement = {
+  __typename?: 'Achievement';
+  category: AchievementCategory;
+  code: Scalars['String']['output'];
+  createdAt: Scalars['DateTime']['output'];
+  criteriaType: CriteriaType;
+  criteriaValue: Scalars['Int']['output'];
+  description: Scalars['String']['output'];
+  iconUrl?: Maybe<Scalars['String']['output']>;
+  id: Scalars['ID']['output'];
+  isHidden: Scalars['Boolean']['output'];
+  name: Scalars['String']['output'];
+  tier?: Maybe<AchievementTier>;
+  updatedAt: Scalars['DateTime']['output'];
+};
+
+export enum AchievementCategory {
+  Commenting = 'COMMENTING',
+  GroupParticipation = 'GROUP_PARTICIPATION',
+  Hidden = 'HIDDEN',
+  ScriptureReading = 'SCRIPTURE_READING',
+  SessionCompletion = 'SESSION_COMPLETION',
+  SessionParticipation = 'SESSION_PARTICIPATION',
+  SpecialEvent = 'SPECIAL_EVENT',
+  Streak = 'STREAK'
+}
+
+export type AchievementNotification = {
+  __typename?: 'AchievementNotification';
+  achievement: Achievement;
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  read: Scalars['Boolean']['output'];
+  userId: Scalars['String']['output'];
+};
+
+export type AchievementProgress = {
+  __typename?: 'AchievementProgress';
+  achievement: Achievement;
+  currentValue: Scalars['Int']['output'];
+  isUnlocked: Scalars['Boolean']['output'];
+  percentage: Scalars['Float']['output'];
+  targetValue: Scalars['Int']['output'];
+  unlockedAt?: Maybe<Scalars['DateTime']['output']>;
+};
+
+export type AchievementStats = {
+  __typename?: 'AchievementStats';
+  byCategory: Array<CategoryStats>;
+  recentUnlocks: Array<UserAchievement>;
+  totalAvailable: Scalars['Int']['output'];
+  totalUnlocked: Scalars['Int']['output'];
+};
+
+export enum AchievementTier {
+  Bronze = 'BRONZE',
+  Diamond = 'DIAMOND',
+  Gold = 'GOLD',
+  Platinum = 'PLATINUM',
+  Silver = 'SILVER'
+}
+
 export type AdminStats = {
   __typename?: 'AdminStats';
   totalComments: Scalars['Int']['output'];
@@ -31,6 +93,13 @@ export type BibleBook = {
   chapterCount: Scalars['Int']['output'];
   name: Scalars['String']['output'];
   number: Scalars['Int']['output'];
+};
+
+export type CategoryStats = {
+  __typename?: 'CategoryStats';
+  category: AchievementCategory;
+  total: Scalars['Int']['output'];
+  unlocked: Scalars['Int']['output'];
 };
 
 export type ChatMessage = {
@@ -81,6 +150,7 @@ export type CreateGroupInput = {
 export type CreateScripturePassageInput = {
   book: Scalars['String']['input'];
   chapter: Scalars['Int']['input'];
+  chapterEnd?: InputMaybe<Scalars['Int']['input']>;
   content: Scalars['String']['input'];
   note?: InputMaybe<Scalars['String']['input']>;
   verseEnd?: InputMaybe<Scalars['Int']['input']>;
@@ -114,6 +184,23 @@ export type CreateSessionResourceInput = {
   resourceType?: InputMaybe<ResourceType>;
   sessionId: Scalars['String']['input'];
   videoId?: InputMaybe<Scalars['String']['input']>;
+};
+
+export enum CriteriaType {
+  Composite = 'COMPOSITE',
+  Count = 'COUNT',
+  Manual = 'MANUAL',
+  Streak = 'STREAK'
+}
+
+export type DashboardStats = {
+  __typename?: 'DashboardStats';
+  completedSeries: Scalars['Int']['output'];
+  completedSessions: Scalars['Int']['output'];
+  totalComments: Scalars['Int']['output'];
+  totalGroups: Scalars['Int']['output'];
+  totalSeries: Scalars['Int']['output'];
+  totalSessions: Scalars['Int']['output'];
 };
 
 export type Group = {
@@ -220,7 +307,9 @@ export type Mutation = {
   adminUpdateUserRole: User;
   assignGroupToSeries: GroupSeries;
   assignGroupToSession: GroupSession;
+  awardAchievement: UserAchievement;
   changePassword: Scalars['Boolean']['output'];
+  checkAchievements: Array<UserAchievement>;
   createComment: Comment;
   createGroup: Group;
   createPrayerRequest: PrayerRequest;
@@ -239,15 +328,19 @@ export type Mutation = {
   joinSession: SessionParticipant;
   joinSessionByCode: JoinSessionResult;
   leaveSession: Scalars['Boolean']['output'];
+  markAchievementNotificationRead: AchievementNotification;
+  markAllAchievementNotificationsRead: Scalars['Boolean']['output'];
   regenerateJoinCode: Session;
   rejectJoinRequest: JoinRequest;
   removeGroupFromSeries: Scalars['Boolean']['output'];
   removeGroupFromSession: Scalars['Boolean']['output'];
   removeGroupMember: Scalars['Boolean']['output'];
+  seedAchievements: Scalars['Boolean']['output'];
   sendChatMessage: ChatMessage;
   sendGroupChatMessage: GroupChatMessage;
   sendJoinRequest: JoinRequest;
   signup: User;
+  togglePassageCompletion?: Maybe<PassageCompletion>;
   togglePrayerReaction?: Maybe<PrayerReaction>;
   updateComment: Comment;
   updateGroup: Group;
@@ -303,6 +396,12 @@ export type MutationAssignGroupToSeriesArgs = {
 export type MutationAssignGroupToSessionArgs = {
   groupId: Scalars['ID']['input'];
   sessionId: Scalars['ID']['input'];
+};
+
+
+export type MutationAwardAchievementArgs = {
+  achievementId: Scalars['ID']['input'];
+  userId: Scalars['ID']['input'];
 };
 
 
@@ -403,6 +502,11 @@ export type MutationLeaveSessionArgs = {
 };
 
 
+export type MutationMarkAchievementNotificationReadArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
 export type MutationRegenerateJoinCodeArgs = {
   sessionId: Scalars['ID']['input'];
 };
@@ -457,6 +561,11 @@ export type MutationSignupArgs = {
 };
 
 
+export type MutationTogglePassageCompletionArgs = {
+  passageId: Scalars['ID']['input'];
+};
+
+
 export type MutationTogglePrayerReactionArgs = {
   prayerRequestId: Scalars['ID']['input'];
   reactionType: ReactionType;
@@ -504,6 +613,25 @@ export type Notification = {
   userId: Scalars['String']['output'];
 };
 
+export type PaginatedPassages = {
+  __typename?: 'PaginatedPassages';
+  completedCount: Scalars['Int']['output'];
+  hasMore: Scalars['Boolean']['output'];
+  passages: Array<ScripturePassage>;
+  progressPercentage: Scalars['Float']['output'];
+  totalCount: Scalars['Int']['output'];
+};
+
+export type PassageCompletion = {
+  __typename?: 'PassageCompletion';
+  createdAt: Scalars['DateTime']['output'];
+  id: Scalars['ID']['output'];
+  passage: ScripturePassage;
+  passageId: Scalars['String']['output'];
+  user: User;
+  userId: Scalars['String']['output'];
+};
+
 export type PrayerReaction = {
   __typename?: 'PrayerReaction';
   createdAt: Scalars['DateTime']['output'];
@@ -530,6 +658,11 @@ export type PrayerRequest = {
 
 export type Query = {
   __typename?: 'Query';
+  achievement?: Maybe<Achievement>;
+  achievementNotifications: Array<AchievementNotification>;
+  achievementProgress: Array<AchievementProgress>;
+  achievementStats: AchievementStats;
+  achievements: Array<Achievement>;
   adminStats: AdminStats;
   allGroups: Array<Group>;
   allSeries: Array<Series>;
@@ -540,15 +673,19 @@ export type Query = {
   chatMessages: Array<ChatMessage>;
   comments: Array<Comment>;
   commentsByPassage: Array<Comment>;
+  dashboardStats: DashboardStats;
   group?: Maybe<Group>;
   groupChatMessages: Array<GroupChatMessage>;
   groupMembers: Array<GroupMember>;
   groups: Array<Group>;
   me?: Maybe<User>;
+  myAchievements: Array<UserAchievement>;
   myGroups: Array<Group>;
   myJoinRequests: Array<JoinRequest>;
   mySeries: Array<Series>;
   mySessions: Array<Session>;
+  myStreak?: Maybe<UserStreak>;
+  paginatedPassages: PaginatedPassages;
   prayerRequest?: Maybe<PrayerRequest>;
   prayerRequests: Array<PrayerRequest>;
   publicGroups: Array<Group>;
@@ -561,7 +698,18 @@ export type Query = {
   sessionResources: Array<SessionResource>;
   sessions: Array<Session>;
   user?: Maybe<User>;
+  userAchievements: Array<UserAchievement>;
   users: Array<User>;
+};
+
+
+export type QueryAchievementArgs = {
+  id: Scalars['ID']['input'];
+};
+
+
+export type QueryAchievementNotificationsArgs = {
+  unreadOnly?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -604,6 +752,14 @@ export type QueryGroupMembersArgs = {
 export type QueryMySessionsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+export type QueryPaginatedPassagesArgs = {
+  includeCompleted?: InputMaybe<Scalars['Boolean']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  sessionId: Scalars['ID']['input'];
 };
 
 
@@ -658,6 +814,11 @@ export type QueryUserArgs = {
   id: Scalars['ID']['input'];
 };
 
+
+export type QueryUserAchievementsArgs = {
+  userId: Scalars['ID']['input'];
+};
+
 export type ReactionCounts = {
   __typename?: 'ReactionCounts';
   hearts: Scalars['Int']['output'];
@@ -692,10 +853,12 @@ export type ScripturePassage = {
   __typename?: 'ScripturePassage';
   book: Scalars['String']['output'];
   chapter: Scalars['Int']['output'];
+  chapterEnd?: Maybe<Scalars['Int']['output']>;
   comments: Array<Comment>;
   content: Scalars['String']['output'];
   createdAt: Scalars['DateTime']['output'];
   id: Scalars['ID']['output'];
+  isCompleted: Scalars['Boolean']['output'];
   note?: Maybe<Scalars['String']['output']>;
   order: Scalars['Int']['output'];
   session: Session;
@@ -892,11 +1055,33 @@ export type User = {
   updatedAt: Scalars['DateTime']['output'];
 };
 
+export type UserAchievement = {
+  __typename?: 'UserAchievement';
+  achievement: Achievement;
+  achievementId: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  notified: Scalars['Boolean']['output'];
+  progress: Scalars['Int']['output'];
+  unlockedAt: Scalars['DateTime']['output'];
+  user: User;
+  userId: Scalars['String']['output'];
+};
+
 export enum UserRole {
   Admin = 'ADMIN',
   Leader = 'LEADER',
   Member = 'MEMBER'
 }
+
+export type UserStreak = {
+  __typename?: 'UserStreak';
+  currentStreak: Scalars['Int']['output'];
+  id: Scalars['ID']['output'];
+  lastActivityDate: Scalars['DateTime']['output'];
+  longestStreak: Scalars['Int']['output'];
+  user: User;
+  userId: Scalars['String']['output'];
+};
 
 export type BibleBooksQueryVariables = Exact<{ [key: string]: never; }>;
 
@@ -933,19 +1118,12 @@ export type SendChatMessageMutationVariables = Exact<{
 
 export type SendChatMessageMutation = { __typename?: 'Mutation', sendChatMessage: { __typename?: 'ChatMessage', id: string, message: string, createdAt: any, user: { __typename?: 'User', id: string, name?: string | null } } };
 
-export type ChatMessageAddedSubscriptionVariables = Exact<{
-  sessionId: Scalars['ID']['input'];
-}>;
-
-
-export type ChatMessageAddedSubscription = { __typename?: 'Subscription', chatMessageAdded: { __typename?: 'ChatMessage', id: string, message: string, createdAt: any, user: { __typename?: 'User', id: string, name?: string | null } } };
-
 export type GetSessionQueryVariables = Exact<{
   id: Scalars['ID']['input'];
 }>;
 
 
-export type GetSessionQuery = { __typename?: 'Query', session?: { __typename?: 'Session', id: string, title: string, description?: string | null, startDate: any, endDate: any, seriesId?: string | null, visibility: SessionVisibility, sessionType: SessionType, videoCallUrl?: string | null, imageUrl?: string | null, series?: { __typename?: 'Series', id: string, title: string, imageUrl?: string | null } | null, leader: { __typename?: 'User', id: string, name?: string | null, email: string }, scripturePassages: Array<{ __typename?: 'ScripturePassage', id: string, book: string, chapter: number, verseStart: number, verseEnd?: number | null, content: string, note?: string | null, order: number, comments: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: any, verseNumber?: number | null, parentId?: string | null, user: { __typename?: 'User', id: string, name?: string | null }, replies: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: any, verseNumber?: number | null, parentId?: string | null, user: { __typename?: 'User', id: string, name?: string | null }, replies: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: any, verseNumber?: number | null, user: { __typename?: 'User', id: string, name?: string | null } }> }> }> }>, participants: Array<{ __typename?: 'SessionParticipant', id: string, joinedAt: any, role: UserRole, user: { __typename?: 'User', id: string, name?: string | null, role: UserRole } }>, resources: Array<{ __typename?: 'SessionResource', id: string, fileName: string, fileUrl: string, fileType: string, resourceType: ResourceType, videoId?: string | null, description?: string | null, createdAt: any, uploader: { __typename?: 'User', id: string, name?: string | null } }> } | null };
+export type GetSessionQuery = { __typename?: 'Query', session?: { __typename?: 'Session', id: string, title: string, description?: string | null, startDate: any, endDate: any, seriesId?: string | null, visibility: SessionVisibility, sessionType: SessionType, videoCallUrl?: string | null, imageUrl?: string | null, series?: { __typename?: 'Series', id: string, title: string, imageUrl?: string | null } | null, leader: { __typename?: 'User', id: string, name?: string | null, email: string }, scripturePassages: Array<{ __typename?: 'ScripturePassage', id: string, book: string, chapter: number, chapterEnd?: number | null, verseStart: number, verseEnd?: number | null, content: string, note?: string | null, order: number, comments: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: any, verseNumber?: number | null, parentId?: string | null, user: { __typename?: 'User', id: string, name?: string | null }, replies: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: any, verseNumber?: number | null, parentId?: string | null, user: { __typename?: 'User', id: string, name?: string | null }, replies: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: any, verseNumber?: number | null, user: { __typename?: 'User', id: string, name?: string | null } }> }> }> }>, participants: Array<{ __typename?: 'SessionParticipant', id: string, joinedAt: any, role: UserRole, user: { __typename?: 'User', id: string, name?: string | null, role: UserRole } }>, resources: Array<{ __typename?: 'SessionResource', id: string, fileName: string, fileUrl: string, fileType: string, resourceType: ResourceType, videoId?: string | null, description?: string | null, createdAt: any, uploader: { __typename?: 'User', id: string, name?: string | null } }> } | null };
 
 export type GetCommentsByPassageQueryVariables = Exact<{
   passageId: Scalars['ID']['input'];
@@ -997,29 +1175,22 @@ export type DeleteSessionResourceMutationVariables = Exact<{
 
 export type DeleteSessionResourceMutation = { __typename?: 'Mutation', deleteSessionResource: boolean };
 
-export type CommentAddedSubscriptionVariables = Exact<{
-  sessionId: Scalars['ID']['input'];
-}>;
-
-
-export type CommentAddedSubscription = { __typename?: 'Subscription', commentAdded: { __typename?: 'Comment', id: string, content: string, createdAt: any, verseNumber?: number | null, parentId?: string | null, passageId: string, user: { __typename?: 'User', id: string, name?: string | null }, replies: Array<{ __typename?: 'Comment', id: string, content: string, createdAt: any, verseNumber?: number | null, user: { __typename?: 'User', id: string, name?: string | null } }> } };
-
 export type GetMySessionsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetMySessionsQuery = { __typename?: 'Query', mySessions: Array<{ __typename?: 'Session', id: string, title: string, description?: string | null, startDate: any, endDate: any, visibility: SessionVisibility, sessionType: SessionType, imageUrl?: string | null, series?: { __typename?: 'Series', id: string, title: string, imageUrl?: string | null } | null, leader: { __typename?: 'User', id: string, name?: string | null, email: string }, scripturePassages: Array<{ __typename?: 'ScripturePassage', id: string, book: string, chapter: number, verseStart: number, verseEnd?: number | null, content: string, order: number }>, participants: Array<{ __typename?: 'SessionParticipant', id: string, user: { __typename?: 'User', id: string, name?: string | null } }> }> };
+export type GetMySessionsQuery = { __typename?: 'Query', mySessions: Array<{ __typename?: 'Session', id: string, title: string, description?: string | null, startDate: any, endDate: any, visibility: SessionVisibility, sessionType: SessionType, imageUrl?: string | null, series?: { __typename?: 'Series', id: string, title: string, imageUrl?: string | null } | null, leader: { __typename?: 'User', id: string, name?: string | null, email: string }, scripturePassages: Array<{ __typename?: 'ScripturePassage', id: string, book: string, chapter: number, chapterEnd?: number | null, verseStart: number, verseEnd?: number | null, content: string, order: number }>, participants: Array<{ __typename?: 'SessionParticipant', id: string, user: { __typename?: 'User', id: string, name?: string | null } }> }> };
 
 export type GetAllSessionsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetAllSessionsQuery = { __typename?: 'Query', publicSessions: Array<{ __typename?: 'Session', id: string, title: string, description?: string | null, startDate: any, endDate: any, visibility: SessionVisibility, sessionType: SessionType, imageUrl?: string | null, series?: { __typename?: 'Series', id: string, title: string, imageUrl?: string | null } | null, leader: { __typename?: 'User', id: string, name?: string | null, email: string }, scripturePassages: Array<{ __typename?: 'ScripturePassage', id: string, book: string, chapter: number, verseStart: number, verseEnd?: number | null, content: string, order: number }>, participants: Array<{ __typename?: 'SessionParticipant', id: string, user: { __typename?: 'User', id: string, name?: string | null } }> }> };
+export type GetAllSessionsQuery = { __typename?: 'Query', publicSessions: Array<{ __typename?: 'Session', id: string, title: string, description?: string | null, startDate: any, endDate: any, visibility: SessionVisibility, sessionType: SessionType, imageUrl?: string | null, series?: { __typename?: 'Series', id: string, title: string, imageUrl?: string | null } | null, leader: { __typename?: 'User', id: string, name?: string | null, email: string }, scripturePassages: Array<{ __typename?: 'ScripturePassage', id: string, book: string, chapter: number, chapterEnd?: number | null, verseStart: number, verseEnd?: number | null, content: string, order: number }>, participants: Array<{ __typename?: 'SessionParticipant', id: string, user: { __typename?: 'User', id: string, name?: string | null } }> }> };
 
 export type CreateSessionMutationVariables = Exact<{
   input: CreateSessionInput;
 }>;
 
 
-export type CreateSessionMutation = { __typename?: 'Mutation', createSession: { __typename?: 'Session', id: string, title: string, description?: string | null, startDate: any, endDate: any, seriesId?: string | null, visibility: SessionVisibility, videoCallUrl?: string | null, leader: { __typename?: 'User', id: string, name?: string | null }, scripturePassages: Array<{ __typename?: 'ScripturePassage', id: string, book: string, chapter: number, verseStart: number, verseEnd?: number | null, content: string, order: number }> } };
+export type CreateSessionMutation = { __typename?: 'Mutation', createSession: { __typename?: 'Session', id: string, title: string, description?: string | null, startDate: any, endDate: any, seriesId?: string | null, visibility: SessionVisibility, videoCallUrl?: string | null, leader: { __typename?: 'User', id: string, name?: string | null }, scripturePassages: Array<{ __typename?: 'ScripturePassage', id: string, book: string, chapter: number, chapterEnd?: number | null, verseStart: number, verseEnd?: number | null, content: string, order: number }> } };
 
 export type UpdateSessionMutationVariables = Exact<{
   id: Scalars['ID']['input'];

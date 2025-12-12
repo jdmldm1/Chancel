@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "turbo run dev"
+    "dev": "turbo run dev",
+    "codegen": "graphql-codegen --config codegen.ts"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +20,9 @@
     "graphql-ws": "^5.16.0"
   },
   "devDependencies": {
+    "@graphql-codegen/cli": "^6.1.0",
+    "@graphql-codegen/typescript": "^5.0.6",
+    "@graphql-codegen/typescript-operations": "^5.0.6",
     "turbo": "^2.6.3",
     "typescript": "^5.9.3"
   }
