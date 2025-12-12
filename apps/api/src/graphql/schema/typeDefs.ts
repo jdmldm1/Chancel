@@ -34,6 +34,8 @@ export const typeDefs = `#graphql
     id: ID!
     email: String!
     name: String
+    username: String
+    displayName: String
     role: UserRole!
     bio: String
     profilePicture: String
@@ -43,6 +45,7 @@ export const typeDefs = `#graphql
     prayerNotifications: Boolean!
     commentNotifications: Boolean!
     bibleTranslation: String!
+    emailVerified: DateTime
     createdAt: DateTime!
     updatedAt: DateTime!
     sessions: [Session!]!
@@ -319,6 +322,8 @@ export const typeDefs = `#graphql
   # Input types for mutations
   input UpdateUserInput {
     name: String
+    username: String
+    displayName: String
     email: String
     bio: String
     profilePicture: String
@@ -506,11 +511,22 @@ export const typeDefs = `#graphql
 
   type Mutation {
     # Auth mutations
-    signup(email: String!, password: String!, name: String!, role: UserRole!): User!
+    signup(
+      email: String!
+      password: String!
+      name: String!
+      username: String!
+      displayName: String
+      role: UserRole!
+      honeypot: String
+      formStartTime: Float
+    ): User!
 
     # User mutations
     updateUser(input: UpdateUserInput!): User!
     changePassword(currentPassword: String!, newPassword: String!): Boolean!
+    sendVerificationEmail: Boolean!
+    verifyEmail(token: String!): User!
 
     # Series mutations
     createSeries(input: CreateSeriesInput!): Series!

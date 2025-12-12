@@ -11,10 +11,16 @@ import { useToast } from '@/components/ui/toast'
 
 const signupSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
+  username: z.string()
+    .min(3, 'Username must be at least 3 characters')
+    .max(30, 'Username must be less than 30 characters')
+    .regex(/^[a-zA-Z0-9_-]+$/, 'Username can only contain letters, numbers, underscores, and hyphens'),
+  displayName: z.string().optional(),
   email: z.string().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
   confirmPassword: z.string(),
   role: z.enum(['LEADER', 'MEMBER']),
+  honeypot: z.string().optional(),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ['confirmPassword'],
@@ -23,11 +29,31 @@ const signupSchema = z.object({
 type SignupFormData = z.infer<typeof signupSchema>
 
 const SIGNUP_MUTATION = `
-  mutation Signup($email: String!, $password: String!, $name: String!, $role: UserRole!) {
-    signup(email: $email, password: $password, name: $name, role: $role) {
+  mutation Signup(
+    $email: String!
+    $password: String!
+    $name: String!
+    $username: String!
+    $displayName: String
+    $role: UserRole!
+    $honeypot: String
+    $formStartTime: Float
+  ) {
+    signup(
+      email: $email
+      password: $password
+      name: $name
+      username: $username
+      displayName: $displayName
+      role: $role
+      honeypot: $honeypot
+      formStartTime: $formStartTime
+    ) {
       id
       email
       name
+      username
+      displayName
       role
     }
   }
@@ -37,6 +63,7 @@ export default function SignupPage() {
   const router = useRouter()
   const { addToast } = useToast()
   const [error, setError] = useState<string | null>(null)
+  const [formStartTime] = useState<number>(() => Date.now())
 
   const [signup, { loading }] = useGraphQLMutation(SIGNUP_MUTATION, {
     onCompleted: () => {
@@ -74,7 +101,11 @@ export default function SignupPage() {
         email: data.email,
         password: data.password,
         name: data.name,
+        username: data.username,
+        displayName: data.displayName || null,
         role: data.role,
+        honeypot: data.honeypot || '',
+        formStartTime: formStartTime,
     })
   }
 
@@ -111,8 +142,41 @@ export default function SignupPage() {
           )}
 
           <div>
+            <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+              Username <span className="text-gray-500 text-xs">(publicly visible)</span>
+            </label>
+            <input
+              {...register('username')}
+              type="text"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="johndoe"
+            />
+            {errors.username && (
+              <p className="mt-1 text-sm text-red-600">{errors.username.message}</p>
+            )}
+            <p className="mt-1 text-xs text-gray-500">
+              3-30 characters, letters, numbers, underscores, and hyphens only
+            </p>
+          </div>
+
+          <div>
+            <label htmlFor="displayName" className="block text-sm font-medium text-gray-700">
+              Display name <span className="text-gray-500 text-xs">(optional)</span>
+            </label>
+            <input
+              {...register('displayName')}
+              type="text"
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              placeholder="John (optional, overrides username)"
+            />
+            {errors.displayName && (
+              <p className="mt-1 text-sm text-red-600">{errors.displayName.message}</p>
+            )}
+          </div>
+
+          <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-              Full name
+              Full name <span className="text-gray-500 text-xs">(private, for your profile only)</span>
             </label>
             <input
               {...register('name')}
@@ -124,6 +188,15 @@ export default function SignupPage() {
               <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
             )}
           </div>
+
+          {/* Honeypot field - hidden from users but bots may fill it */}
+          <input
+            {...register('honeypot')}
+            type="text"
+            className="hidden"
+            tabIndex={-1}
+            autoComplete="off"
+          />
 
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700">

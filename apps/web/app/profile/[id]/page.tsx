@@ -113,7 +113,7 @@ export default function ProfileViewPage() {
           <div className="relative h-32 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500">
             <div className="absolute -bottom-16 left-8">
               <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center text-white text-5xl font-bold border-4 border-white shadow-lg">
-                {user.name?.charAt(0)?.toUpperCase() || user.email?.charAt(0)?.toUpperCase()}
+                {(user.displayName || user.username || user.name || user.email || '?').charAt(0).toUpperCase()}
               </div>
             </div>
             {isOwnProfile && (
@@ -134,7 +134,7 @@ export default function ProfileViewPage() {
             <div className="mb-6">
               <div className="flex items-center gap-3 mb-2">
                 <h1 className="text-3xl font-bold text-slate-800">
-                  {user.name || 'Anonymous User'}
+                  {user.displayName || user.username || user.name || 'Anonymous User'}
                 </h1>
                 <span className={`px-3 py-1 rounded-full text-sm font-medium border ${getRoleBadgeColor(user.role)}`}>
                   {user.role}

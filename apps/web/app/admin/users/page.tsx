@@ -219,10 +219,10 @@ export default function UserManagementPage() {
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-400 to-indigo-500 flex items-center justify-center text-white font-semibold">
-                            {user.name?.charAt(0)?.toUpperCase() || user.email?.charAt(0)?.toUpperCase()}
+                            {(user.displayName || user.username || user.name || user.email || '?').charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <div className="font-medium text-slate-800">{user.name || 'No name'}</div>
+                            <div className="font-medium text-slate-800">{user.displayName || user.username || user.name || 'No name'}</div>
                             <div className="text-sm text-slate-500 flex items-center gap-1">
                               <Mail size={14} />
                               {user.email}

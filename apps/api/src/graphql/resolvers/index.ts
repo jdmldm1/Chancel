@@ -2,6 +2,7 @@ import { GraphQLScalarType, Kind } from 'graphql'
 import type { PrismaClient } from '@prisma/client'
 import { UserRole, ResourceType, SessionVisibility, JoinRequestStatus, ReactionType } from '@prisma/client'
 import bcrypt from 'bcryptjs'
+import crypto from 'crypto'
 import { groupResolvers } from './groupResolvers.js'
 import { adminResolvers } from './adminResolvers.js'
 import { achievementResolvers } from './achievementResolvers.js'
@@ -450,18 +451,61 @@ const baseResolvers = {
   Mutation: {
     signup: async (
       _parent: unknown,
-      args: { email: string; password: string; name: string; role: UserRole },
+      args: {
+        email: string;
+        password: string;
+        name: string;
+        username: string;
+        displayName?: string;
+        role: UserRole;
+        honeypot?: string;
+        formStartTime?: number;
+      },
       context: Context
     ) => {
-      const { email, password, name, role } = args
+      const { email, password, name, username, displayName, role, honeypot, formStartTime } = args
 
-      // Check if user already exists
+      // Bot protection: Honeypot field check (should be empty)
+      if (honeypot && honeypot.length > 0) {
+        throw new Error('Invalid submission')
+      }
+
+      // Bot protection: Time-based check (form should take at least 3 seconds to fill)
+      if (formStartTime) {
+        const timeTaken = Date.now() - formStartTime
+        if (timeTaken < 3000) {
+          throw new Error('Submission too fast. Please try again.')
+        }
+      }
+
+      // Validate username
+      if (!username || username.length < 3) {
+        throw new Error('Username must be at least 3 characters long')
+      }
+      if (username.length > 30) {
+        throw new Error('Username must be less than 30 characters')
+      }
+      // Allow alphanumeric, underscore, hyphen
+      if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+        throw new Error('Username can only contain letters, numbers, underscores, and hyphens')
+      }
+
+      // Check if user already exists (email)
       const existingUser = await context.prisma.user.findUnique({
         where: { email },
       })
 
       if (existingUser) {
         throw new Error('User with this email already exists')
+      }
+
+      // Check if username is taken
+      const existingUsername = await context.prisma.user.findUnique({
+        where: { username },
+      })
+
+      if (existingUsername) {
+        throw new Error('Username is already taken')
       }
 
       // Hash password
@@ -473,6 +517,8 @@ const baseResolvers = {
           email,
           password: hashedPassword,
           name,
+          username,
+          displayName,
           role,
         },
       })
@@ -482,11 +528,50 @@ const baseResolvers = {
 
     updateUser: async (
       _parent: unknown,
-      args: { input: { name?: string; email?: string } },
+      args: {
+        input: {
+          name?: string;
+          username?: string;
+          displayName?: string;
+          email?: string;
+          bio?: string;
+          profilePicture?: string;
+          location?: string;
+          phoneNumber?: string;
+          emailNotifications?: boolean;
+          prayerNotifications?: boolean;
+          commentNotifications?: boolean;
+          bibleTranslation?: string;
+        };
+      },
       context: Context
     ) => {
       if (!context.userId) {
         throw new Error('Not authenticated')
+      }
+
+      // If username is being updated, validate it
+      if (args.input.username !== undefined) {
+        if (args.input.username && args.input.username.length < 3) {
+          throw new Error('Username must be at least 3 characters long')
+        }
+        if (args.input.username && args.input.username.length > 30) {
+          throw new Error('Username must be less than 30 characters')
+        }
+        if (args.input.username && !/^[a-zA-Z0-9_-]+$/.test(args.input.username)) {
+          throw new Error('Username can only contain letters, numbers, underscores, and hyphens')
+        }
+
+        // Check if username is already taken
+        if (args.input.username) {
+          const existingUsername = await context.prisma.user.findUnique({
+            where: { username: args.input.username },
+          })
+
+          if (existingUsername && existingUsername.id !== context.userId) {
+            throw new Error('Username is already taken')
+          }
+        }
       }
 
       // If email is being updated, check if it's already taken
@@ -540,6 +625,74 @@ const baseResolvers = {
       })
 
       return true
+    },
+
+    sendVerificationEmail: async (
+      _parent: unknown,
+      _args: unknown,
+      context: Context
+    ) => {
+      if (!context.userId) {
+        throw new Error('Not authenticated')
+      }
+
+      const user = await context.prisma.user.findUnique({
+        where: { id: context.userId },
+      })
+
+      if (!user) {
+        throw new Error('User not found')
+      }
+
+      if (user.emailVerified) {
+        throw new Error('Email already verified')
+      }
+
+      // Generate verification token
+      const token = crypto.randomBytes(32).toString('hex')
+
+      // Store token in database
+      await context.prisma.user.update({
+        where: { id: context.userId },
+        data: { emailVerificationToken: token },
+      })
+
+      // Send verification email
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+      const verificationUrl = `${appUrl}/auth/verify-email?token=${token}`
+
+      await emailService.sendVerificationEmail({
+        to: user.email,
+        userName: user.displayName || user.username || user.name || 'there',
+        verificationUrl,
+      })
+
+      return true
+    },
+
+    verifyEmail: async (
+      _parent: unknown,
+      args: { token: string },
+      context: Context
+    ) => {
+      const user = await context.prisma.user.findFirst({
+        where: { emailVerificationToken: args.token },
+      })
+
+      if (!user) {
+        throw new Error('Invalid or expired verification token')
+      }
+
+      // Update user to verified and clear token
+      const updatedUser = await context.prisma.user.update({
+        where: { id: user.id },
+        data: {
+          emailVerified: new Date(),
+          emailVerificationToken: null,
+        },
+      })
+
+      return updatedUser
     },
 
     createSeries: async (

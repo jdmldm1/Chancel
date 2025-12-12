@@ -360,7 +360,7 @@ export default function GroupDetailPage() {
                         >
                           {!isOwnMessage && (
                             <p className="text-xs font-semibold text-slate-600 mb-1">
-                              {msg.user.name}
+                              {msg.user.displayName || msg.user.username || msg.user.name}
                             </p>
                           )}
                           <p className={isOwnMessage ? 'text-white' : 'text-slate-800'}>
@@ -428,10 +428,10 @@ export default function GroupDetailPage() {
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center text-white font-semibold">
-                        {member.user.name?.[0]?.toUpperCase() || 'U'}
+                        {(member.user.displayName || member.user.username || member.user.name || 'U')[0].toUpperCase()}
                       </div>
                       <div>
-                        <p className="font-medium text-slate-800">{member.user.name}</p>
+                        <p className="font-medium text-slate-800">{member.user.displayName || member.user.username || member.user.name}</p>
                         {member.role === 'LEADER' && (
                           <p className="text-xs text-blue-600">Leader</p>
                         )}

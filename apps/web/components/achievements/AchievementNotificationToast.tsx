@@ -41,18 +41,22 @@ export function AchievementNotificationToast() {
   )
   const [visible, setVisible] = useState<AchievementNotification | null>(null)
   const [queue, setQueue] = useState<AchievementNotification[]>([])
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     if (data?.achievementNotifications && data.achievementNotifications.length > 0) {
-      // Add new notifications to queue
+      // Add new notifications to queue, excluding already dismissed ones
       const newNotifications = data.achievementNotifications.filter(
-        (notif) => !queue.find((q) => q.id === notif.id) && (!visible || visible.id !== notif.id)
+        (notif) =>
+          !dismissedIds.has(notif.id) &&
+          !queue.find((q) => q.id === notif.id) &&
+          (!visible || visible.id !== notif.id)
       )
       if (newNotifications.length > 0) {
         setQueue((prev) => [...prev, ...newNotifications])
       }
     }
-  }, [data])
+  }, [data, dismissedIds])
 
   useEffect(() => {
     // Show next notification from queue if none is currently visible
@@ -65,6 +69,9 @@ export function AchievementNotificationToast() {
 
   const dismiss = async () => {
     if (visible) {
+      // Add to dismissed IDs to prevent re-showing
+      setDismissedIds((prev) => new Set(prev).add(visible.id))
+
       // Mark as read via GraphQL mutation
       try {
         await fetch(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/graphql', {
@@ -87,7 +94,9 @@ export function AchievementNotificationToast() {
       }
 
       setVisible(null)
-      refetch()
+
+      // Refetch after a delay to allow backend to process
+      setTimeout(() => refetch(), 1000)
 
       // Auto-show next notification after a delay
       if (queue.length > 0) {
@@ -129,6 +138,16 @@ export function AchievementNotificationToast() {
                 src={visible.achievement.iconUrl}
                 alt={visible.achievement.name}
                 className="w-12 h-12"
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none'
+                  const parent = e.currentTarget.parentElement
+                  if (parent && !parent.querySelector('.fallback-icon')) {
+                    const icon = document.createElement('div')
+                    icon.className = 'fallback-icon'
+                    icon.innerHTML = '<svg class="w-10 h-10 text-yellow-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>'
+                    parent.appendChild(icon)
+                  }
+                }}
               />
             ) : (
               <Award className="w-10 h-10 text-yellow-600" />

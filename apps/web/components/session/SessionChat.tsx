@@ -178,7 +178,7 @@ export default function SessionChat({ sessionId }: SessionChatProps) {
                 >
                   {!isOwnMessage && (
                     <div className="text-xs font-semibold mb-1 text-gray-700">
-                      {msg.user.name || 'Anonymous'}
+                      {msg.user.displayName || msg.user.username || msg.user.name || 'Anonymous'}
                     </div>
                   )}
                   <p className="text-sm whitespace-pre-wrap break-words">{msg.message}</p>

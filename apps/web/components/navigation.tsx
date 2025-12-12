@@ -57,7 +57,7 @@ export default function Navigation() {
                   href="/profile/edit"
                   className="text-sm font-medium text-gray-700 hover:text-blue-600"
                 >
-                  {session.user.name || session.user.email} ({session.user.role})
+                  {session.user.displayName || session.user.username || session.user.name || session.user.email} ({session.user.role})
                 </Link>
                 <button
                   onClick={() => signOut({ callbackUrl: '/' })}

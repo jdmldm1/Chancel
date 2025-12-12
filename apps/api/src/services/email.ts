@@ -277,6 +277,66 @@ export class EmailService {
       html,
     })
   }
+
+  // Email verification
+  async sendVerificationEmail(params: {
+    to: string
+    userName: string
+    verificationUrl: string
+  }) {
+    const html = `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+            .header { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 30px; text-align: center; border-radius: 8px 8px 0 0; }
+            .content { background: #f9fafb; padding: 30px; border-radius: 0 0 8px 8px; }
+            .button { display: inline-block; background: #f59e0b; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; margin: 20px 0; }
+            .footer { text-align: center; margin-top: 30px; color: #666; font-size: 12px; }
+            .warning { background: #fef3c7; border-left: 4px solid #f59e0b; padding: 15px; margin: 20px 0; border-radius: 4px; }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <div class="header">
+              <h1>✉️ Verify Your Email Address</h1>
+            </div>
+            <div class="content">
+              <p>Hi ${params.userName},</p>
+
+              <div class="warning">
+                <p><strong>⚠️ Action Required:</strong> Your account is over 30 days old and requires email verification to continue using all features.</p>
+              </div>
+
+              <p>Please click the button below to verify your email address:</p>
+
+              <a href="${params.verificationUrl}" class="button">Verify Email Address</a>
+
+              <p style="color: #666; font-size: 14px;">Or copy and paste this URL into your browser:</p>
+              <p style="color: #3b82f6; font-size: 12px; word-break: break-all;">${params.verificationUrl}</p>
+
+              <p>This link will expire in 24 hours for security purposes.</p>
+
+              <p>If you didn't request this verification, please ignore this email.</p>
+
+              <p>Blessings,<br>The Chancel Team</p>
+            </div>
+            <div class="footer">
+              <p>You received this email because your Chancel account requires verification.</p>
+            </div>
+          </div>
+        </body>
+      </html>
+    `
+
+    return this.sendEmail({
+      to: params.to,
+      subject: 'Verify your email address - Chancel',
+      html,
+    })
+  }
 }
 
 export const emailService = new EmailService()

@@ -32,9 +32,15 @@ enum JoinRequestStatus {
 model User {
   id              String   @id @default(cuid())
   email           String   @unique
-  name            String?
+  name            String?  // Full name (private by default)
+  username        String?  @unique  // Public username (will be required after migration)
+  displayName     String?  // Optional display name override
   password        String
   role            UserRole @default(MEMBER)
+
+  // Email verification
+  emailVerified          DateTime?  // Null if not verified
+  emailVerificationToken String?    // Token for email verification
 
   // Profile fields
   bio             String?  @db.Text
@@ -71,6 +77,8 @@ model User {
   achievementNotifications AchievementNotification[]
 
   @@index([email])
+  @@index([username])
+  @@index([emailVerificationToken])
 }
 
 model Series {

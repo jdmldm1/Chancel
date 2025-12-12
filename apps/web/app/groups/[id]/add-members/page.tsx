@@ -158,10 +158,10 @@ export default function AddGroupMembersPage() {
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-full flex items-center justify-center text-white font-semibold text-lg">
-                        {user.name?.[0]?.toUpperCase() || 'U'}
+                        {(user.displayName || user.username || user.name || 'U')[0].toUpperCase()}
                       </div>
                       <div>
-                        <p className="font-semibold text-slate-800">{user.name}</p>
+                        <p className="font-semibold text-slate-800">{user.displayName || user.username || user.name}</p>
                         <p className="text-sm text-slate-500">{user.email}</p>
                         {user.role === 'LEADER' && (
                           <span className="inline-block mt-1 px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded">

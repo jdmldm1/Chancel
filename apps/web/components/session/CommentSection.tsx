@@ -80,7 +80,7 @@ export default function CommentSection({
           <div className="flex items-start space-x-3">
             <div className="flex-shrink-0">
               <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-semibold">
-                {session?.user?.name?.charAt(0).toUpperCase()}
+                {(session?.user?.displayName || session?.user?.username || session?.user?.name || '?').charAt(0).toUpperCase()}
               </div>
             </div>
             <div className="flex-1">

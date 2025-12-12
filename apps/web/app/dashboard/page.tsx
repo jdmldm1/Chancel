@@ -233,7 +233,7 @@ export default function DashboardPage() {
             {isLeader ? 'Leader Dashboard' : 'My Dashboard'}
           </h1>
           <p className="text-gray-500 font-light">
-            Welcome back, {session.user.name}
+            Welcome back, {session.user.displayName || session.user.username || session.user.name}
           </p>
         </div>
 
