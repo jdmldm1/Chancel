@@ -65,7 +65,10 @@
       "Bash(sudo chown:*)",
       "Bash(sudo chmod:*)",
       "Bash(sudo systemctl restart:*)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(git commit -m \"$(cat <<''EOF''\nAdd Caddy reverse proxy with automatic SSL/TLS\n\n- Add Caddyfile for routing chancel.study and api.chancel.study\n- Update docker-compose.yml to include Caddy service\n- Change web and api services to use expose instead of ports\n- Add Caddy volumes for certificates and logs\n- Configure automatic HTTPS via Let''s Encrypt\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(docker-compose down:*)",
+      "Bash(git commit:*)"
     ],
     "deny": [],
     "ask": []
