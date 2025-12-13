@@ -1,6 +1,7 @@
 import { PrismaClient, UserRole, SessionVisibility } from '@prisma/client'
 import dotenv from 'dotenv'
 import path from 'path'
+import { seedAchievements } from '../../../apps/api/src/scripts/seedAchievements'
 
 dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
@@ -153,6 +154,9 @@ async function main() {
   }
 
   console.log(`🌱 Starting database seed for year ${year}...`)
+
+  // Seed achievements (do this first, before checking for existing sessions)
+  await seedAchievements(prisma)
 
   // Ensure test users exist (don't delete existing data)
   let leader = await prisma.user.findUnique({ where: { email: 'leader@example.com' } })

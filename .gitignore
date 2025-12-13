@@ -53,3 +53,9 @@ prisma/.env
 # AI assistant context files
 GEMINI.md
 CLAUDE.md
+
+# Production deployment scripts (environment-specific)
+webhook-receiver.js
+chancel-webhook.service
+WEBHOOK_SETUP.md
+update-production.sh
