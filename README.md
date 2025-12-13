@@ -4,6 +4,14 @@
 
 An online Bible study platform for collaborative group sessions with real-time commenting and discussion.
 
+---
+
+**🌐 Live Site:** [chancel.study](http://chancel.study/) - Try it now!
+
+**📦 GitHub:** [github.com/jdmldm1/Chancel](https://github.com/jdmldm1/Chancel)
+
+---
+
 ## 🌟 Visual Overview
 
 Welcome to Chancel, a modern platform designed for immersive group Bible study. Below is a visual tour of the key features that make Chancel a powerful tool for your study group.
@@ -138,9 +146,22 @@ NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ### 4. Initialize Database
 
 ```bash
-npm -w @bibleproject/db run db:push      # Create database tables
-npm -w @bibleproject/db run db:seed      # Add sample data
+npm -w @bibleproject/db run db:push              # Create database tables
+npm -w @bibleproject/db run db:seed 2024         # Add 52-week canonical Bible plan
+npm -w @bibleproject/db run db:seed 2025         # Add 52-week canonical Bible plan
+npm -w @bibleproject/db run db:seed:studies 2024 # Add topical, book, character & thematic studies
+npm -w @bibleproject/db run db:seed:studies 2025 # Add topical, book, character & thematic studies
 ```
+
+**Canonical Bible Study (52 weeks):** Complete year-long journey through the entire Bible in 4 quarterly series.
+
+**Additional Studies (73 sessions):** Variety of focused studies including:
+- **Topical Studies** (4 series): Prayer, Marriage & Family, Faith & Doubt, The Holy Spirit
+- **Book Studies** (4 series): Philippians, James, Jonah, Ruth
+- **Character Studies** (3 series): David, Paul, Moses
+- **Thematic Studies** (2 series): The Covenant, The Kingdom of God
+
+Both seed scripts are non-destructive and can be run multiple times with different years.
 
 **Sample Test Credentials:**
 - Leader: `leader@example.com` / `password`
@@ -171,11 +192,28 @@ npm run codegen          # Generate GraphQL types from schema
 
 ### Database
 ```bash
-npm -w @bibleproject/db run db:push          # Sync Prisma schema to database
-npm -w @bibleproject/db run db:migrate       # Create and run migrations
-npm -w @bibleproject/db run db:seed          # Seed database with test data
-npm -w @bibleproject/db run db:studio        # Open Prisma Studio (database GUI)
+npm -w @bibleproject/db run db:push              # Sync Prisma schema to database
+npm -w @bibleproject/db run db:migrate           # Create and run migrations
+npm -w @bibleproject/db run db:seed <year>       # Seed 52-week canonical Bible plan
+npm -w @bibleproject/db run db:seed:studies <year> # Seed topical, book, character & thematic studies
+npm -w @bibleproject/db run db:seed:bible        # Import full Bible text (31,102 verses)
+npm -w @bibleproject/db run db:studio            # Open Prisma Studio (database GUI)
 ```
+
+**Canonical Bible Study Plan (52 weeks):**
+- Covers entire Bible from Genesis to Revelation in 4 quarterly series
+- Automatically calculates first Sunday of specified year as start date
+- Generates 52 weekly sessions with detailed reading notes
+- Example: `npm -w @bibleproject/db run db:seed 2026`
+
+**Additional Study Plans (73 sessions):**
+- **4 Topical Series**: Prayer, Marriage & Family, Faith & Doubt, Holy Spirit
+- **4 Book Studies**: Philippians, James, Jonah, Ruth
+- **3 Character Studies**: David, Paul, Moses
+- **2 Thematic Studies**: The Covenant, The Kingdom of God
+- Example: `npm -w @bibleproject/db run db:seed:studies 2026`
+
+Both seed scripts are non-destructive and can be run multiple times with different years.
 
 ### Testing
 ```bash

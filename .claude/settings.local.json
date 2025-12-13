@@ -38,7 +38,17 @@
       "Bash(npm install:*)",
       "Bash(node generate-badges.js)",
       "Bash(npm -w @bibleproject/db run db:push)",
-      "Bash(DATABASE_URL=\"postgresql://postgres:password123@localhost:5431/bibleproject?schema=public\" npx prisma db push:*)"
+      "Bash(DATABASE_URL=\"postgresql://postgres:password123@localhost:5431/bibleproject?schema=public\" npx prisma db push:*)",
+      "Bash(node create_admin.js:*)",
+      "Bash(set -a)",
+      "Bash(source .env)",
+      "Bash(set +a:*)",
+      "Bash(npm -w @bibleproject/db run db:seed 2024)",
+      "Bash(npm -w @bibleproject/db run db:seed 2025)",
+      "Bash(npm -w @bibleproject/db run db:seed:studies 2024)",
+      "Bash(npm -w @bibleproject/db run db:seed:studies 2025)",
+      "Bash(npm -w @bibleproject/db run db:seed 2026)",
+      "Bash(npm -w @bibleproject/db run db:seed:studies 2026)"
     ],
     "deny": [],
     "ask": []

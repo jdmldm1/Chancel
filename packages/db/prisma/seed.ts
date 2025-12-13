@@ -6,9 +6,21 @@ dotenv.config({ path: path.resolve(__dirname, '../../../.env') });
 
 const prisma = new PrismaClient()
 
+// Helper function to find the first Sunday of a given year
+function getFirstSunday(year: number): Date {
+  const jan1 = new Date(year, 0, 1); // January 1st
+  const dayOfWeek = jan1.getDay(); // 0 (Sunday) to 6 (Saturday)
+
+  // If Jan 1 is Sunday, that's our first Sunday
+  // Otherwise, calculate days until next Sunday
+  const daysUntilSunday = dayOfWeek === 0 ? 0 : 7 - dayOfWeek;
+
+  const firstSunday = new Date(year, 0, 1 + daysUntilSunday);
+  return firstSunday;
+}
+
 // Year-long Bible Study Plan - 52 weeks covering the entire Bible
 const biblePlan = {
-  startDate: '2026-01-04T00:00:00.000Z', // First Sunday of 2026
   series: [
     {
       title: 'Foundations: In the Beginning',
@@ -131,55 +143,61 @@ const biblePlan = {
 }
 
 async function main() {
-  console.log('🌱 Starting database seed...')
+  // Get year from command line argument or use current year
+  const yearArg = process.argv[2]
+  const year = yearArg ? parseInt(yearArg, 10) : new Date().getFullYear()
 
-  // Clear existing data
-  console.log('🗑️  Clearing existing data...')
-  await prisma.comment.deleteMany({})
-  await prisma.sessionResource.deleteMany({})
-  await prisma.sessionParticipant.deleteMany({})
-  await prisma.scripturePassage.deleteMany({})
-  await prisma.chatMessage.deleteMany({})
-  await prisma.joinRequest.deleteMany({})
-  await prisma.notification.deleteMany({})
-  await prisma.session.deleteMany({})
-  await prisma.series.deleteMany({})
-  await prisma.group.deleteMany({})
-  await prisma.user.deleteMany({})
-  console.log('✅ Cleared existing data')
+  if (isNaN(year) || year < 2000 || year > 2100) {
+    console.error('❌ Invalid year. Please provide a year between 2000 and 2100.')
+    process.exit(1)
+  }
 
-  // Create test users
-  const leader = await prisma.user.create({
-    data: {
-      email: 'leader@example.com',
-      name: 'Pastor David',
-      password: '$2a$10$.hjms6hjX215q1ED5jQOH.O8Bj8lpN5/JdPyqlLukinnsXReHwgIC', // password: "password"
-      role: UserRole.LEADER,
-    },
-  })
+  console.log(`🌱 Starting database seed for year ${year}...`)
 
-  const member1 = await prisma.user.create({
-    data: {
-      email: 'member1@example.com',
-      name: 'Sarah Johnson',
-      password: '$2a$10$.hjms6hjX215q1ED5jQOH.O8Bj8lpN5/JdPyqlLukinnsXReHwgIC',
-      role: UserRole.MEMBER,
-    },
-  })
+  // Ensure test users exist (don't delete existing data)
+  let leader = await prisma.user.findUnique({ where: { email: 'leader@example.com' } })
+  if (!leader) {
+    leader = await prisma.user.create({
+      data: {
+        email: 'leader@example.com',
+        name: 'Pastor David',
+        password: '$2a$10$.hjms6hjX215q1ED5jQOH.O8Bj8lpN5/JdPyqlLukinnsXReHwgIC', // password: "password"
+        role: UserRole.LEADER,
+      },
+    })
+    console.log('✅ Created leader user')
+  } else {
+    console.log('✅ Leader user already exists')
+  }
 
-  const member2 = await prisma.user.create({
-    data: {
-      email: 'member2@example.com',
-      name: 'Michael Chen',
-      password: '$2a$10$.hjms6hjX215q1ED5jQOH.O8Bj8lpN5/JdPyqlLukinnsXReHwgIC',
-      role: UserRole.MEMBER,
-    },
-  })
+  let member1 = await prisma.user.findUnique({ where: { email: 'member1@example.com' } })
+  if (!member1) {
+    member1 = await prisma.user.create({
+      data: {
+        email: 'member1@example.com',
+        name: 'Sarah Johnson',
+        password: '$2a$10$.hjms6hjX215q1ED5jQOH.O8Bj8lpN5/JdPyqlLukinnsXReHwgIC',
+        role: UserRole.MEMBER,
+      },
+    })
+    console.log('✅ Created member1 user')
+  }
 
-  console.log('✅ Created test users')
+  let member2 = await prisma.user.findUnique({ where: { email: 'member2@example.com' } })
+  if (!member2) {
+    member2 = await prisma.user.create({
+      data: {
+        email: 'member2@example.com',
+        name: 'Michael Chen',
+        password: '$2a$10$.hjms6hjX215q1ED5jQOH.O8Bj8lpN5/JdPyqlLukinnsXReHwgIC',
+        role: UserRole.MEMBER,
+      },
+    })
+    console.log('✅ Created member2 user')
+  }
 
-  // Start date: First Sunday of 2026 (January 4, 2026)
-  const startDate = new Date(biblePlan.startDate)
+  // Calculate the first Sunday of the year
+  const startDate = getFirstSunday(year)
 
   // Helper function to get week start/end dates
   const getWeekDates = (weekNumber: number) => {
@@ -190,7 +208,25 @@ async function main() {
     return { weekStart, weekEnd }
   }
 
-  console.log('📖 Creating year-long Bible study series...')
+  // Check if sessions for this year already exist
+  const yearEnd = new Date(year, 11, 31) // December 31st
+  const existingSessions = await prisma.session.findMany({
+    where: {
+      startDate: {
+        gte: startDate,
+        lte: yearEnd,
+      },
+    },
+  })
+
+  if (existingSessions.length > 0) {
+    console.log(`⚠️  Found ${existingSessions.length} existing sessions for ${year}. Skipping to avoid duplicates.`)
+    console.log(`   To reseed ${year}, manually delete sessions for that year first.`)
+    return
+  }
+
+  console.log(`📖 Creating year-long Bible study series for ${year}...`)
+  console.log(`   First Sunday: ${startDate.toISOString().split('T')[0]}`)
 
   let sessionCount = 0
 
@@ -198,13 +234,13 @@ async function main() {
   for (const seriesData of biblePlan.series) {
     const series = await prisma.series.create({
       data: {
-        title: seriesData.title,
+        title: `${seriesData.title} (${year})`,
         description: seriesData.description,
         imageUrl: seriesData.imageUrl,
         leaderId: leader.id,
       },
     })
-    console.log(`✅ Created series: ${seriesData.title}`)
+    console.log(`✅ Created series: ${seriesData.title} (${year})`)
 
     // Create sessions for this series
     for (const weekData of seriesData.weeks) {
@@ -292,7 +328,11 @@ async function main() {
     console.log(`✅ Created ${seriesData.weeks.length} sessions for ${seriesData.title}`)
   }
 
-  console.log(`✅ Created all ${sessionCount} weekly sessions`)
+  console.log(`✅ Created all ${sessionCount} weekly sessions for ${year}`)
+
+  // Calculate end date (52 weeks from start)
+  const endDate = new Date(startDate)
+  endDate.setDate(startDate.getDate() + (51 * 7) + 6) // 52 weeks
 
   console.log('\n📖 Sacred space. Shared study.')
   console.log('\nTest Credentials:')
@@ -300,9 +340,11 @@ async function main() {
   console.log('Member 1: member1@example.com / password')
   console.log('Member 2: member2@example.com / password')
   console.log('\n📚 One Year Canonical Bible Study')
+  console.log(`Year: ${year}`)
   console.log(`Total: ${sessionCount} weekly sessions across ${biblePlan.series.length} quarterly series`)
-  console.log('Starting: January 4, 2026 (Week 1)')
-  console.log('Ending: December 27, 2026 (Week 52)')
+  console.log(`Starting: ${startDate.toISOString().split('T')[0]} (Week 1)`)
+  console.log(`Ending: ${endDate.toISOString().split('T')[0]} (Week 52)`)
+  console.log('\n💡 To add another year, run: npm run db:seed <year>')
 }
 
 main()

@@ -2,6 +2,10 @@
 
 This guide will help you get the Browse Bible and Dashboard features up and running.
 
+**🌐 Try the live version:** [chancel.study](http://chancel.study/)
+
+---
+
 ## Prerequisites
 
 - Node.js 18+ installed
@@ -20,9 +24,28 @@ npm install
 # Push the schema to your database (includes ScriptureLibrary table)
 npm -w @bibleproject/db run db:push
 
-# Seed with sample session data
-npm -w @bibleproject/db run db:seed
+# Seed with Bible study plans for specific years
+npm -w @bibleproject/db run db:seed 2024          # Canonical 52-week Bible plan
+npm -w @bibleproject/db run db:seed 2025          # Canonical 52-week Bible plan
+npm -w @bibleproject/db run db:seed:studies 2024  # Additional topical/book/character studies
+npm -w @bibleproject/db run db:seed:studies 2025  # Additional topical/book/character studies
 ```
+
+**About the Study Plans:**
+
+**Canonical Bible Study (52 weeks):**
+- Complete year-long journey through the entire Bible (Genesis to Revelation)
+- 4 quarterly series: Foundations, Kingdom & Wisdom, Prophets, New Covenant
+- Automatically calculated start date (first Sunday of the year)
+- Detailed reading notes for each week
+
+**Additional Studies (73 sessions):**
+- **Topical Studies**: Prayer, Marriage & Family, Faith & Doubt, The Holy Spirit
+- **Book Studies**: Philippians, James, Jonah, Ruth
+- **Character Studies**: David, Paul, Moses
+- **Thematic Studies**: The Covenant, The Kingdom of God
+
+Both seed scripts are non-destructive and can be run for multiple years without conflicts.
 
 ## Step 3: Import Bible Data
 
