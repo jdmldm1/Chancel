@@ -84,6 +84,59 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     }),
   ],
   callbacks: {
+    async signIn({ user, account, profile }) {
+      try {
+        // For OAuth providers, create/update user in database
+        if (account && account.provider !== 'credentials') {
+          console.log('OAuth sign in - provider:', account.provider, 'email:', user.email)
+
+          if (!user.email) {
+            console.error('OAuth user missing email')
+            return false
+          }
+
+          // Check if user exists
+          const existingUser = await prisma.user.findUnique({
+            where: { email: user.email },
+          })
+
+          if (!existingUser) {
+            // Create new user for OAuth sign-in
+            console.log('Creating new OAuth user:', user.email)
+            const newUser = await prisma.user.create({
+              data: {
+                email: user.email,
+                name: user.name || null,
+                password: null, // OAuth users don't have passwords
+                emailVerified: new Date(), // OAuth emails are pre-verified
+                profilePicture: user.image || null,
+              },
+            })
+            console.log('Created user with id:', newUser.id)
+            user.id = newUser.id
+            user.role = newUser.role
+          } else {
+            console.log('Existing user found:', existingUser.id)
+            user.id = existingUser.id
+            user.role = existingUser.role
+
+            // Update user info from OAuth provider if needed
+            await prisma.user.update({
+              where: { id: existingUser.id },
+              data: {
+                name: user.name || existingUser.name,
+                profilePicture: user.image || existingUser.profilePicture,
+                emailVerified: existingUser.emailVerified || new Date(),
+              },
+            })
+          }
+        }
+        return true
+      } catch (error) {
+        console.error('Error in signIn callback:', error)
+        return false
+      }
+    },
     async redirect({ url, baseUrl }) {
       console.log('Redirect callback - url:', url, 'baseUrl:', baseUrl)
       // After sign in, redirect to dashboard

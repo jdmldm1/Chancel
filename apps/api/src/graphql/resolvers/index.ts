@@ -628,6 +628,11 @@ const baseResolvers = {
         throw new Error('User not found')
       }
 
+      // OAuth users cannot change password
+      if (!user.password) {
+        throw new Error('Cannot change password for OAuth accounts')
+      }
+
       // Verify current password
       const isValid = await bcrypt.compare(args.currentPassword, user.password)
       if (!isValid) {

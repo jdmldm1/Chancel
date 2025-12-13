@@ -190,6 +190,8 @@ export default function DashboardPage() {
 
   const isLeader = session.user.role === 'LEADER'
   const now = new Date()
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0)
+  const endOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)
 
   console.log('Dashboard Debug:', {
     totalSessions: sessions.length,
@@ -201,11 +203,12 @@ export default function DashboardPage() {
     }))
   })
 
-  // Filter to show only active/current sessions (current date between start and end)
+  // Filter to show sessions that overlap with today (matches sessions page logic)
   const activeSessions = sessions.filter(s => {
     const startDate = new Date(s.startDate)
     const endDate = new Date(s.endDate)
-    const isActive = startDate <= now && endDate >= now
+    // Session is "current" if it overlaps with today at all
+    const isActive = startDate <= endOfToday && endDate >= startOfToday
     return isActive
   }).sort((a, b) => {
     const dateA = new Date(a.startDate).getTime()
@@ -220,7 +223,8 @@ export default function DashboardPage() {
     return s.sessions.some(session => {
       const startDate = new Date(session.startDate)
       const endDate = new Date(session.endDate)
-      return startDate <= now && endDate >= now
+      // Series is "active" if it has at least one session that overlaps with today
+      return startDate <= endOfToday && endDate >= startOfToday
     })
   })
 

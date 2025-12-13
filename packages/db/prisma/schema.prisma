@@ -35,7 +35,7 @@ model User {
   name            String?  // Full name (private by default)
   username        String?  @unique  // Public username (will be required after migration)
   displayName     String?  // Optional display name override
-  password        String
+  password        String?  // Nullable for OAuth users
   role            UserRole @default(MEMBER)
 
   // Email verification
