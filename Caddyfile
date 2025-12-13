@@ -1,0 +1,36 @@
+# Chancel Study - Caddy Reverse Proxy Configuration
+
+# Frontend - Main domain
+chancel.study {
+    reverse_proxy web:3000
+
+    # Enable compression
+    encode gzip
+
+    # Logging
+    log {
+        output file /var/log/caddy/chancel.study.log
+        format json
+    }
+}
+
+# Backend API - Subdomain
+api.chancel.study {
+    reverse_proxy api:4000
+
+    # Enable compression
+    encode gzip
+
+    # CORS headers (if needed)
+    header {
+        Access-Control-Allow-Origin *
+        Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+        Access-Control-Allow-Headers "Content-Type, Authorization"
+    }
+
+    # Logging
+    log {
+        output file /var/log/caddy/api.chancel.study.log
+        format json
+    }
+}
