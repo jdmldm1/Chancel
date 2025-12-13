@@ -6,7 +6,7 @@ An online group Bible study platform for collaborative group sessions with real-
 
 ---
 
-**🌐 Live Site:** [chancel.study](http://chancel.study/) - Try it now!
+**🌐 Live Site:** [chancel.study](http://chancel.study/) 
 
 **📦 GitHub:** [github.com/jdmldm1/Chancel](https://github.com/jdmldm1/Chancel)
 
@@ -14,7 +14,7 @@ An online group Bible study platform for collaborative group sessions with real-
 
 ## 🌟 Visual Overview
 
-Welcome to Chancel, a modern platform designed for immersive group Bible study. Below is a visual tour of the key features that make Chancel a powerful tool for your study group.
+A modern platform designed for immersive group Bible study. Below is a visual tour of the key features that make Chancel a powerful tool for your study group.
 
 | Dashboard & Sessions                                   | AI-Powered Insights                                        |
 | ------------------------------------------------------ | ---------------------------------------------------------- |
