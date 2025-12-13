@@ -21,13 +21,6 @@ api.chancel.study {
     # Enable compression
     encode gzip
 
-    # CORS headers (if needed)
-    header {
-        Access-Control-Allow-Origin *
-        Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-        Access-Control-Allow-Headers "Content-Type, Authorization"
-    }
-
     # Logging
     log {
         output file /var/log/caddy/api.chancel.study.log

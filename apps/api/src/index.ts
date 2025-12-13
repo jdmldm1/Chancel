@@ -132,7 +132,11 @@ async function startServer() {
   app.use(
     '/graphql',
     cors<cors.CorsRequest>({
-      origin: true, // Allow all origins temporarily for debugging
+      origin: [
+        'https://chancel.study',
+        'http://localhost:3000',
+        'http://localhost:3003',
+      ],
       credentials: true,
     }),
     express.json(),
