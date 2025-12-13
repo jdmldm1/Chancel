@@ -2,7 +2,7 @@
 
 **Sacred space. Shared study.**
 
-An online Bible study platform for collaborative group sessions with real-time commenting and discussion.
+An online group Bible study platform for collaborative group sessions with real-time commenting and discussion.
 
 ---
 
